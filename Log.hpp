@@ -8,8 +8,8 @@ int _UntitleCount=0;
 char LogStartFromat[1010]="New log started in %04d/%02d/%02d %02d:%02d:%02d\n";
 char LogFromat[1010]="[%04d/%02d/%02d %02d:%02d:%02d][%s]%s\n";
 
-#define CLEAR_AND_WRITE "w+"
-#define ADDITIONAL_WRITE "a+"
+#define OVERWRITE "w+"
+#define ADDWRITE "a+"
 
 template<int maxl>
 class Log

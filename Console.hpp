@@ -9,7 +9,7 @@ using std::vector;
 
 short ConDefaultColor=0x07;
 short cW=9,cH=19,mW=6,mH=48;
-LPCSTR ConsoleTitle="No Title";
+char* ConsoleTitle="No Title";
 
 void APIgotoxy(short x,short y)
 {
@@ -67,7 +67,7 @@ void ColorPrintf(int col,const char* format,types... args)
     APIsetColor(ConDefaultColor);
     return;
 }
-void ConTitle(LPCSTR Title)
+void ConTitle(char *Title)
 {
 	ConsoleTitle=Title;
     SetConsoleTitle(Title);
@@ -77,14 +77,14 @@ void ConTitle(LPCSTR Title)
 int ConSize(short BufLen,short BufHig,short ScrLen,short ScrHig)
 {
 	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE),COORD{BufLen,BufHig});
-	ConTitle("Temp Temp Window");
+	SetConsoleTitle("Temp Temp Window");Sleep(40);
 	HWND This=FindWindow(NULL,"Temp Temp Window");
 	ConTitle(ConsoleTitle);
 	return SetWindowPos(This,NULL,0,0,ScrLen*cW+mW,ScrHig*cH+mH,SWP_NOMOVE);
 }
 int ConSize(short ScrLen,short ScrHig)
 {
-	ConTitle("Temp Temp Window");
+	SetConsoleTitle("Temp Temp Window");Sleep(40);
 	HWND This=FindWindow(NULL,"Temp Temp Window");
 	ConTitle(ConsoleTitle);
 	return SetWindowPos(This,NULL,0,0,ScrLen*cW+mW,ScrHig*cH+mH,SWP_NOMOVE);
@@ -120,7 +120,7 @@ void GetMousexy(POINT& Mouse)
 bool KeyDown(int vKey){return GetKeyState(vKey)&0x8000?true:false;}
 void SetSelectState(bool ban)
 {
-	auto hStdin=GetStdHandle(STD_INPUT_HANDLE);
+	HANDLE hStdin=GetStdHandle(STD_INPUT_HANDLE);
 	DWORD mode;
 	GetConsoleMode(hStdin,&mode);
 	if(ban)	mode&=~ENABLE_QUICK_EDIT_MODE;
@@ -154,6 +154,9 @@ namespace ConScr
 	{
 		short col;
 		char ch;
+		bool operator==(ScreenDot a){return a.ch==ch&&a.col==col;}
+		bool operator!=(ScreenDot a){return a.ch!=ch||a.col!=col;}
+		ScreenDot operator= (ScreenDot a){col=a.col,ch-a.ch;return a;}
 	};
 	class Object
 	{
@@ -161,6 +164,7 @@ namespace ConScr
 			int x,y,w,h,uid;
 			short col;
 			bool changed;
+			ScreenDot** Buf;
 		public:
 			void Position(int X,int Y){x=X,y=Y;changed=true;}
 			void Size(int W,int H){w=W,h=H;changed=true;}
@@ -171,6 +175,8 @@ namespace ConScr
 			int GetH(){return h;}
 			int GetUid(){return uid;}
 			int GetCol(){return col;}
+			bool IsChanged(){return changed;}
+			ScreenDot** GetBuf(){return Buf;}
 			bool MouseOn(){}
 			bool Click(){}
 			bool Drag(){}
@@ -182,19 +188,14 @@ namespace ConScr
 	{
 		protected:
 			char* text=NULL;
-			ScreenDot** Buf;
 		public:
-			int flush()
+			int modify()
 			{
-printf("1");
 				for(int j=0;j<h;j++)
 					for(int i=0;i<w;i++)
-						Buf[i][j].ch=' ',
-						Buf[i][j].col=col;
-printf("2");
+						Buf[i][j].ch=' ';
 				if(text==NULL)	return -1;
 				int now=0,i=0,j=0;
-printf("3");
 				while(text[now]!='\0'&&j<h)
 				{
 					if(text[now]=='\n')
@@ -203,14 +204,11 @@ printf("3");
 						do	Buf[i][j].ch=' ',i++;
 						while(i%CS_TAB!=0&&i<w);
 					else
-					{
-						Buf[i][j].ch=text[now];
-						i++,changed=false;
-					}
+						Buf[i][j].ch=text[now],i++;
 					now++;
 					if(i==w)	j++,i=0;
 				}
-printf("4");
+				changed=false;
 				return 0;
 			}
 			void Text(char* t)
@@ -223,11 +221,17 @@ printf("4");
 				ObjInit(X,Y,W,H,c);
 				NewSquare(Buf,W,H);
 				Text(t);
+				for(int j=0;j<h;j++)
+					for(int i=0;i<w;i++)
+						Buf[i][j].col=col;
 			}
 			TextBox(char* t,int X,int Y,int W,int H,short c)
 				{Init(t,X,Y,W,H,c);}
 			TextBox(){}
 	};
+#include"Log.hpp"
+Log<100> ConLog("Consolelog.log",OVERWRITE);
+	template<int maxn>
 	class ConScreen
 	{
 		private:
@@ -237,57 +241,81 @@ printf("4");
 			ScreenDot **Out;
 			int **PrintMap;
 			int UniCnt=0;
+			void PutChar(int x,int y,ScreenDot ch)
+			{
+				if(Out[x][y]==ch)	return;
+				Out[x][y]=ch;
+				APIgotoxy(sx+x,sy+y);
+				APIsetColor(ch.col);
+				putchar(ch.ch);
+				return;
+			}
 		public:
-			void Init(char* Title,int w,int h)
+			void Init(char* Title,int x,int y,int w,int h)
 			{
 				title=Title;
-				sw=w,sh=h;
-				ConTitle(title);
+				sw=w,sh=h,sx=x,sy=y;
+				ConsoleTitle=Title;
 				ConSize(sw,sh);
 				NewSquare(Out,sw,sh);
 				NewSquare(PrintMap,sw,sh);
+				for(int i=0;i<w;i++)
+					for(int j=0;j<h;j++)
+						PrintMap[i][j]=-1;
 				APISize(0);
 			}
 			struct iterator
 			{
 				int type,layer;
 				Object* data;
-			};
-			vector<iterator> Stuff;
-			void fillPM(int xs,int ys,int xe,int ye,int uid)
+			}Stuff[maxn+5];
+			void fillPM(int xs,int xe,int ys,int ye,int uid)
 			{
 				int layer=Stuff[uid].layer;
+ConLog.lprintf("fillPM","%d,%d %d,%d #%d z:%d",xs,ys,xe,ye,uid,layer);
 				for(int i=xs;i<xe;i++)
 					for(int j=ys;j<ye;j++)
-						if(Stuff[PrintMap[i][j]].layer>layer)
+					{
+ConLog.lprintf("PrintMap","(%d,%d)=%d,l%d,%d %d",i,j,PrintMap[i][j],Stuff[PrintMap[i][j]].layer,uid,layer);
+						if(PrintMap[i][j]==-1||Stuff[PrintMap[i][j]].layer>layer)
+ConLog.lprintf("PrintMap","Get!"),
 							PrintMap[i][j]=uid;
+					}
 				return;
 			}
 			int Add(TextBox &O,int layer)
 			{
 				Object* N=&O;
 				if(layer==-1)	layer=UniCnt;
-				else for(auto i:Stuff)
-					if(i.layer>=layer)
-						i.layer++;
-				Stuff.push_back({CS_TB,UniCnt,N});
+				else for(int i=0;i<UniCnt;i++)
+					if(Stuff[i].layer>=layer)
+						Stuff[i].layer++;
+				Stuff[UniCnt]={CS_TB,layer,N};
 				fillPM(O.GetX(),O.GetX()+O.GetW(),O.GetY(),O.GetY()+O.GetH(),UniCnt);
 				return UniCnt++;
 			}
 			void flush()
 			{
-				for(auto i:Stuff)
+				for(int i=0;i<UniCnt;i++)
 				{
-					if(i.type==CS_TB)
-						printf("Now:TB[%d]",i),
-						((TextBox*)i.data)->flush(),
-						printf("Ends\n");
+					if(!Stuff[i].data->IsChanged())
+						continue;
+					if(Stuff[i].type==CS_TB)
+						((TextBox*)Stuff[i].data)->modify();
 				}
-				int coln=ConDefaultColor;
-				for(int i)
+				int nx,ny,nw,nh,nuid=0;
+				for(int o=0;o<UniCnt;o++)
+				{
+					nx=Stuff[o].data->GetX(),ny=Stuff[o].data->GetY();
+					nw=Stuff[o].data->GetW(),nh=Stuff[o].data->GetH();
+					for(int i=0;i<nw;i++)
+						for(int j=0;j<nh;j++)
+							if(PrintMap[nx+i][ny+j]==nuid)
+								PutChar(nx+i,ny+j,Stuff[o].data->GetBuf()[i][j]);
+					nuid++;
+				}
 			}
 	};
 };
-
 
 #endif
