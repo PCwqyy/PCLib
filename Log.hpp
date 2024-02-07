@@ -58,6 +58,10 @@ class Log
 			fflush(Lout);
 			return;
 		}
+		template<typename...types>
+		int aprintf(char* format,types... args)
+			{return fprintf(Lout,format,args...);}
+		void flush(){fflush(Lout);return;}
 };
 
 #ifdef _GLIBCXX_QUEUE

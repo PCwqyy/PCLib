@@ -127,6 +127,13 @@ void SetSelectState(bool ban)
 	else	mode&=ENABLE_QUICK_EDIT_MODE;
 	SetConsoleMode(hStdin, mode);
 }
+COORD GetConsoleFontSize()
+{
+    CONSOLE_FONT_INFOEX fontInfo;
+    fontInfo.cbSize=sizeof(CONSOLE_FONT_INFOEX);
+    GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE),FALSE,&fontInfo);
+	return fontInfo.dwFontSize;
+}
 
 namespace pcpri
 {
@@ -136,10 +143,14 @@ namespace pcpri
 		{return isbt(c,32,126)||c=='\n'||c=='\t';}
 }
 
-#define CS_VTMAX 1000
 #define CS_TAB 4
-#define CS_TB 0x01
 
+#define CS_TB 0x01
+#define CS_BT 0x02
+
+#include"Log.hpp"
+#include<bitset>
+using std::bitset;
 namespace ConScr
 {
 	template<typename Tp>
@@ -163,26 +174,52 @@ namespace ConScr
 		protected:
 			int x,y,w,h,uid;
 			short col;
-			bool changed;
 			ScreenDot** Buf;
 		public:
-			void Position(int X,int Y){x=X,y=Y;changed=true;}
-			void Size(int W,int H){w=W,h=H;changed=true;}
-			void Color(short c){col=c;changed=true;}
+			bool changed,posc;
+			void Color(short c)
+			{
+				for(int i=0;i<w;i++)
+					for(int j=0;j<h;j++)
+						Buf[i][j].col=c;
+				col=c;changed=true;
+			}
+			void Position(int X,int Y)
+				{x=X,y=Y,posc=true;}
+			void Size(int W,int H)
+			{
+				ScreenDot** NewBuf;
+				NewSquare(NewBuf,W,H);
+				for(int i=0;i<w;i++)
+					for(int j=0;j<h;j++)
+						NewBuf[i][j]=Buf[i][j];
+				w=W,h=H;
+				delete Buf;
+				Buf=NewBuf;
+				posc=true;
+			}
 			int GetX(){return x;}
 			int GetY(){return y;}
 			int GetW(){return w;}
 			int GetH(){return h;}
 			int GetUid(){return uid;}
-			int GetCol(){return col;}
-			bool IsChanged(){return changed;}
+			short GetCol(){return col;}
 			ScreenDot** GetBuf(){return Buf;}
 			bool MouseOn(){}
 			bool Click(){}
 			bool Drag(){}
 			COORD DragTo(){}
-			void ObjInit(int X,int Y,int W,int H,short c)
-				{x=X,y=Y,w=W,h=H,col=c;changed=true;}
+			void Init(int X,int Y,int W,int H,short c)
+			{
+				x=X,y=Y,w=W,h=H,col=c;
+				NewSquare(Buf,w,h);
+				for(int j=0;j<h;j++)
+					for(int i=0;i<w;i++)
+						Buf[i][j].col=col;
+				changed=posc=true;
+			}
+			void Locate(int &x,int &y,int &w,int &h)
+				{x=GetX(),y=GetY(),w=GetW(),h=GetH();}
 	};
 	class TextBox:public Object
 	{
@@ -217,19 +254,28 @@ namespace ConScr
 				text=t;changed=true;
 			}
 			void Init(char* t,int X,int Y,int W,int H,short c)
-			{
-				ObjInit(X,Y,W,H,c);
-				NewSquare(Buf,W,H);
-				Text(t);
-				for(int j=0;j<h;j++)
-					for(int i=0;i<w;i++)
-						Buf[i][j].col=col;
-			}
+				{Object::Init(X,Y,W,H,c);Text(t);}
 			TextBox(char* t,int X,int Y,int W,int H,short c)
 				{Init(t,X,Y,W,H,c);}
 			TextBox(){}
 	};
-#include"Log.hpp"
+	class Button:public TextBox
+	{
+		protected:
+			void (*func)();
+			char *texton;
+			short colon;
+		public:
+			void Init(void (*f)(),char* t,char* to,int X,int Y,int W,int H,short c,short co)
+			{
+				TextBox::Init(t,X,Y,W,H,c);
+				colon=co;func=f;texton=to;
+				changed=true;
+			}
+			Button(void (*f)(),char* t,char* to,int X,int Y,int W,int H,short c,short co)
+				{Init(f,t,to,X,Y,W,H,c,co);}
+
+	};
 Log<100> ConLog("Consolelog.log",OVERWRITE);
 	template<int maxn>
 	class ConScreen
@@ -268,52 +314,80 @@ Log<100> ConLog("Consolelog.log",OVERWRITE);
 			{
 				int type,layer;
 				Object* data;
-			}Stuff[maxn+5];
-			void fillPM(int xs,int xe,int ys,int ye,int uid)
+			};
+			iterator Stuff[maxn+5];
+			int Add(Object* N,int type,int layer)
 			{
-				int layer=Stuff[uid].layer;
-ConLog.lprintf("fillPM","%d,%d %d,%d #%d z:%d",xs,ys,xe,ye,uid,layer);
-				for(int i=xs;i<xe;i++)
-					for(int j=ys;j<ye;j++)
-					{
-ConLog.lprintf("PrintMap","(%d,%d)=%d,l%d,%d %d",i,j,PrintMap[i][j],Stuff[PrintMap[i][j]].layer,uid,layer);
-						if(PrintMap[i][j]==-1||Stuff[PrintMap[i][j]].layer>layer)
-ConLog.lprintf("PrintMap","Get!"),
-							PrintMap[i][j]=uid;
-					}
-				return;
+				if(layer==-1||layer>UniCnt)	layer=UniCnt;
+				else for(int i=0;i<UniCnt;i++)
+					if(Stuff[i].layer>=layer)
+						Stuff[i].layer++;
+				Stuff[UniCnt]={type,layer,N};
+				N->posc=N->changed=true;
+				return UniCnt++;
 			}
 			int Add(TextBox &O,int layer)
 			{
 				Object* N=&O;
-				if(layer==-1)	layer=UniCnt;
-				else for(int i=0;i<UniCnt;i++)
-					if(Stuff[i].layer>=layer)
-						Stuff[i].layer++;
-				Stuff[UniCnt]={CS_TB,layer,N};
-				fillPM(O.GetX(),O.GetX()+O.GetW(),O.GetY(),O.GetY()+O.GetH(),UniCnt);
-				return UniCnt++;
+				return Add(N,CS_TB,layer);
 			}
-			void flush()
+		private:
+			void modifyItem()
 			{
 				for(int i=0;i<UniCnt;i++)
 				{
-					if(!Stuff[i].data->IsChanged())
+					if(!Stuff[i].data->changed)
 						continue;
 					if(Stuff[i].type==CS_TB)
 						((TextBox*)Stuff[i].data)->modify();
+					//New controls will modify here~
 				}
-				int nx,ny,nw,nh,nuid=0;
+				return;
+			}
+			void flushPrintMap()
+			{
+				bool ifdo=false;
+				for(int o=0;o<UniCnt;o++)
+					if(Stuff[o].data->posc)
+						{ifdo=true;break;}
+				if(!ifdo)	return;//find if some control's pos changed
+				int nx,ny,ex,ey;
 				for(int o=0;o<UniCnt;o++)
 				{
-					nx=Stuff[o].data->GetX(),ny=Stuff[o].data->GetY();
-					nw=Stuff[o].data->GetW(),nh=Stuff[o].data->GetH();
+					Stuff[o].data->Locate(nx,ny,ex,ey);
+					ex+=nx,ey+=ny;
+					for(int i=nx;i<ex;i++)
+						for(int j=ny;j<ey;j++)
+							if(PrintMap[i][j]==-1
+							 ||Stuff[o].layer<Stuff[PrintMap[i][j]].layer)
+								PrintMap[i][j]=o;
+				}
+ConLog.lprintf("Debug","Oops!Now PrintMap be like:");
+for(int j=0;j<sh;j++)
+{
+	for(int i=0;i<sw;i++)
+		ConLog.aprintf("%d ",PrintMap[i][j]);
+	ConLog.aprintf("\n");
+}
+			}
+			void flushScreen()
+			{
+				int nx,ny,nw,nh;
+				for(int o=0;o<UniCnt;o++)
+				{
+					Stuff[o].data->Locate(nx,ny,nw,nh);
 					for(int i=0;i<nw;i++)
 						for(int j=0;j<nh;j++)
-							if(PrintMap[nx+i][ny+j]==nuid)
+							if(PrintMap[nx+i][ny+j]==o)
 								PutChar(nx+i,ny+j,Stuff[o].data->GetBuf()[i][j]);
-					nuid++;
 				}
+			}
+		public:
+			void flush()
+			{
+				modifyItem();
+				flushPrintMap();
+				flushScreen();
 			}
 	};
 };
