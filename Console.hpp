@@ -8,7 +8,7 @@
 using std::vector;
 
 short ConDefaultColor=0x07;
-short cW=9,cH=19,mW=6,mH=48;
+short cW=-1,cH=-1,mW=0,mH=0;
 char* ConsoleTitle="No Title";
 
 void APIgotoxy(short x,short y)
@@ -77,16 +77,14 @@ void ConTitle(char *Title)
 int ConSize(short BufLen,short BufHig,short ScrLen,short ScrHig)
 {
 	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE),COORD{BufLen,BufHig});
-	SetConsoleTitle("Temp Temp Window");Sleep(40);
-	HWND This=FindWindow(NULL,"Temp Temp Window");
+	HWND This=GetConsoleWindow();
 	ConTitle(ConsoleTitle);
 	return SetWindowPos(This,NULL,0,0,ScrLen*cW+mW,ScrHig*cH+mH,SWP_NOMOVE);
 }
 int ConSize(short ScrLen,short ScrHig)
 {
-	SetConsoleTitle("Temp Temp Window");Sleep(40);
-	HWND This=FindWindow(NULL,"Temp Temp Window");
-	ConTitle(ConsoleTitle);
+	ScrLen+=5,ScrHig+=3;//?
+	HWND This=GetConsoleWindow();
 	return SetWindowPos(This,NULL,0,0,ScrLen*cW+mW,ScrHig*cH+mH,SWP_NOMOVE);
 }
 void APISize(unsigned int size)
@@ -104,11 +102,26 @@ void ConCantClose()
     DrawMenuBar(GetConsoleWindow());
     return;
 }
+COORD GetConsoleFontSize()
+{
+    CONSOLE_FONT_INFOEX fontInfo;
+    fontInfo.cbSize=sizeof(CONSOLE_FONT_INFOEX);
+    GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE),FALSE,&fontInfo);
+	return fontInfo.dwFontSize;
+}
+void InitCharSize()
+{
+    CONSOLE_FONT_INFOEX fontInfo;
+	fontInfo.cbSize=sizeof(CONSOLE_FONT_INFOEX);
+	GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE),FALSE,&fontInfo);
+	cW=fontInfo.dwFontSize.X,cH=fontInfo.dwFontSize.Y;
+}
 void GetMousexy(POINT& Mouse)
 {
-	HWND H=FindWindow(NULL,ConsoleTitle);
+	if(cW==-1||cH==-1)	return;
+	HWND Hwnd=GetConsoleWindow();
 	POINT Win={0,0};
-	ScreenToClient(H,&Win);
+	ScreenToClient(Hwnd,&Win);
 	GetCursorPos(&Mouse);
 	Mouse.x+=Win.x,Mouse.y+=Win.y;
 	Mouse.x-=mW,Mouse.y-=mH;
@@ -126,13 +139,6 @@ void SetSelectState(bool ban)
 	if(ban)	mode&=~ENABLE_QUICK_EDIT_MODE;
 	else	mode&=ENABLE_QUICK_EDIT_MODE;
 	SetConsoleMode(hStdin, mode);
-}
-COORD GetConsoleFontSize()
-{
-    CONSOLE_FONT_INFOEX fontInfo;
-    fontInfo.cbSize=sizeof(CONSOLE_FONT_INFOEX);
-    GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE),FALSE,&fontInfo);
-	return fontInfo.dwFontSize;
 }
 
 namespace pcpri
