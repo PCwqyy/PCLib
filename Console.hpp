@@ -147,21 +147,4 @@ void SetSelectState(bool ban)
 	SetConsoleMode(hIn, mode);
 }
 
-namespace pcpri
-{
-	bool isbt(char a,char l,char r)
-		{return l<=a&&a<=r;}
-	bool isable(char c)
-		{return isbt(c,32,126)||c=='\n'||c=='\t';}
-}
-
-#define CS_TAB 4
-
-#define CS_TB 0x01
-#define CS_BT 0x02
-
-#include"Log.hpp"
-#include<bitset>
-using std::bitset;
-
 #endif
