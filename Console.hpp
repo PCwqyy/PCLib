@@ -4,17 +4,24 @@
 #include<windows.h>
 #include<pthread.h>
 #include<cstdio>
-#include<vector>
-
-using std::vector;
+#include<mutex>
+using std::mutex;
 
 const HANDLE hOut=GetStdHandle(STD_OUTPUT_HANDLE);
 const HANDLE hIn=GetStdHandle(STD_INPUT_HANDLE);
 
 short ConDefaultColor=0x07;
-short cW=-1,cH=-1,mW=0,mH=0;
 char* ConsoleTitle="UnTitled Window";
 
+	#ifdef PCL_LOG
+	Log<1000> ConLog("Console.log",OVERWRITE);
+	#endif
+
+void CursorGoto(COORD Pos)
+{
+    SetConsoleCursorPosition(hOut,Pos);
+	return;
+}
 void CursorGoto(short x,short y)
 {
     SetConsoleCursorPosition(hOut,(COORD){x,y});
@@ -31,33 +38,45 @@ COORD GetCursorxy()
 	GetConsoleScreenBufferInfo(hOut,&a);
 	return a.dwCursorPosition;
 }
+
 /**
-  * @brief
-  * Color is a base-16 Num. \n
-  * The First Number is background color. \n
-  * The Second Number is foregrund color. \n
-  * @note
-  * 0 black, \n
-  * 1 blue, \n
-  * 2 green, \n
-  * 3 light green, \n
-  * 4 red, \n
-  * 5 purple, \n
-  * 6 yellow, \n
-  * 7 light gray, \n
-  * 8 gray, \n
-  * 9 light blue, \n
-  * A light green, \n
-  * B double light green, \n
-  * C light red, \n
-  * D light purple, \n
-  * E light yellow, \n
-  * F white. \n
-  */
+ * @brief
+ * Color is a base-16 Num. \n
+ * The First Digit is for background. \n
+ * The Second is for foregrund. \n
+ * @note
+ * ```
+ * 0=Black
+ * 1=Blue
+ * 2=Green
+ * 3=Aqua
+ * 4=Red
+ * 5=Purple
+ * 6=Yellow
+ * 7=White
+ * 8=Gray
+ * 9=Light_Blue
+ * A=Light_Green
+ * B=Light_Aqua
+ * C=Light_Red
+ * D=Light_Purple
+ * E=Light_Yellow
+ * F=Light_White
+ * ```
+ */
 template<typename... types>
-void ColorPrintf(int x,int y,int col,const char* format,types... args)
+void ColorPrintf(short x,short y,int col,const char* format,types... args)
 {
     CursorGoto(x,y);
+    SetColorIO(col);
+    printf(format,args...);
+    SetColorIO(ConDefaultColor);
+    return;
+}
+template<typename... types>
+void ColorPrintf(COORD Pos,int col,const char* format,types... args)
+{
+    CursorGoto(Pos);
     SetColorIO(col);
     printf(format,args...);
     SetColorIO(ConDefaultColor);
@@ -71,7 +90,8 @@ void ColorPrintf(int col,const char* format,types... args)
     SetColorIO(ConDefaultColor);
     return;
 }
-void ConTitle(char *Title)
+
+void ConTitleA(char *Title)
 {
 	ConsoleTitle=Title;
     SetConsoleTitleA(Title);
@@ -105,46 +125,53 @@ COORD GetConsoleFontSize()
     GetCurrentConsoleFontEx(hOut,FALSE,&fontInfo);
 	return fontInfo.dwFontSize;
 }
-void InitCharSize()
-{
-    CONSOLE_FONT_INFOEX fontInfo;
-	fontInfo.cbSize=sizeof(CONSOLE_FONT_INFOEX);
-	GetCurrentConsoleFontEx(hOut,FALSE,&fontInfo);
-	cW=fontInfo.dwFontSize.X,cH=fontInfo.dwFontSize.Y;
-}
+
+bool KeyDown(int vKey){return GetKeyState(vKey)&0x8000?true:false;}
+
+#define PCgmp_INTERVAL 50
+mutex lkInput;
 namespace pcpri
 {
-	pthread_t ReadIn;
-	COORD Mouse;
+	COORD MousePos;
+	bool LastLDown=false,ThisLDown=false;
+	bool LastRDown=false,ThisRDown=false;
+	pthread_t ptReadIn;
 	void* InReader(void* arg)
 	{
-		CONSOLE_SCREEN_BUFFER_INFO bInfo;
 		INPUT_RECORD MouseRec;
 		DWORD res;
 		while(true)
 		{
+			lkInput.lock();
 			ReadConsoleInputA(hIn,&MouseRec,1,&res);
-			Mouse=MouseRec.Event.MouseEvent.dwMousePosition;
+			MousePos=MouseRec.Event.MouseEvent.dwMousePosition;
+			LastLDown=ThisLDown;ThisLDown=KeyDown(VK_LBUTTON);
+			LastRDown=ThisRDown;ThisRDown=KeyDown(VK_RBUTTON);
+			lkInput.unlock();
+			Sleep(PCgmp_INTERVAL);
 		}
 		return NULL;
 	}
 };
-void StartGetMousexy()
+void StartGetMouseInput()
 {
-	pthread_create(&pcpri::ReadIn,NULL,pcpri::InReader,NULL);
+	pthread_create(&pcpri::ptReadIn,NULL,pcpri::InReader,NULL);
 	return;
 }
-COORD GetMousexy(){return pcpri::Mouse;}
-void GetMousexy(COORD &mouse){mouse=pcpri::Mouse;}
+COORD GetMousexy(){return pcpri::MousePos;}
+void GetMousexy(COORD &mouse){mouse=pcpri::MousePos;}
+/** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
+bool MouseLClick(){return pcpri::LastLDown!=pcpri::ThisRDown;}
+/** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
+bool MouseRClick(){return pcpri::LastRDown!=pcpri::ThisRDown;}
 
-bool KeyDown(int vKey){return GetKeyState(vKey)&0x8000?true:false;}
 void SetSelectState(bool ban)
 {
 	DWORD mode;
 	GetConsoleMode(hIn,&mode);
 	if(ban)	mode&=~ENABLE_QUICK_EDIT_MODE;
 	else	mode&=ENABLE_QUICK_EDIT_MODE;
-	SetConsoleMode(hIn, mode);
+	SetConsoleMode(hIn,mode);
 }
 
 #endif
