@@ -1,14 +1,13 @@
 #include"../Console.hpp"
-#include"../Log.hpp"
 int main()
 {
-	StartGetMousexy();
-	COORD Last={0,0};
+	CursorSize(0);
+	StartGetMouseInput();
 	while(true)
 	{
-		ColorPrintf(pcpri::Mouse.X,pcpri::Mouse.Y,0x70," ");
-		ColorPrintf(Last.X,Last.Y,0x00," ");
-		Last=pcpri::Mouse;
+		lkInput.lock();
+		ColorPrintf(1,1,ConDefaultColor,"%d",MouseRClick());
+		lkInput.unlock();
 	}
 	return 0;
 }
