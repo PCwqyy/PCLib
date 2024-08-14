@@ -1,7 +1,7 @@
-# PClib 1.1
-- Removed `ConScreen` because it is on dev.
-- Completely fixed mouse input function.
-- Modified Lib structure.
+# PClib 1.1.1
+- Fixed `Large`.
+
+2024/8/14
 
 ---
 @PCwqyy 2024 All rights reserved.
