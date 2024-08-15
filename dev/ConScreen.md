@@ -14,7 +14,7 @@ use xml grammar.
 ## Lable table
 |lable|target|Param|Content|
 |:-:|:-:|:-:|:-:|
-|`pcml`|Whole screen|`size` `col`|Children nodes
+|`pcml`|Whole screen|`pos` `size` `col`|Children nodes
 |`text`|Textbox|`id` `pos` `size` `col`|Text content|
 |`button`|Button|`id` `pos` `size` `col` `col_hover`|Display text
 |`rect`|Char graph|`id` `pos` `size`|NULL|
