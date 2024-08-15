@@ -23,20 +23,28 @@ class Large{
 	protected:
 		std::bitset<Length> bin;
 		char conr[Length/2];
+		Large ModFC(int b,Large &Div)
+		{
+			Large divisor(b);
+			Div=*this/divisor;
+			Large result=Div*divisor;
+			return *this-result;
+		}
 	public:
 	/* ------Functions------- */
 		size_t GetSize(){return Length;}
 		bool GetLast(){return bin[0];}
 		char* CStr()
 		{
+			Large Div;
 			for(int i=0;i<Length/2;i++)
 				conr[i]='\0';
 			char* tmp=new char[Length/2];
 			int now=0,i;
-			while(*this!=0)
+			while(Boolize())
 			{
-				tmp[now]=(*this%10).Convert<int>()+'0';
-				*this/=10;now++;
+				tmp[now]=ModFC(10,Div).Convert<int>()+'0';
+				*this=Div;now++;
 			}
 			now--;
 			for(i=0;now>=0;i++,now--)
@@ -99,7 +107,10 @@ class Large{
 				bin[i]=a&(1<<i);
 		}
 		//Constuctruer
-		~Large(){bin=0;}
+		~Large()
+		{
+			bin=0;
+		}
 		Large(){bin=0;}
 		Large(const Large &a){bin=a.bin;}
 		Large(bool a[]){Init(a);}
@@ -408,15 +419,12 @@ class Large{
 				while(dividend<divisor)
 					if(divisor>=initDivisor)
 						divisor>>=1,multiple>>=1;
-					else goto p;
+					else return result;
 			}
-			p:;
 			return result;
 		}
 		Large friend operator%(Large dividend,Large divisor)
 		{
-			if(divisor==0)
-				fprintf(stderr,PClg_ERR_DIV0);
 			Large result=dividend/divisor*divisor;
 			return dividend-result;
 		}
@@ -437,17 +445,14 @@ class Large{
 				while(dividend<divisor)
 					if(divisor>=initDivisor)
 						divisor>>=1,multiple>>=1;
-					else goto p;
+					else return result;
 			}
-			p:;
 			return result;
 		}
 		template<typename Tp>
 		Large friend operator%(Large dividend,Tp b)
 		{
 			Large divisor(b);
-			if(divisor==0)
-				fprintf(stderr,PClg_ERR_DIV0);
 			Large result=dividend/divisor*divisor;
 			return dividend-result;
 		}
