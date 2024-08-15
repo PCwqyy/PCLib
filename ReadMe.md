@@ -1,7 +1,7 @@
-# PClib 1.1.1
-- Fixed `Large`.
+# PClib 1.1.2
+- Optimized `Large`.
 
-2024/8/14
+2024/8/15
 
 ---
 @PCwqyy 2024 All rights reserved.
