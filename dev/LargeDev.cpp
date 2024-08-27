@@ -5,11 +5,7 @@
 int main()
 {
 	Large<128> A,B,C;
-	A="21474836472147483647";
-	B="10";
-	printf("[s]<%d>\n",clock());
-	C=A/B;
-	printf("%s\n",C.CStr());
-	printf("[e]<%d>\n",clock());
+	C=1;
+	printf("%s\n",(C<<95).CStr());
 	return 0;
 }

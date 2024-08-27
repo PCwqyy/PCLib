@@ -30,7 +30,7 @@ namespace pcpri
 		return;
 	}
 	template<typename Tp>
-	void FreeRect(Tp** tar,COORD size)
+	void FreeRect(COORD size,Tp** tar)
 	{
 		for(int i=0;i<size.X;i++)
 			delete tar[i];
@@ -50,7 +50,7 @@ namespace ConScr
 	};
 	void PrintDot(Dot A,COORD pos)
 	{
-		ColorPrintf(pos.X,pos.Y,A.col,"%c",A.ch);
+		ColorPosPrintf(pos.X,pos.Y,A.col,"%c",A.ch);
 		return;
 	}
 	class Node
@@ -65,11 +65,19 @@ namespace ConScr
 			char Id[PCcs_MAX_ID_LEN];
 			COORD Size,Pos;
 			int Color;
+			void FatherReRender()
+			{
+				if(Father==NULL)	return;
+				Father->Rerender();
+				return;
+			}
 			void PrintToFather()
 			{
 				if(!NoRender&&ChCount!=0)
 					for(auto i:Children)
 						i->PrintToFather();
+				if(Father==NULL)
+					return;
 				if(Buffer==NULL)	return;
 				for(int i=0;i<Size.X;i++)
 					for(int j=0;j<Size.Y;j++)
@@ -94,8 +102,7 @@ namespace ConScr
 			short GetChildrenCount(){return ChCount;}
 			int AddChild(Node* tar)
 			{
-				if(Father!=NULL)
-					Father->Rerender();
+				FatherReRender();
 				Children.push_back(tar);
 				tar->Father=this;
 				ChCount++;
@@ -106,17 +113,16 @@ namespace ConScr
 			void SetSize(COORD tar)
 			{
 				if(Buffer!=NULL)
-					pcpri::FreeRect(Buffer,Size);
+					pcpri::FreeRect(Size,Buffer);
 				pcpri::NewRect<Dot>(tar,Buffer);
-				Father->Rerender();
+				FatherReRender();
 				Size=tar;
 				return;
 			}
 			COORD GetSize(){return Size;}
 			void SetPos(COORD tar)
 			{
-				if(Father!=NULL)
-					Father->Rerender();
+				FatherReRender();
 				Pos=tar;
 				return;
 			}
@@ -127,8 +133,7 @@ namespace ConScr
 				for(int j=0;j<Size.Y;j++)
 					for(int i=0;i<Size.X;i++)
 						Buffer[i][j].col=Color;
-				if(Father!=NULL)
-					Father->Rerender();
+				FatherReRender();
 				return;
 			}
 			int GetColor(){return Color;}
@@ -145,13 +150,23 @@ namespace ConScr
 			Dot** Screen;
 			void Init(int tp)
 			{
-				Node::Init(tp);
 				pcpri::NewRect<Dot>(Size,Screen);
 				strcpy(Id,PCcs_PCML_ID);
 				return;
 			}
 		public:
-			PCML(){Init(tPCML);}
+			PCML(){PCML::Init(tPCML);}
+			void SetSize(COORD tar)
+			{
+				if(Buffer!=NULL)
+					pcpri::FreeRect(Size,Buffer);
+				pcpri::NewRect<Dot>(tar,Buffer);
+				if(Screen!=NULL)
+					pcpri::FreeRect(Size,Screen);
+				pcpri::NewRect<Dot>(tar,Screen);
+				Size=tar;
+				return;
+			}
 			void Flush()
 			{
 				if(NoRender)	return;
@@ -170,8 +185,7 @@ namespace ConScr
 			char Text[PCcs_MAX_TEXT_LEN];
 			void RenderText()
 			{
-				if(Father!=NULL)
-					Father->Rerender();
+				FatherReRender();
 				for(int j=0;j<Size.Y;j++)
 					for(int i=0;i<Size.X;i++)
 						Buffer[i][j].ch=' ';
@@ -191,15 +205,15 @@ namespace ConScr
 			}
 			void Init(int tp)
 			{
-				Node::Init(tp);
 				RenderText();
+				return;
 			}
 		public:
 			TextBox(){TextBox::Init(tTEXTBOX);}
 			void SetText(char* tar)
 			{
 				strcpy(Text,tar);
-				Father->Rerender();
+				FatherReRender();
 				return;
 			}
 			void GetText(char* tar){strcpy(tar,Text);return;}

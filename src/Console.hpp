@@ -5,6 +5,7 @@
 #include<pthread.h>
 #include<cstdio>
 #include<mutex>
+#include<wchar.h>
 using std::mutex;
 
 const HANDLE hOut=GetStdHandle(STD_OUTPUT_HANDLE);
@@ -13,10 +14,9 @@ const HANDLE hIn=GetStdHandle(STD_INPUT_HANDLE);
 short ConDefaultColor=0x07;
 char* ConsoleTitle="UnTitled Window";
 
-/*HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH*/#include"Log.hpp"
-	#ifdef PCL_LOG
-	Log<1000> ConLog("Console.log",OVERWRITE);
-	#endif
+#ifdef PCL_LOG
+Log<1000> ConLog("Console.log",OVERWRITE);
+#endif
 
 void CursorGoto(COORD Pos)
 {
@@ -66,26 +66,24 @@ COORD GetCursorxy()
  * ```
  */
 template<typename... types>
-void ColorPrintf(short x,short y,int col,const char* format,types... args)
-{
-    CursorGoto(x,y);
-    SetColorIO(col);
-    printf(format,args...);
-    SetColorIO(ConDefaultColor);
-    return;
-}
-template<typename... types>
-void ColorPrintf(COORD Pos,int col,const char* format,types... args)
-{
-    CursorGoto(Pos);
-    SetColorIO(col);
-    printf(format,args...);
-    SetColorIO(ConDefaultColor);
-    return;
-}
-template<typename... types>
 void ColorPrintf(int col,const char* format,types... args)
 {
+    SetColorIO(col);
+    printf(format,args...);
+    SetColorIO(ConDefaultColor);
+    return;
+}
+template<typename... types>
+void PosPrintf(short x,short y,const char* format,types... args)
+{
+    CursorGoto(x,y);
+    printf(format,args...);
+    return;
+}
+template<typename... types>
+void ColorPosPrintf(int col,short x,short y,const char* format,types... args)
+{
+    CursorGoto(x,y);
     SetColorIO(col);
     printf(format,args...);
     SetColorIO(ConDefaultColor);
@@ -133,9 +131,10 @@ bool KeyDown(int vKey){return GetKeyState(vKey)&0x8000?true:false;}
 mutex lkInput;
 namespace pcpri
 {
+/** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
 	COORD MousePos;
-	bool LastLDown=false,ThisLDown=false;
-	bool LastRDown=false,ThisRDown=false;
+/** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
+	bool LastLDown=false,ThisLDown=false,LastRDown=false,ThisRDown=false;
 	pthread_t ptReadIn;
 	void* InReader(void* arg)
 	{
@@ -161,10 +160,20 @@ void StartGetMouseInput()
 }
 COORD GetMousexy(){return pcpri::MousePos;}
 void GetMousexy(COORD &mouse){mouse=pcpri::MousePos;}
-/** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
-bool MouseLClick(){return pcpri::LastLDown!=pcpri::ThisRDown;}
-/** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
-bool MouseRClick(){return pcpri::LastRDown!=pcpri::ThisRDown;}
+bool MouseLClick()
+{
+	lkInput.lock();
+	bool ret=pcpri::LastLDown!=pcpri::ThisRDown;
+	lkInput.unlock();
+	return ret;
+}
+bool MouseRClick()
+{
+	lkInput.lock();
+	bool ret=pcpri::LastRDown!=pcpri::ThisRDown;
+	lkInput.unlock();
+	return ret;
+}
 
 void SetSelectState(bool ban)
 {
@@ -173,6 +182,18 @@ void SetSelectState(bool ban)
 	if(ban)	mode&=~ENABLE_QUICK_EDIT_MODE;
 	else	mode&=ENABLE_QUICK_EDIT_MODE;
 	SetConsoleMode(hIn,mode);
+}
+
+
+#define CP_GBK 936
+#define CP_US 437
+void ConSetFontSize(int w,int h)
+{
+	CONSOLE_FONT_INFOEX fontInfo;
+	fontInfo.cbSize=sizeof(fontInfo);
+	fontInfo.dwFontSize=(COORD){w,h};
+	SetCurrentConsoleFontEx(hOut,FALSE,&fontInfo);
+	return;
 }
 
 #endif

@@ -2,12 +2,14 @@
 int main()
 {
 	CursorSize(0);
+	SetConsoleOutputCP(CP_GBK);
+	ConTitleA("Test Window");
+	ConSize(20,5);
+	printf("永abcABC123");
 	StartGetMouseInput();
 	while(true)
 	{
-		lkInput.lock();
-		ColorPrintf(1,1,ConDefaultColor,"%d",MouseRClick());
-		lkInput.unlock();
+		ColorPosPrintf(0x07,1,1,"%d %d\t\t\t\t",GetMousexy().X,GetMousexy().Y);
 	}
 	return 0;
 }
