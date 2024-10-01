@@ -1,21 +1,23 @@
 #ifndef PCL_CONSCR
 #define PCL_CONSCR
 
-#include"PCLib/Console.hpp"
+#include"Console.hpp"
 #include<vector>
 using std::vector;
 
 #define PCcs_TAB 4
 #define PCcs_MAX_ID_LEN 100
 #define PCcs_MAX_TEXT_LEN 1000
+#define PCcs_MAX_TYPE_LEN 15
+#define PCcs_MAX_ATT_LEN 15
+#define PCcs_MAX_ATTVAL_LEN 1000
 #define PCcs_UDF_NODE "undefined"
-#define PCcs_PCML_ID "pcml"
+#define PCcs_ERR_UNTYPED "The child node doesn't have a type!"
 
 #define tNODE 0x00
-#define tPCML 0x01
-#define tTEXTBOX 0x02
-#define tBUTTON 0x03
-#define tRECT 0x04
+#define tTEXTBOX 0x01
+#define tBUTTON 0x02
+#define tRECT 0x03
 
 namespace pcpri
 {
@@ -61,7 +63,7 @@ namespace ConScr
 			Node* Father=NULL;
 			vector<Node*> Children;
 			bool NoRender;
-			Dot** Buffer=NULL;
+			Dot** Rendered=NULL;
 			char Id[PCcs_MAX_ID_LEN];
 			COORD Size,Pos;
 			int Color;
@@ -76,29 +78,51 @@ namespace ConScr
 				if(!NoRender&&ChCount!=0)
 					for(auto i:Children)
 						i->PrintToFather();
-				if(Father==NULL)
-					return;
-				if(Buffer==NULL)	return;
+				if(Father==NULL)	return;
+				if(Rendered==NULL)	return;
 				for(int i=0;i<Size.X;i++)
 					for(int j=0;j<Size.Y;j++)
-						Father->Buffer[Pos.X+i][Pos.Y+j]=Buffer[i][j];
+						Father->Rendered[Pos.X+i][Pos.Y+j]=Rendered[i][j];
 				NoRender=true;
 			}
-			void BuildFromStr()
+			void RenderFromText(char* Text)
 			{
-				return;
+				FatherReRender();
+				for(int j=0;j<Size.Y;j++)
+					for(int i=0;i<Size.X;i++)
+						Rendered[i][j].ch=' ';
+				int now=0,i=0,j=0;
+				while(Text[now]!='\0'&&j<Size.Y)
+				{
+					if(Text[now]=='\n')
+						{j++,i=0,now++;continue;}
+					else if(Text[now]=='\t')
+						do	Rendered[i][j].ch=' ',i++;
+						while(i%PCcs_TAB!=0&&i<Size.X);
+					else
+						Rendered[i][j].ch=Text[now],i++;
+					now++;
+					if(i==Size.X)	j++,i=0;
+				}
 			}
 			void Init(int tp)
 			{
 				strcpy(Id,PCcs_UDF_NODE);
-				BuildFromStr();
 				NoRender=false;
-				pcpri::NewRect(Size,Buffer);
+				Type=tp;
+				pcpri::NewRect(Size,Rendered);
 				return;
 			}
 		public:
 			Node(){Init(tNODE);}
 			void Rerender(){NoRender=false;return;}
+			void PrintTo(Dot** tar)
+			{
+				for(int i=0;i<Size.X;i++)
+					for(int j=0;j<Size.Y;j++)
+						tar[Pos.X+i][Pos.Y+j]=Rendered[i][j];
+				return;
+			}
 			short GetChildrenCount(){return ChCount;}
 			int AddChild(Node* tar)
 			{
@@ -112,9 +136,9 @@ namespace ConScr
 			void GetId(char* tar){strcpy(tar,Id);return;}
 			void SetSize(COORD tar)
 			{
-				if(Buffer!=NULL)
-					pcpri::FreeRect(Size,Buffer);
-				pcpri::NewRect<Dot>(tar,Buffer);
+				if(Rendered!=NULL)
+					pcpri::FreeRect(Size,Rendered);
+				pcpri::NewRect<Dot>(tar,Rendered);
 				FatherReRender();
 				Size=tar;
 				return;
@@ -132,7 +156,7 @@ namespace ConScr
 				Color=col;
 				for(int j=0;j<Size.Y;j++)
 					for(int i=0;i<Size.X;i++)
-						Buffer[i][j].col=Color;
+						Rendered[i][j].col=Color;
 				FatherReRender();
 				return;
 			}
@@ -144,18 +168,22 @@ namespace ConScr
 			};
 			bool Clicked(){return Hover()&&MouseLClick();}
 	};
-	class PCML:public Node
+	class ConScreen
 	{
 		protected:
-			Dot** Screen;
-			void Init(int tp)
+			Dot** Screen,**Buffer;
+			short ChCount=0;
+			Node* Father=NULL;
+			vector<Node*> Children;
+			COORD Size;
+			void Init()
 			{
 				pcpri::NewRect<Dot>(Size,Screen);
-				strcpy(Id,PCcs_PCML_ID);
+				pcpri::NewRect<Dot>(Size,Buffer);
 				return;
 			}
 		public:
-			PCML(){PCML::Init(tPCML);}
+			ConScreen(){Init();}
 			void SetSize(COORD tar)
 			{
 				if(Buffer!=NULL)
@@ -169,8 +197,9 @@ namespace ConScr
 			}
 			void Flush()
 			{
-				if(NoRender)	return;
-				PrintToFather();
+				if(!ChCount!=0)
+					for(auto i:Children)
+						i->PrintTo(Buffer);
 				for(int i=0;i<Size.X;i++)
 					for(int j=0;j<Size.Y;j++)
 						if(Buffer[i][j]!=Screen[i][j])
@@ -179,53 +208,57 @@ namespace ConScr
 				return;
 			}
 	};
-	class TextBox:Node
+	void ReadElement(char* Str,int& now)
 	{
-		protected:
-			char Text[PCcs_MAX_TEXT_LEN];
-			void RenderText()
+		char type[PCcs_MAX_ID_LEN];
+		char att[PCcs_MAX_ATT_LEN];
+		char val[PCcs_MAX_ATTVAL_LEN]
+		while(true)
+		{
+			if(Str[now]=='\0')
+				break;
+			if(Str[now]=='#')
+				while(Str[++now]=='\n');
+			if(Str[now]=='<')
 			{
-				FatherReRender();
-				for(int j=0;j<Size.Y;j++)
-					for(int i=0;i<Size.X;i++)
-						Buffer[i][j].ch=' ';
-				int now=0,i=0,j=0;
-				while(Text[now]!='\0'&&j<Size.Y)
+				now++;
+				sscanf(Str+now,"%s",type);
+				while(Str[now]!='>')
 				{
-					if(Text[now]=='\n')
-						{j++,i=0,now++;continue;}
-					else if(Text[now]=='\t')
-						do	Buffer[i][j].ch=' ',i++;
-						while(i%PCcs_TAB!=0&&i<Size.X);
-					else
-						Buffer[i][j].ch=Text[now],i++;
-					now++;
-					if(i==Size.X)	j++,i=0;
+					while(Str[++now]==' ');
+					bool f=false;
+					int i=0,j=0;
+					while(Str[now]!='=')
+						att[i++]=Str[now++];
+					att[i]='\0';
+					while(Str[++now]!='\"');now++;
+					while(Str[now]!='\"')
+						val[j++]=Str[now++];
+					val[j]='\0';
 				}
 			}
-			void Init(int tp)
-			{
-				RenderText();
-				return;
-			}
-		public:
-			TextBox(){TextBox::Init(tTEXTBOX);}
-			void SetText(char* tar)
-			{
-				strcpy(Text,tar);
-				FatherReRender();
-				return;
-			}
-			void GetText(char* tar){strcpy(tar,Text);return;}
-			void Debug()
-			{
-				Init(tTEXTBOX);
-				SetText("Ha\tHa\nHa");
-				SetPos((COORD){1,1});
-				SetSize((COORD){7,2});
-				SetColor(0x70);
-			}		
-	};
+			now++;
+		}
+		return;
+	}
+	void Build(char* file)
+	{
+		FILE *Scr=fopen(file,"r+");
+		vector<char> Buff;
+		char in,*Res;
+		while(true)
+		{
+			in=fgetc(Scr);
+			if(feof(Scr))	break;
+			Buff.push_back(in);
+		}
+		int sz=Buff.size();
+		Res=new char[sz+5];
+		for(int i=0;i<sz;i++)
+			Res[i]=Buff[i];
+		Res[sz]='\0';
+		ReadElement(Res,0);
+	}
 };
 
 #endif
