@@ -70,18 +70,18 @@ COORD GetCursorxy()
 template<typename... types>
 void ColorPrintf(int col,const char* format,types... args)
 {
-    SetColorIO(col);
 	lkOutput.lock();
+    SetColorIO(col);
     printf(format,args...);
-	lkOutput.unlock();
     SetColorIO(ConDefaultColor);
+	lkOutput.unlock();
     return;
 }
 template<typename... types>
 void PosPrintf(short x,short y,const char* format,types... args)
 {
-    CursorGoto(x,y);
 	lkOutput.lock();
+    CursorGoto(x,y);
     printf(format,args...);
 	lkOutput.unlock();
     return;
@@ -89,12 +89,12 @@ void PosPrintf(short x,short y,const char* format,types... args)
 template<typename... types>
 void ColorPosPrintf(int col,short x,short y,const char* format,types... args)
 {
+	lkOutput.lock();
     CursorGoto(x,y);
     SetColorIO(col);
-	lkOutput.lock();
     printf(format,args...);
-	lkOutput.unlock();
     SetColorIO(ConDefaultColor);
+	lkOutput.unlock();
     return;
 }
 
