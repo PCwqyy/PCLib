@@ -18,6 +18,8 @@ char* ConsoleTitle="UnTitled Window";
 Log<1000> ConLog("Console.log",OVERWRITE);
 #endif
 
+mutex lkOutput;
+
 void CursorGoto(COORD Pos)
 {
     SetConsoleCursorPosition(hOut,Pos);
@@ -69,7 +71,9 @@ template<typename... types>
 void ColorPrintf(int col,const char* format,types... args)
 {
     SetColorIO(col);
+	lkOutput.lock();
     printf(format,args...);
+	lkOutput.unlock();
     SetColorIO(ConDefaultColor);
     return;
 }
@@ -77,7 +81,9 @@ template<typename... types>
 void PosPrintf(short x,short y,const char* format,types... args)
 {
     CursorGoto(x,y);
+	lkOutput.lock();
     printf(format,args...);
+	lkOutput.unlock();
     return;
 }
 template<typename... types>
@@ -85,7 +91,9 @@ void ColorPosPrintf(int col,short x,short y,const char* format,types... args)
 {
     CursorGoto(x,y);
     SetColorIO(col);
+	lkOutput.lock();
     printf(format,args...);
+	lkOutput.unlock();
     SetColorIO(ConDefaultColor);
     return;
 }

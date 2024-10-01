@@ -1,6 +1,5 @@
-# PClib 1.1.3
-- Optimized project structure.
-- Move all code to `src`.
+# PClib 1.1.5
+- Add lock for outputs
 
 2024/10/1
 
