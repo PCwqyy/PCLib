@@ -1,7 +1,7 @@
-# PClib 1.1.5
-- Add lock for outputs
+# PClib 1.1.6
+- Add RGB256 for `ColorPrintf`
 
-2024/10/1
+2024/12/17
 
 ---
 @PCwqyy 2024 All rights reserved.
