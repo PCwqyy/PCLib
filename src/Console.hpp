@@ -22,17 +22,31 @@ mutex lkOutput;
 
 void CursorGoto(COORD Pos)
 {
-    SetConsoleCursorPosition(hOut,Pos);
+	SetConsoleCursorPosition(hOut,Pos);
 	return;
 }
 void CursorGoto(short x,short y)
 {
-    SetConsoleCursorPosition(hOut,(COORD){x,y});
+	SetConsoleCursorPosition(hOut,(COORD){x,y});
 	return;
 }
 void SetColorIO(short col)
 {
-    SetConsoleTextAttribute(hOut,col);
+	SetConsoleTextAttribute(hOut,col);
+	return;
+}
+void SetColorIOEx(int fore,int back)
+{
+	if(back!=-1)
+		printf("\033[48;2;%d;%d;%dm",
+			(back&0xff0000)>>16,
+			(back&0x00ff00)>>8,
+			(back&0x0000ff));
+	if(fore!=-1)
+		printf("\033[38;2;%d;%d;%dm",
+			(fore&0xff0000)>>16,
+			(fore&0x00ff00)>>8,
+			(fore&0x0000ff));
 	return;
 }
 COORD GetCursorxy()
@@ -68,42 +82,66 @@ COORD GetCursorxy()
  * ```
  */
 template<typename... types>
-void ColorPrintf(int col,const char* format,types... args)
+void ColorPrintf(short col,const char* format,types... args)
 {
 	lkOutput.lock();
-    SetColorIO(col);
-    printf(format,args...);
-    SetColorIO(ConDefaultColor);
+	SetColorIO(col);
+	printf(format,args...);
+	SetColorIO(ConDefaultColor);
 	lkOutput.unlock();
-    return;
+	return;
 }
+
+template<typename... types>
+void ColorPrintfEx(int fore,int back,const char* format,types... args)
+{
+	lkOutput.lock();
+	SetColorIOEx(fore,back);
+	printf(format,args...);
+	SetColorIO(ConDefaultColor);
+	lkOutput.unlock();
+	return;
+}
+
 template<typename... types>
 void PosPrintf(short x,short y,const char* format,types... args)
 {
 	lkOutput.lock();
-    CursorGoto(x,y);
-    printf(format,args...);
+	CursorGoto(x,y);
+	printf(format,args...);
 	lkOutput.unlock();
-    return;
+	return;
 }
 template<typename... types>
-void ColorPosPrintf(int col,short x,short y,const char* format,types... args)
+void ColorPosPrintf(short col,short x,short y,const char* format,types... args)
 {
 	lkOutput.lock();
-    CursorGoto(x,y);
-    SetColorIO(col);
-    printf(format,args...);
-    SetColorIO(ConDefaultColor);
+	CursorGoto(x,y);
+	SetColorIO(col);
+	printf(format,args...);
+	SetColorIO(ConDefaultColor);
 	lkOutput.unlock();
-    return;
+	return;
+}
+template<typename... types>
+void ColorPosPrintfEx(int fore,int back,short x,short y,const char* format,types... args)
+{
+	lkOutput.lock();
+	CursorGoto(x,y);
+	SetColorIOEx(fore,back);
+	printf(format,args...);
+	SetColorIO(ConDefaultColor);
+	lkOutput.unlock();
+	return;
 }
 
+\
 void ConTitleA(char *Title)
 {
 	ConsoleTitle=Title;
-    SetConsoleTitleA(Title);
+	SetConsoleTitleA(Title);
 	Sleep(40);
-    return;
+	return;
 } 
 void ConSize(short BufLen,short BufHig)
 {
@@ -116,20 +154,20 @@ void CursorSize(unsigned int size)
 	if(size<=0)			info={1,FALSE};
 	else if(size>100)	info={100,TRUE};
 	else				info={size,TRUE};
-    SetConsoleCursorInfo(hOut,&info);
-    return;
+	SetConsoleCursorInfo(hOut,&info);
+	return;
 }
 void ConCantClose()
 {
-    DeleteMenu(GetSystemMenu(GetConsoleWindow(),FALSE),SC_CLOSE,MF_DISABLED);
-    DrawMenuBar(GetConsoleWindow());
-    return;
+	DeleteMenu(GetSystemMenu(GetConsoleWindow(),FALSE),SC_CLOSE,MF_DISABLED);
+	DrawMenuBar(GetConsoleWindow());
+	return;
 }
 COORD GetConsoleFontSize()
 {
-    CONSOLE_FONT_INFOEX fontInfo;
-    fontInfo.cbSize=sizeof(CONSOLE_FONT_INFOEX);
-    GetCurrentConsoleFontEx(hOut,FALSE,&fontInfo);
+	CONSOLE_FONT_INFOEX fontInfo;
+	fontInfo.cbSize=sizeof(CONSOLE_FONT_INFOEX);
+	GetCurrentConsoleFontEx(hOut,FALSE,&fontInfo);
 	return fontInfo.dwFontSize;
 }
 
