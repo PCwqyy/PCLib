@@ -20,19 +20,20 @@ void Swap(Tp&a,Tp&b)
 }
 #endif
 
-template<typename Tp=int>
-class rational
+#ifndef pcBR_DOUBLEACC
+#define pcBR_DOUBELACC 1e5
+#endif
+
+#ifndef ERR_DIV0
+#define ERR_DIV0
+#endif
+
+template<typename Tp>
+class basicRational
 {
 	private:
 		Tp a=0,b=1;
-		short doubleacc=5;
-		template<typename Tpm>
-			Tpm acc(int accuracy)
-			{
-				Tp ans=1;
-				while(accuracy--)   ans*=10;
-				return ans;
-			}
+		char Dest[50];
 		void reduct()
 		{
 			const Tp gcdx=gcd(a,b);
@@ -43,54 +44,90 @@ class rational
 	public:
 		void Copy(Tp m,Tp n)
 		{
-			if(n==0)	n=1/0;
+			if(n==0)	throw ERR_DIV0;
 			a=m,b=n;
 			reduct();
 		}
 #ifdef _INC_STDIO
-		void Print()
+		char* ToString()
 		{
 			reduct();
-			printf("%d",a);
-			if(b!=1)	printf("/%d",b);
+			sprintf(Dest,b==1?"%d":"%d/%d",a,b);
+			return Dest;
+		}
+		void Print()
+		{
+			printf("%s",ToString());
 		}
 #endif
 		template<typename Tpm>
-			void Compute(Tpm&m){m=1.0*a/b;}
+		Tpm To(){return 1.0*a/b;}
 
-		rational operator+ (rational m)
+		basicRational friend operator+ (basicRational m,basicRational n)
 		{
-			const Tp gcdx=gcd(b,m.b);
-			m.a=m.a*(b/gcdx)+a*(m.b/gcdx);
-			m.b=m.b/gcdx*b;
+			const Tp gcdx=gcd(m.b,n.b);
+			m.a=m.a*(n.b/gcdx)+n.a*(m.b/gcdx);
+			m.b=m.b*n.b/gcdx;
 			m.reduct();
 			return m;
 		}
-		rational operator- (rational m)
+		basicRational friend operator- (basicRational m,basicRational n)
 		{
-			const Tp gcdx=gcd(b,m.b);
-			m.a=a*(m.b/gcdx)-m.a*(b/gcdx);
-			m.b=m.b/gcdx*b;
+			const Tp gcdx=gcd(m.b,n.b);
+			m.a=m.a*(n.b/gcdx)-n.a*(m.b/gcdx);
+			m.b=m.b*n.b/gcdx;
 			m.reduct();
 			return m;
 		}
-		rational operator* (rational m)
+		basicRational friend operator* (basicRational m,basicRational n)
 		{
-			reduct(),m.reduct();
-			Swap(a,m.a);
-			reduct(),m.reduct();
-			m.a*=a,m.b*=b;
-			m.reduct();
+			m.reduct(),n.reduct();
+			Swap(m.a,n.a);
+			m.reduct(),n.reduct();
+			m.a*=n.a,m.b*=n.b;
 			return m;
 		}
-		rational operator/ (rational m)
+		basicRational friend operator/ (basicRational m,basicRational n)
 		{
 			Swap(m.a,m.b);
-			return operator*(m);
+			return m*n;
 		}
-		void operator= (Tp m){a=m,b=1;}
-		void operator= (double m){b=acc(doubleacc),a=m*b;reduct();}
-		void operator= (rational m){a=m.a,b=m.b;reduct();}
+		basicRational operator= (Tp m)
+			{a=m,b=1;return *this;}
+		basicRational operator= (double m)
+		{
+			a=m*pcBR_DOUBELACC;
+			b=pcBR_DOUBELACC;
+			reduct();
+			return *this;
+		}
+		basicRational operator= (basicRational m)
+			{a=m.a,b=m.b;reduct();return *this;}
+		
+		basicRational(){a=0,b=1;}
+		basicRational(Tp m){a=m,b=1;}
+		basicRational(double m)
+		{
+			a=m*pcBR_DOUBELACC;
+			b=pcBR_DOUBELACC;
+			reduct();
+		}
 };
+
+typedef basicRational<int> rational;
+typedef basicRational<long long> longrational;
+
+#ifdef PCL_IO
+template<typename Tp>
+int ssprintpc(char* Dest,basicRational<Tp> Th)
+{
+	strcpy(pcpri::temp,Th.ToString());
+	int tlen=strlen(pcpri::temp);
+	pcpri::temp[tlen++]=pcPF_SPACE;
+	pcpri::temp[tlen]='\0';
+	strcpy(Dest,pcpri::temp);
+	return tlen;
+}
+#endif
 
 #endif
