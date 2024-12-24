@@ -1,7 +1,14 @@
-# PClib 1.1.6
-- Add RGB256 for `ColorPrintf`
+# PClib 1.1.7
+- New File: `IO.hpp`
+- Rewrite File: `Rational.hpp`
 
-2024/12/17
+### `IO.hpp`
+use `printpc(args...)` to print stuff!
+
+- Adapted `Large` output.
+- Adapted `rational` output.
+
+2024/12/24
 
 ---
 @PCwqyy 2024 All rights reserved.
