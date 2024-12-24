@@ -34,7 +34,7 @@ class Large{
 	/* ------Functions------- */
 		size_t GetSize(){return Length;}
 		bool GetLast(){return bin[0];}
-		char* CStr()
+		char* ToString()
 		{
 			Large Div;
 			for(int i=0;i<Length/2;i++)
@@ -492,3 +492,16 @@ class Large{
 		template<typename Tp>
 		Large operator%=(Tp a){*this=*this%a;return *this;}
 };
+
+#ifdef PCL_IO
+template<int Length>
+int ssprintpc(char* Dest,Large<Length> Th)
+{
+	strcpy(pcpri::temp,Th.ToString());
+	int tlen=strlen(pcpri::temp);
+	pcpri::temp[tlen++]=pcPF_SPACE;
+	pcpri::temp[tlen]='\0';
+	strcpy(Dest,pcpri::temp);
+	return tlen;
+}
+#endif
