@@ -233,7 +233,7 @@ void SetSelectState(bool ban)
 
 #define CP_GBK 936
 #define CP_US 437
-void ConSetFontSize(int w,int h)
+void ConSetFontSize(short w,short h)
 {
 	CONSOLE_FONT_INFOEX fontInfo;
 	fontInfo.cbSize=sizeof(fontInfo);
