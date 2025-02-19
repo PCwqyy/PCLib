@@ -1,14 +1,21 @@
-# PClib 1.1.7
-- New File: `IO.hpp`
-- Rewrite File: `Rational.hpp`
+# PClib 1.1.8 (Not released)
+- Emojis for console!
+- Color calculations!
+- and more!
 
-### `IO.hpp`
-use `printpc(args...)` to print stuff!
+# Change Log
+## 25v1a
+### `Console.hpp`
+- Split `printf` series into Normal / Color / Unicode parts.  
+Enable them by define `PCL_COLOR` and `UNICODE`.
+- Add environmental check
+### `Color.hpp`
+- Add HTLM named colors
+- Add color calcs, such as `RGB()`, `HLS()`...
+### `Log.hpp`
+- Fix misspelling.
 
-- Adapted `Large` output.
-- Adapted `rational` output.
-
-2024/12/24
+2025/2/19
 
 ---
-@PCwqyy 2024 All rights reserved.
+@PCwqyy 2025 All rights reserved.

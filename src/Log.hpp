@@ -5,8 +5,8 @@
 #include<ctime>
 
 int _UntitleCount=0;
-char LogStartFromat[1010]="New log started in %04d/%02d/%02d %02d:%02d:%02d\n";
-char LogFromat[1010]="[%04d/%02d/%02d %02d:%02d:%02d][%s]%s\n";
+char LogStartFormat[1010]="New log started in %04d/%02d/%02d %02d:%02d:%02d\n";
+char LogFormat[1010]="[%04d/%02d/%02d %02d:%02d:%02d][%s]%s\n";
 
 #define OVERWRITE "w+"
 #define ADDWRITE "a+"
@@ -37,7 +37,7 @@ class Log
 			fclose(Lout);
 			Lout=fopen(filename,mode);
 			TimeLoc();
-			fprintf(Lout,LogStartFromat,Ye,Mo,Da,Ho,Mi,Se);
+			fprintf(Lout,LogStartFormat,Ye,Mo,Da,Ho,Mi,Se);
 			fflush(Lout);
 			return;
 		}
@@ -45,7 +45,7 @@ class Log
 		{
 			Lout=fopen(filename,mode);
 			TimeLoc();
-			fprintf(Lout,LogStartFromat,Ye,Mo,Da,Ho,Mi,Se);
+			fprintf(Lout,LogStartFormat,Ye,Mo,Da,Ho,Mi,Se);
 			fflush(Lout);
 		}
 		~Log(){fclose(Lout);}
@@ -54,7 +54,7 @@ class Log
 		{
 			sprintf(LogOut,format,args...);
 			TimeLoc();
-			fprintf(Lout,LogFromat,Ye,Mo,Da,Ho,Mi,Se,LogType,LogOut);
+			fprintf(Lout,LogFormat,Ye,Mo,Da,Ho,Mi,Se,LogType,LogOut);
 			fflush(Lout);
 			return;
 		}
@@ -89,7 +89,7 @@ class QueueLog:public Log<maxl>
 			sprintf(LogOut,format,args...);
 			TimeLoc();
 			ThisOut=new char[maxl+20];
-			sprintf(ThisOut,LogFromat,Ye,Mo,Da,Ho,Mi,Se,LogType,LogOut);
+			sprintf(ThisOut,LogFormat,Ye,Mo,Da,Ho,Mi,Se,LogType,LogOut);
 			Buf.push(ThisOut);
 			return;
 		}
