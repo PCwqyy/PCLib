@@ -1,6 +1,8 @@
 #git rm -r --cached .
 
+dev/*
+.vscode/*
+
 *.exe
 *.log
 *.cpp
-dev\*
