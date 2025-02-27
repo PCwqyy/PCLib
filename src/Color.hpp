@@ -152,9 +152,9 @@ struct Color
 		if(col==-1)	R=-1;
 		else
 		{
-			R=(col&0xff0000)>>16;
-			G=(col&0x00ff00)>>8;
-			B=(col&0x0000ff);
+			R=(col&clRed)>>16;
+			G=(col&clLime)>>8;
+			B=(col&clBlue);
 		}
 	}
 	int toInt(){return B|(G<<8)|(R<<16);}
@@ -201,7 +201,7 @@ Color HSL(int H,int S,int L)
 	return ret;
 }
 
-Color AverageColor(Color Col1,Color Col2,double index=0.5)
+Color Gradient(Color Col1,Color Col2,double index=0.5)
 {
 	Color ret;
 	ret.R=int(Col1.R*index+Col2.R*(1-index));
@@ -210,7 +210,7 @@ Color AverageColor(Color Col1,Color Col2,double index=0.5)
 	return ret;
 }
 Color HighContrust(Color col,double index=0.5)
-	{return AverageColor(col,0xffffff,index);}
+	{return Gradient(col,clWhite,index);}
 
 Color InvertColor(Color col)
 	{return RGB(255-col.R,255-col.G,255-col.B);}
