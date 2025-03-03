@@ -2,7 +2,3 @@
 
 dev/*
 .vscode/*
-
-*.exe
-*.log
-*.cpp
