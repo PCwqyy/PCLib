@@ -5,6 +5,7 @@
 using std::vector;
 
 #define SK_MAX_BUFF 1024
+#define SK_PING_INFO "!ping!"
 
 class ServerSocket
 {
@@ -12,7 +13,7 @@ private:
 	WSADATA wsaData;
 	SOCKET listener=INVALID_SOCKET;
 	vector<SOCKET> sockets;
-	char buff[SK_MAX_BUFF];
+	char buff[SK_MAX_BUFF],buff2[SK_MAX_BUFF];
 public:
 	ServerSocket()
 	{
@@ -53,22 +54,56 @@ public:
 		sockets.push_back(sock);
 		return sockets.size()-1;
 	}
-	bool Send(int session,const char *data)
-		{return send(sockets[session],data,strlen(data),0)!=SOCKET_ERROR;}
 	template<typename ...types>
 	bool Send(int session,const char* data,types ...args)
 	{
 		sprintf(buff,data,args...);
-		return send(sockets[session],buff,strlen(buff),0)!=SOCKET_ERROR;
+		sprintf(buff2,"%d %s",strlen(buff),buff);
+		return send(sockets[session],buff2,strlen(buff2),0)>0;
+	}
+	template<typename ...types>
+	int SendToAll(const char* data,types ...args)
+	{
+		int ret=0;
+		sprintf(buff,data,args...);
+		sprintf(buff2,"%d %s",strlen(buff),buff);
+		int len=strlen(buff2);
+		for(auto i:sockets)
+			if(send(i,buff2,len,0)>0)
+				ret++;
+		return ret;
 	}
 	int Receive(int session,char* dest)
 	{
-		int ret=recv(sockets[session],buff,SK_MAX_BUFF,0);
-		buff[ret]='\0';
-		strcpy(dest,buff);
-		return ret;
+		if(buff[0]=='\0')
+		{
+			int ret=recv(sockets[session],buff,SK_MAX_BUFF,0);
+			if(ret<0)	return ret;
+			buff[ret]='\0';
+		}
+		int len,now=0,now2=0;
+		if(sscanf(buff,"%d",&len)!=1)
+		{
+			buff[0]='\0';
+			dest[0]='\0';
+			return SOCKET_ERROR;
+		}
+		while(isdigit(buff[now++]));
+		for(int i=0;i<len;i++,now++)
+			dest[i]=buff[now];
+		while(buff[now]!='\0')
+			buff[now2++]=buff[now++];
+		dest[len]='\0';
+		buff[now2]='\0';
+		return len;
 	}
 	int GetConnctedCnt(){return sockets.size();}
+	bool CheckAlive(int session)
+	{
+		int res=Send(session,SK_PING_INFO);
+		if(res>0)	return true;
+		else		return false;
+	}
 };
 
 
@@ -77,7 +112,7 @@ class ClientSocket
 private:
 	WSADATA wsaData;
 	SOCKET sock=INVALID_SOCKET;
-	char buff[SK_MAX_BUFF];
+	char buff[SK_MAX_BUFF],buff2[SK_MAX_BUFF];
 public:
 	ClientSocket()
 	{
@@ -133,19 +168,40 @@ public:
 		}
 		else return 0;
 	}
-	bool Send(const char* data)
-		{return send(sock,data,strlen(data),0)!=SOCKET_ERROR;}
 	template<typename ...types>
 	bool Send(const char* data,types ...args)
 	{
 		sprintf(buff,data,args...);
-		return send(sock,buff,strlen(buff),0)!=SOCKET_ERROR;
+		sprintf(buff2,"%d %s",strlen(buff),buff);
+		return send(sock,buff2,strlen(buff2),0)!=SOCKET_ERROR;
 	}
 	int Receive(char* dest)
 	{
-		int ret=recv(sock,buff,SK_MAX_BUFF,0);
-		buff[ret]='\0';
-		strcpy(dest,buff);
-		return ret;
+		if(buff[0]=='\0')
+		{
+			int ret=recv(sock,buff,SK_MAX_BUFF,0);
+			if(ret<0)	return ret;
+			buff[ret]='\0';
+		}
+		int len,now=0,now2=0;
+		if(sscanf(buff,"%d",&len)!=1)
+		{
+			buff[0]='\0';
+			dest[0]='\0';
+			return SOCKET_ERROR;
+		}
+		while(isdigit(buff[now++]));
+		for(int i=0;i<len;i++,now++)
+			dest[i]=buff[now];
+		while(buff[now]!='\0')
+			buff[now2++]=buff[now++];
+		dest[len]='\0';
+		buff[now2]='\0';
+		if(strcmp(dest,SK_PING_INFO)==0)
+		{
+			dest[0]='\0';
+			return SOCKET_ERROR;
+		}
+		return len;
 	}
 };

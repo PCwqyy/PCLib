@@ -33,6 +33,7 @@ public:
 		pointer=fopen(FilePath,Mode);
 		return;
 	}
+	bool null(){return pointer==NULL;}
 	bool Eof(){return feof(pointer);}
 	template<typename... Tps>
 	int printf(const char* format,Tps... args)
