@@ -97,7 +97,7 @@ public:
 		buff[now2]='\0';
 		return len;
 	}
-	int GetConnctedCnt(){return sockets.size();}
+	int GetConnectedCnt(){return sockets.size();}
 	bool CheckAlive(int session)
 	{
 		int res=Send(session,SK_PING_INFO);

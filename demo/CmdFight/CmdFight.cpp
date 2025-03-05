@@ -1,6 +1,6 @@
-#include"../src/Socket.hpp"
-#include"../src/Console.hpp"
-#include"../src/File.hpp"
+#include"../../src/Socket.hpp"
+#include"../../src/Console.hpp"
+#include"../../src/File.hpp"
 #include<string>
 #include<vector>
 #include<regex>
@@ -9,7 +9,7 @@
 using std::string;
 using std::vector;
 using std::regex;
-using std::regex_match;
+using std::regex_search;
 using std::map;
 
 char MyName[100],IpInput[100],Msg[1000],InStr[1000];
@@ -46,8 +46,11 @@ void ReadProfile()
 	flProfile.scanf("%s %d %s",IpInput,&Port,MyName);
 	return;
 }
-bool InvaildRule(const char* rule)
+bool InvalidRule(const char* rule)
 {
+	try{regex a(rule);}
+	catch(const std::regex_error& e)
+		{return true;}
 	int len=strlen(rule);
 	if(len>10)	return true;
 	int invCnt=0;
@@ -58,14 +61,14 @@ bool InvaildRule(const char* rule)
 	if(invCnt>1)	return true;
 	regex r(rule);
 	for(auto i:MustNotMatches)
-		if(regex_match(i.c_str(),r))
+		if(regex_search(i.c_str(),r))
 			return true;
 	return false;
 }
 bool MatchRule(int id,const char* tar)
 {
 	for(auto i:Rules[id])
-		if(regex_match(tar,i))
+		if(regex_search(tar,i))
 			return true;
 	return false;
 }
@@ -130,8 +133,9 @@ int ClientMain()
 					OnScreen(0x0C,0x0B,"~Attack "),
 					OnScreen(0x0E,0x0B,"%s\n",InStr),
 					system(InStr),
+					Out.Goto(0,GetCursorxy().Y),
 					In.Goto(-1,GetCursorxy().Y),
-					Out.Goto(0,GetCursorxy().Y);
+					OnScreen(0x0E,0x0B,"Command executed.\n");
 				else if(strcmp(InStr,"Info")==0)
 					strcpy(InStr,Msg+6),
 					OnScreen(0x06,0x0B,"%s\n",InStr);
@@ -158,6 +162,7 @@ int ServerMain()
 	ReadMustNotMatches();
 	NowPlayer=0;
 	int AliveCount=40;
+	NameMap[string("Server")]=-1;
 	if(!server.BindPort(Port))
 	{
 		printf("Err\n");
@@ -191,11 +196,11 @@ int ServerMain()
 			strcpy(Msg,In.GetScan());
 			In.ClearScan();
 			OnScreen(0x0E,0x0E,"<%s\n",Msg);
-			for(int i=0;i<server.GetConnctedCnt();i++)
+			for(int i=0;i<server.GetConnectedCnt();i++)
 				if(Alive[i])
 					server.Send(i,"$Server %s",Msg);
 		}
-		for(int i=0;i<server.GetConnctedCnt();i++)
+		for(int i=0;i<server.GetConnectedCnt();i++)
 			if(Alive[i]&&server.Receive(i,Msg)!=SOCKET_ERROR)
 				if(Msg[0]=='$')
 				{
@@ -204,7 +209,7 @@ int ServerMain()
 					{
 						sscanf(Msg+6,"%s",InStr);
 						if(NameMap.find(string(InStr))!=NameMap.end())
-							server.Send(i,"$Error Invaild Name \"%s\"",InStr);
+							server.Send(i,"$Error Invalid Name \"%s\"",InStr);
 						else
 						{
 							OnScreen(0x08,0x0E,"[%s=>%s]\n",Names[i].c_str(),InStr);
@@ -218,14 +223,16 @@ int ServerMain()
 						strcpy(InStr,Msg+6);
 						if(Rules[i].size()>=LimitRule)
 							server.Send(i,"$Error Too many rules");
-						else if(InvaildRule(InStr))
-							server.Send(i,"$Error Invaild rule");
+						else if(InvalidRule(InStr))
+							server.Send(i,"$Error Invalid rule");
 						else
 							Rules[i].push_back(regex(InStr));
 					}
 					else if(strcmp(InStr,"Attack")==0)
 					{
 						sscanf(Msg+8,"%s",InStr);
+						if(strcmp(InStr,"Server")==0)
+							server.Send(i,"$Error Hey! You can't attack server! X(");
 						if(NameMap.find(string(InStr))==NameMap.end())
 							server.Send(i,"$Error Player \"%s\" not found!",InStr);
 						else
@@ -241,16 +248,16 @@ int ServerMain()
 				else
 				{
 					OnScreen(0x07,0x0E,"%s>%s\n",Names[i].c_str(),Msg);
-					for(int j=0;j<server.GetConnctedCnt();j++)
+					for(int j=0;j<server.GetConnectedCnt();j++)
 						if(Alive[j]&&j!=i)
 							server.Send(j,"%s>%s",Names[i].c_str(),Msg);
 				}
 		if(AliveCount==0)
 		{
 			AliveCount=40;
-			for(int i=0;i<server.GetConnctedCnt();i++)
+			for(int i=0;i<server.GetConnectedCnt();i++)
 				if(Alive[i]&&!server.CheckAlive(i))
-					OnScreen(0x06,0x0E,"%s disconnect.\n",Names[i]),
+					OnScreen(0x06,0x0E,"%s disconnect.\n",Names[i].c_str()),
 					server.SendToAll("$Info %s Loose",Names[i]),
 					Alive[i]=false;
 		}
@@ -263,8 +270,12 @@ int main()
 {
 	ConTitleA("Cmd Fight");
 	ReadProfile();
+	ColorPrintf(0x07,
+		"PClib Cmd Fight\n"
+		"PCwqyy(c) All right reserved.\n"
+		"Type \"Help\" to get help.\n");
 StartInput:
-	ColorPrintf(0x07,"input Server/Client/Profile\n");
+	ColorPrintf(0x0B,">");
 	scanf("%s",InStr);
 	if(strcmp(InStr,"Server")==0)
 		ServerMain();
@@ -272,6 +283,14 @@ StartInput:
 		ClientMain();
 	else if(strcmp(InStr,"Profile")==0)
 		SetProfile();
+	else if(strcmp(InStr,"Help")==0)
+		printf(
+			"Server\tStart a server on this computer\n"
+			"Client\tJoin other's server\n"
+			"Profile\tEdit your Profile\n"
+			"Exit\tExit the program\n");
+	else if(strcmp(InStr,"Exit")==0)
+		return 0;
 	goto StartInput;
 	return 0;
 }
