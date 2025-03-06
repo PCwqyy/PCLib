@@ -12,8 +12,8 @@ using std::regex;
 using std::regex_search;
 using std::map;
 
-char MyName[100],IpInput[100],Msg[1000],InStr[1000];
-vector<string> Names(100,""),MustNotMatches;
+char MyName[100],IpInput[100],Msg[1000],InStr[1000],Command[1000];
+vector<string> DisplayNames(100,""),MustNotMatches,RuleBackUps[100];
 vector<regex> Rules[100];
 map<string,int> NameMap;
 int NowPlayer,Port;
@@ -78,7 +78,7 @@ void ReadMustNotMatches()
 	while(true)
 	{
 		flRead.getword(InStr);
-		MustNotMatches.push_back(string(InStr));
+		MustNotMatches.push_back(InStr);
 		if(flRead.Eof())	break;
 	}
 	return;
@@ -119,26 +119,45 @@ int ClientMain()
 			{
 				sscanf(Msg+1,"%s",InStr);
 				if(strcmp(InStr,"Server")==0)
-					strcpy(InStr,Msg+8),
+				{
+					strcpy(InStr,Msg+8);
 					OnScreen(0x07,0x0B,"Server>%s\n",InStr);
+				}
 				else if(strcmp(InStr,"Error")==0)
-					strcpy(InStr,Msg+7),
+				{
+					strcpy(InStr,Msg+7);
 					OnScreen(0x0C,0x0B,"[Error]%s\n",InStr);
+				}
 				else if(strcmp(InStr,"Blocked")==0)
-					strcpy(InStr,Msg+9),
-					OnScreen(0x0A,0x0B,"~Blocked "),
-					OnScreen(0x0E,0x0B,"%s\n",InStr);
+				{
+					sscanf(Msg+9,"%s",InStr);
+					strcpy(Command,Msg+10+strlen(InStr));
+					OnScreen(0x0A,0x0B,"~Blocked from %s:\n",InStr);
+					OnScreen(0x0E,0x0B,"~%s\n",Command);
+				}
 				else if(strcmp(InStr,"CMD")==0)
-					strcpy(InStr,Msg+5),
-					OnScreen(0x0C,0x0B,"~Attack "),
-					OnScreen(0x0E,0x0B,"%s\n",InStr),
-					system(InStr),
-					Out.Goto(0,GetCursorxy().Y),
-					In.Goto(-1,GetCursorxy().Y),
-					OnScreen(0x0E,0x0B,"Command executed.\n");
+				{
+					sscanf(Msg+5,"%s",InStr);
+					strcpy(Command,Msg+6+strlen(InStr));
+					OnScreen(0x0C,0x0B,"~Attack from %s:\n",InStr);
+					OnScreen(0x0E,0x0B,"~%s\n",Command);
+					CursorGoto(Out.Query());
+					int ret=system(Command);
+					Out.Goto(0,GetCursorxy().Y);
+					In.Goto(-1,GetCursorxy().Y);
+					OnScreen(0x0E,0x0B,"Command returns %d(%#x).\n",ret,ret);
+					client.Send("&Return %s %d",InStr,ret);
+				}
 				else if(strcmp(InStr,"Info")==0)
-					strcpy(InStr,Msg+6),
+				{
+					strcpy(InStr,Msg+6);
 					OnScreen(0x06,0x0B,"%s\n",InStr);
+				}
+				else if(strcmp(InStr,"Return")==0)
+				{
+					strcpy(InStr,Msg+8);
+					OnScreen(0x0E,0x0B,"%s\n",InStr);
+				}
 				else
 					OnScreen(0x0C,0x0B,"Unknown - \"%s\"",Msg);
 			}
@@ -147,10 +166,17 @@ int ClientMain()
 		}
 		if(KeyDown(VK_RETURN))
 			if(strlen(In.GetScan())>0)
-				strcpy(Msg,In.GetScan()),
-				In.ClearScan(),
-				client.Send(Msg),
-				OnScreen(0x0B,0x0B,"<%s\n",Msg);
+			{
+				strcpy(Msg,In.GetScan());
+				In.ClearScan();
+				if(Msg[0]=='&')
+					OnScreen(0x0C,0x0B,"Do not lie to server!\n");
+				else
+				{
+					client.Send(Msg);
+					OnScreen(0x0B,0x0B,"<%s\n",Msg);
+				}
+			}
 		Sleep(50);
 	}
 }
@@ -162,10 +188,10 @@ int ServerMain()
 	ReadMustNotMatches();
 	NowPlayer=0;
 	int AliveCount=40;
-	NameMap[string("Server")]=-1;
+	NameMap["Server"]=-1;
 	if(!server.BindPort(Port))
 	{
-		printf("Err\n");
+		ColorPrintf(0x0C,"Can not bind port %d\n",Port);
 		return errno;
 	}
 	system("cls");
@@ -182,8 +208,8 @@ int ServerMain()
 			if(id!=INVALID_SOCKET)
 			{
 				sprintf(InStr,"#%d",id);
-				Names[id]=string(InStr);
-				NameMap[Names[id]]=id;
+				DisplayNames[id]=InStr;
+				NameMap[DisplayNames[id]]=id;
 				Alive[id]=true;
 				NowPlayer++,AliveCount=40;
 				OnScreen(0x06,0x0E,"Client #%d connected.\n",id);
@@ -208,57 +234,119 @@ int ServerMain()
 					if(strcmp(InStr,"Name")==0)
 					{
 						sscanf(Msg+6,"%s",InStr);
-						if(NameMap.find(string(InStr))!=NameMap.end())
+						if(InStr[0]=='#')
+							server.Send(i,"$Error Not a creative name \"%s\"",InStr);
+						else if(NameMap.find(InStr)!=NameMap.end())
 							server.Send(i,"$Error Invalid Name \"%s\"",InStr);
 						else
 						{
-							OnScreen(0x08,0x0E,"[%s=>%s]\n",Names[i].c_str(),InStr);
-							server.SendToAll("$Info %s renamed %s",Names[i].c_str(),InStr);
-							Names[i]=string(InStr);
-							NameMap[Names[i]]=i;
+							OnScreen(0x08,0x0E,"[%s=>%s]\n",DisplayNames[i].c_str(),InStr);
+							server.SendToAll("$Info %s renamed %s",DisplayNames[i].c_str(),InStr);
+							DisplayNames[i]=InStr;
+							NameMap[DisplayNames[i]]=i;
 						}
 					}
 					else if(strcmp(InStr,"Rule")==0)
 					{
-						strcpy(InStr,Msg+6);
-						if(Rules[i].size()>=LimitRule)
-							server.Send(i,"$Error Too many rules");
-						else if(InvalidRule(InStr))
-							server.Send(i,"$Error Invalid rule");
+						int num;
+						if(sscanf(Msg+6,"%d",&num)==1)
+							if(num>Rules[i].size()-1)
+								server.Send(i,"$Error No such rule");
+							else
+							{
+								strcpy(InStr,Msg+8);
+								if(InvalidRule(InStr))
+									server.Send(i,"$Error Invalid rule");
+								else
+									server.Send(i,"$Return %s -> %s",RuleBackUps[i][num].c_str(),InStr),
+									Rules[i][num]=regex(InStr),
+									RuleBackUps[i][num]=InStr;
+							}
 						else
-							Rules[i].push_back(regex(InStr));
+						{
+							strcpy(InStr,Msg+6);
+							if(Rules[i].size()>=LimitRule)
+								server.Send(i,"$Error Too many rules");
+							else if(InvalidRule(InStr))
+								server.Send(i,"$Error Invalid rule");
+							else
+								Rules[i].push_back(regex(InStr)),
+								RuleBackUps[i].push_back(InStr);
+						}
+					}
+					else if(strcmp(InStr,"MyRule")==0)
+					{
+						string res="$Return Your rules are:\n";
+						int j=0;
+						for(auto k:RuleBackUps[i])
+							sprintf(Msg,"%d: %s\n",j,k.c_str()),
+							j++,res+=Msg;
+						server.Send(i,res.c_str());
+					}
+					else if(strcmp(InStr,"Alias")==0)
+					{
+						sscanf(Msg+7,"%s",InStr);
+						auto it=NameMap.find(InStr);
+						if(it==NameMap.end())
+							server.Send(i,"Error No such player.");
+						else
+						{
+							int tar=it->second;
+							sprintf(Msg,"Alias to player %s:\n",InStr);
+							string res=Msg;
+							for(auto j:NameMap)
+								if(j.second==tar)
+									res+="- "+j.first+'\n';
+							server.Send(i,"$Return %s",res.c_str());
+						}
 					}
 					else if(strcmp(InStr,"Attack")==0)
 					{
 						sscanf(Msg+8,"%s",InStr);
 						if(strcmp(InStr,"Server")==0)
 							server.Send(i,"$Error Hey! You can't attack server! X(");
-						if(NameMap.find(string(InStr))==NameMap.end())
+						if(NameMap.find(InStr)==NameMap.end())
 							server.Send(i,"$Error Player \"%s\" not found!",InStr);
 						else
 						{
-							int tar=NameMap[string(InStr)];
+							int tar=NameMap[InStr];
 							strcpy(InStr,Msg+9+strlen(InStr));
-							server.Send(tar,"$%s %s",MatchRule(tar,InStr)?"Blocked":"CMD",InStr);
+							if(MatchRule(tar,InStr))
+								server.Send(tar,"$Blocked %s %s",DisplayNames[i].c_str(),InStr),
+								server.Send(i,"$Return Command is blocked!");
+							else
+								server.Send(tar,"$CMD %s %s",DisplayNames[i].c_str(),InStr);
 						}
 					}
 					else
 						server.Send(i,"$Error Unknown - \"%s\"",Msg);
 				}
+				else if(Msg[0]=='&')
+				{
+					sscanf(Msg+1,"%s",InStr);
+					if(strcmp(InStr,"Return")==0)
+					{
+						int ret;
+						sscanf(Msg+8,"%s %d",InStr,&ret);
+						server.Send(NameMap[InStr],
+							"$Return Command to %s returns %d(%#x)",
+							DisplayNames[i].c_str(),ret,ret);
+					}
+				}
 				else
 				{
-					OnScreen(0x07,0x0E,"%s>%s\n",Names[i].c_str(),Msg);
+					OnScreen(0x07,0x0E,"%s>%s\n",DisplayNames[i].c_str(),Msg);
 					for(int j=0;j<server.GetConnectedCnt();j++)
 						if(Alive[j]&&j!=i)
-							server.Send(j,"%s>%s",Names[i].c_str(),Msg);
+							server.Send(j,"%s>%s",DisplayNames[i].c_str(),Msg);
 				}
 		if(AliveCount==0)
 		{
 			AliveCount=40;
 			for(int i=0;i<server.GetConnectedCnt();i++)
 				if(Alive[i]&&!server.CheckAlive(i))
-					OnScreen(0x06,0x0E,"%s disconnect.\n",Names[i].c_str()),
-					server.SendToAll("$Info %s Loose",Names[i]),
+					OnScreen(0x06,0x0E,"%s disconnect.\n",DisplayNames[i].c_str()),
+					server.SendToAll("$Info %s loses",DisplayNames[i].c_str()),
 					Alive[i]=false;
 		}
 		Sleep(50);

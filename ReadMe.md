@@ -28,7 +28,7 @@ View it on [Github](https://github.com/PCwqyy/PCLib).
 Enable them by define `PCL_COLOR` and `UNICODE`.
 - Add environmental check
 ### `Color.hpp`
-- Add HTLM named colors
+- Add HTML named colors
 - Add color calcs, such as `RGB()`, `HLS()`...
 ### `Log.hpp`
 - Fix misspelling.
@@ -45,3 +45,5 @@ A game about attacking other using cmd and defending with regex.
 ## 25v3b
 - fix bugs for demo `CMD Fight`
 - Complete `ReadMe.md`
+## 25v3c
+- Slightly `CMD Fight` update
