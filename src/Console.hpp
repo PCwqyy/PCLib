@@ -192,8 +192,6 @@ void ColorPosPrintfEx(Color fore,Color back,short x,short y,const wchar_t* forma
 
 #endif
 
-<<<<<<< HEAD
-=======
 #define pcCS_INTERVAL 50
 #define pcCS_MAX_BUFFER 1024
 class ConCursor
@@ -346,7 +344,6 @@ public:
 	char* GetScan(){return buffer;}
 };
 
->>>>>>> Dev
 void ConTitleA(const char *Title)
 {
 	strcpy(ConsoleTitle,Title);
