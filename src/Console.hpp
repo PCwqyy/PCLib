@@ -2,10 +2,12 @@
 #define PCL_CONSOLE
 
 #include<windows.h>
-#include<pthread.h>
+#include<thread>
 #include<cstdio>
 #include<mutex>
-#include<wchar.h>
+#include<cwchar>
+#include<conio.h>
+using std::thread;
 using std::mutex;
 
 #define pcCS_MAX_WINDOW_NAME 500
@@ -54,7 +56,7 @@ COORD GetCursorxy()
  * @brief
  * Color is a base-16 Num. \n
  * The First Digit is for background. \n
- * The Second is for foregrund. \n
+ * The Second is for foreground. \n
  * @note
  * ```
  * 0=Black
@@ -190,6 +192,161 @@ void ColorPosPrintfEx(Color fore,Color back,short x,short y,const wchar_t* forma
 
 #endif
 
+<<<<<<< HEAD
+=======
+#define pcCS_INTERVAL 50
+#define pcCS_MAX_BUFFER 1024
+class ConCursor
+{
+private:
+	COORD cursor;
+	mutex lk;
+	thread ptInput;
+	char buffer[pcCS_MAX_BUFFER];
+	bool end;
+	int it=0,len=0,in;
+	void scanner(bool print,short col)
+	{
+		for(int i=0;i<pcCS_MAX_BUFFER;i++)
+			buffer[i]='\0';
+		while(true)
+		{
+			if(end)	return;
+			while(kbhit())
+			{
+				lk.lock();
+				in=getch();
+				if(in=='\b')
+					if(it>0)
+					{
+						for(int i=it;i<len;i++)
+							buffer[i-1]=buffer[i];
+						len--,it--;
+						buffer[len]='\0';
+						if(print)
+							Seek(-1,0),
+							PrintfNoMove(col,"%s ",buffer+it);
+					}
+					else;
+				else if(in=='\n'||in=='\r');
+				else if(in==224)
+				{
+					int in2=getch();
+					if(print)
+					{
+						if(in2==75&&it>0)
+							Seek(-1,0),it--;
+						if(in2==77&&it<len)
+							Seek(1,0),it++;
+					}
+					else
+					{
+						if(in2==75&&it>0)	it--;
+						if(in2==77&&it<len) it++;
+					}
+				}
+				else
+				{
+					for(int i=len;i>it;i--)
+						buffer[i]=buffer[i-1];
+					buffer[it]=in,
+					PrintfNoMove(col,"%s",buffer+it);
+					Seek(1,0);
+					it++;
+					len++;
+				}
+				lk.unlock();
+			}
+			Sleep(pcCS_INTERVAL);
+		}
+		return;
+	}
+public:
+	void Goto(short x,short y)
+	{
+		if(x==-1)	x=cursor.X;
+		if(y==-1)	y=cursor.Y;
+		cursor=(COORD){x,y};
+		CursorGoto(cursor);
+		return;
+	}
+	void Goto(COORD dest)
+	{
+		cursor=dest;
+		CursorGoto(cursor);
+		return;
+	}
+	void Seek(int dx,int dy)
+	{
+		cursor.X+=dx;
+		cursor.Y+=dy;
+		CursorGoto(cursor);
+		return;
+	}
+	COORD Query(){return cursor;}
+	template<typename ...types>
+	void Printf(short color,const char* format,types ...args)
+	{
+		lkOutput.lock();
+		CursorGoto(cursor);
+		SetColorIO(color);
+		printf(format,args...);
+		cursor=GetCursorxy();
+		SetColorIO(ConDefaultColor);
+		lkOutput.unlock();
+		return;
+	}
+	template<typename ...types>
+	void PrintfNoMove(short color,const char* format,types ...args)
+	{
+		lkOutput.lock();
+		CursorGoto(cursor);
+		SetColorIO(color);
+		printf(format,args...);
+		CursorGoto(cursor);
+		SetColorIO(ConDefaultColor);
+		lkOutput.unlock();
+		return;
+	}
+	void StartScan(bool print=false,short col=ConDefaultColor)
+	{
+		end=false;
+		ptInput=thread(scanner,this,print,col);
+		return;
+	}
+	void EndScan()
+	{
+		end=true;
+		ptInput.join();
+		return;
+	}
+	void ClearScanPrint()
+	{
+		lk.lock();
+		Seek(-it,0);
+		for(int i=0;i<len;i++)
+			Printf(ConDefaultColor," ");
+		Seek(it-len,0);
+		lk.unlock();
+		return;
+	}
+	void ClearScan()
+	{
+		lk.lock();
+		Seek(-it,0);
+		for(int i=0;i<len;i++)
+			Printf(ConDefaultColor," ");
+		Seek(-len,0);
+		for(int i=0;i<pcCS_MAX_BUFFER;i++)
+			buffer[i]='\0';
+		it=0,len=0;
+		lk.unlock();
+		return;
+	}
+	char* GetScan(){return buffer;}
+};
+
+>>>>>>> Dev
 void ConTitleA(const char *Title)
 {
 	strcpy(ConsoleTitle,Title);
@@ -227,7 +384,6 @@ COORD GetConsoleFontSize()
 
 bool KeyDown(int vKey){return GetKeyState(vKey)&0x8000?true:false;}
 
-#define PCgmp_INTERVAL 50
 mutex lkInput;
 namespace pcpri
 {
@@ -235,8 +391,7 @@ namespace pcpri
 	COORD MousePos;
 /** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
 	bool LastLDown=false,ThisLDown=false,LastRDown=false,ThisRDown=false;
-	pthread_t ptReadIn;
-	void* InReader(void* arg)
+	void InReader()
 	{
 		INPUT_RECORD MouseRec;
 		DWORD res;
@@ -248,14 +403,14 @@ namespace pcpri
 			LastLDown=ThisLDown;ThisLDown=KeyDown(VK_LBUTTON);
 			LastRDown=ThisRDown;ThisRDown=KeyDown(VK_RBUTTON);
 			lkInput.unlock();
-			Sleep(PCgmp_INTERVAL);
+			Sleep(pcCS_INTERVAL);
 		}
-		return NULL;
+		return;
 	}
 };
 void StartGetMouseInput()
 {
-	pthread_create(&pcpri::ptReadIn,NULL,pcpri::InReader,NULL);
+	thread ptReadIn(pcpri::InReader);
 	return;
 }
 COORD GetMousexy(){return pcpri::MousePos;}
