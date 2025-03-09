@@ -388,7 +388,6 @@ namespace pcpri
 	COORD MousePos;
 /** @warning You may use `lkInput.lock()` before and `lkInput.unlock()` after. */
 	bool LastLDown=false,ThisLDown=false,LastRDown=false,ThisRDown=false;
-	pthread_t ptReadIn;
 	void InReader()
 	{
 		INPUT_RECORD MouseRec;

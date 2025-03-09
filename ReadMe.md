@@ -15,11 +15,16 @@ The author is a Chinese high school student, who is not so good at English, so p
 
 View it on [Github](https://github.com/PCwqyy/PCLib).
 
-# PClib 1.1.8 (Not released)
-- Emojis for console!
-- Color calculations!
-- Windows socket!
+# PClib 1.1.8 Released
+- Emojis for console
+- Color calculations
+- Windows socket
+- Demo game `CMD Fight`
 - ...and more!
+
+## Demo: `CMD Fight`
+Attacking other using cmd and defending them with regex, ~~have fun!~~
+- compiler: MinGW 14.2.0
 
 # Change Log
 ## 25v1a
@@ -47,3 +52,5 @@ A game about attacking other using cmd and defending with regex.
 - Complete `ReadMe.md`
 ## 25v3c
 - Slightly `CMD Fight` update
+## 1.1.8
+- Change C++ standard into c++23, and change (my) compiler into MinGW.

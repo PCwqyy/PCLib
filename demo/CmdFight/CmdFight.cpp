@@ -24,15 +24,15 @@ FileOp flProfile;
 void SetProfile()
 {
 	flProfile.open("./profile.txt",OVERWRITE);
-	ColorPrintf(0xB0,"Update Profile:\n");
-	ColorPrintf(0x0B,"Input Ip\n");
+	ColorPrintf(0x70,"Update Profile:\n");
+	ColorPrintf(0x07,"Input Ip\n");
 	scanf("%s",IpInput);
-	ColorPrintf(0x0B,"Input port\nServer use this port too\n");
+	ColorPrintf(0x07,"Input port\nServer use this port too\n");
 	scanf("%d",&Port);
-	ColorPrintf(0x0B,"Input Name\n");
+	ColorPrintf(0x07,"Input Name\n");
 	scanf("%s",MyName);
 	flProfile.printf("%s\n%d\n%s",IpInput,Port,MyName);
-	ColorPrintf(0x0B,"Updated!\n");
+	ColorPrintf(0x07,"Updated!\n");
 	return;
 }
 void ReadProfile()
@@ -217,15 +217,6 @@ int ServerMain()
 				server.SendToAll("$Info #%d Joined",id);
 			}
 		}
-		if(KeyDown(VK_RETURN)&&strlen(In.GetScan())!=0)
-		{
-			strcpy(Msg,In.GetScan());
-			In.ClearScan();
-			OnScreen(0x0E,0x0E,"<%s\n",Msg);
-			for(int i=0;i<server.GetConnectedCnt();i++)
-				if(Alive[i])
-					server.Send(i,"$Server %s",Msg);
-		}
 		for(int i=0;i<server.GetConnectedCnt();i++)
 			if(Alive[i]&&server.Receive(i,Msg)!=SOCKET_ERROR)
 				if(Msg[0]=='$')
@@ -340,6 +331,18 @@ int ServerMain()
 						if(Alive[j]&&j!=i)
 							server.Send(j,"%s>%s",DisplayNames[i].c_str(),Msg);
 				}
+		if(KeyDown(VK_RETURN)&&strlen(In.GetScan())!=0)
+		{
+			strcpy(InStr,In.GetScan());
+			In.ClearScan();
+			OnScreen(0x0E,0x0E,"<%s\n",InStr);
+			if(InStr[0]!='$'&&InStr[0]!='&')
+				sprintf(Msg,"$Server %s",InStr);
+			else strcpy(Msg,InStr);
+			for(int i=0;i<server.GetConnectedCnt();i++)
+				if(Alive[i])
+					server.Send(i,"%s",Msg);
+		}
 		if(AliveCount==0)
 		{
 			AliveCount=40;
@@ -358,7 +361,7 @@ int main()
 {
 	ConTitleA("Cmd Fight");
 	ReadProfile();
-	ColorPrintf(0x07,
+	printf(
 		"PClib Cmd Fight\n"
 		"PCwqyy(c) All right reserved.\n"
 		"Type \"Help\" to get help.\n");
@@ -371,14 +374,19 @@ StartInput:
 		ClientMain();
 	else if(strcmp(InStr,"Profile")==0)
 		SetProfile();
+	else if(strcmp(InStr,"Version")==0)
+		printf("Version: PClib 25v3c\n");
 	else if(strcmp(InStr,"Help")==0)
 		printf(
 			"Server\tStart a server on this computer\n"
 			"Client\tJoin other's server\n"
 			"Profile\tEdit your Profile\n"
+			"Version\tView version\n"
 			"Exit\tExit the program\n");
 	else if(strcmp(InStr,"Exit")==0)
 		return 0;
+	else
+		printf("Unknown command.\n");
 	goto StartInput;
 	return 0;
 }
