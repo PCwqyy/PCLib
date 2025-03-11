@@ -1,4 +1,4 @@
-#ifndef PCL_IO
+#pragma once
 #define PCL_IO
 
 #include<cstdio>
@@ -96,5 +96,3 @@ void printpc(Tps... args)
 		putchar(pcpri::buff[i]);
 	return;
 }
-
-#endif

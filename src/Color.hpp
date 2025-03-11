@@ -1,4 +1,4 @@
-#ifndef PCL_COLOR
+#pragma once
 #define PCL_COLOR
 
 #define clAliceBlue 0xF0F8FF
@@ -214,5 +214,3 @@ Color HighContrust(Color col,double index=0.5)
 
 Color InvertColor(Color col)
 	{return RGB(255-col.R,255-col.G,255-col.B);}
-
-#endif

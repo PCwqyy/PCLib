@@ -1,4 +1,4 @@
-#ifndef PCL_CONSOLE
+#pragma once
 #define PCL_CONSOLE
 
 #include<windows.h>
@@ -243,6 +243,7 @@ private:
 						if(in2==77&&it<len) it++;
 					}
 				}
+				else if(iscntrl(in));
 				else
 				{
 					for(int i=len;i>it;i--)
@@ -461,5 +462,3 @@ bool isWindowsTerminal(){
 		return true;
 	return false;
 }
-
-#endif

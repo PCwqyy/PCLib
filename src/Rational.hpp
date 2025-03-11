@@ -1,4 +1,4 @@
-#ifndef PCL_RATIONAL
+#pragma once
 #define PCL_RATIONAL
 
 #include<cstring>
@@ -128,6 +128,4 @@ int ssprintpc(char* Dest,basicRational<Tp> Th)
 	strcpy(Dest,pcpri::temp);
 	return tlen;
 }
-#endif
-
 #endif

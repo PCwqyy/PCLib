@@ -1,4 +1,4 @@
-#ifndef PCL_SORTTING
+#pragma once
 #define PCL_SORTTING 
 
 template<typename Tp>
@@ -160,5 +160,3 @@ int Invertions(Tp *a,int size)
 	delete []A;
 	return ans;
 }
-
-#endif

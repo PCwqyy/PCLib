@@ -1,4 +1,4 @@
-#ifndef PCL_CONTINERS
+#pragma once
 #define PCL_CONTINERS
 
 #define LINKSTART 0
@@ -892,5 +892,3 @@ class NoTurnTreap
 			return ans;
 		}
 };
-
-#endif

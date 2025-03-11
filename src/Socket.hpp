@@ -1,39 +1,68 @@
+#pragma once
+#define PCL_SOCKET
+
 #include<winsock2.h>
 #include<ws2tcpip.h>
 #include<cstdio>
 #include<vector>
+#include<ctime>
 using std::vector;
 
-#define SK_MAX_BUFF 1024
-#define SK_PING_INFO "!ping!"
+#define pcSK_MAX_BUFF 1024
+#define pcSK_PING_INFO "!ping!"
+#define pcSK_KICK_INFO "!kick!"
+#define WSAEKICKED (WSABASEERR + 9000)
 
 class ServerSocket
 {
 private:
+	struct info
+	{
+		SOCKET soc;
+		bool alive;
+	};
 	WSADATA wsaData;
 	SOCKET listener=INVALID_SOCKET;
-	vector<SOCKET> sockets;
-	char buff[SK_MAX_BUFF],buff2[SK_MAX_BUFF];
+	vector<info> sockets;
+	char buff[pcSK_MAX_BUFF],buff2[pcSK_MAX_BUFF];
+	bool valid(int session)
+		{return sockets.size()>session||sockets[session].alive;}
+	bool create()
+	{
+		int opt=1;
+		listener=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+		setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,(char*)&opt,sizeof(opt));
+		unsigned long mode=-1;
+		ioctlsocket(listener,FIONBIO,&mode);
+		return listener!=INVALID_SOCKET;
+	}
 public:
 	ServerSocket()
 	{
 		WSAStartup(MAKEWORD(2,2),&wsaData);
-		listener=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-		unsigned long mode=-1;
-		ioctlsocket(listener,FIONBIO,&mode);
+		if(!create()) throw("Unable to create socket.");
 	}
 	~ServerSocket()
 	{
 		closesocket(listener);
 		for(auto i:sockets)
-			if(i!=INVALID_SOCKET)
-				closesocket(sockets[i]);
+			if(i.soc!=INVALID_SOCKET)
+				closesocket(i.soc);
 		WSACleanup();
 	}
-	bool Create()
+	void Close()
 	{
-		listener=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-		return listener!=INVALID_SOCKET;
+		for(auto i:sockets)
+			closesocket(i.soc);
+		sockets=vector<info>();
+		closesocket(listener);
+		listener=INVALID_SOCKET;
+		return;
+	}
+	bool Restart()
+	{
+		Close();
+		return create();
 	}
 	bool BindPort(unsigned short port)
 	{
@@ -51,33 +80,48 @@ public:
 		unsigned long mode=-1;
 		ioctlsocket(sock,FIONBIO,&mode);
 		if(sock==INVALID_SOCKET)	return -1;
-		sockets.push_back(sock);
+		sockets.push_back({sock,true});
 		return sockets.size()-1;
+	}
+	bool Send(int session,const char* data)
+	{
+		sprintf(buff2,"%d %s",strlen(data),data);
+		return send(sockets[session].soc,buff2,strlen(buff2),0)>0;
 	}
 	template<typename ...types>
 	bool Send(int session,const char* data,types ...args)
 	{
+		if(!valid(session))
+			return SOCKET_ERROR;
 		sprintf(buff,data,args...);
-		sprintf(buff2,"%d %s",strlen(buff),buff);
-		return send(sockets[session],buff2,strlen(buff2),0)>0;
+		return Send(session,buff);
+	}
+	int SendToAll(const char* data)
+	{
+		int ret=0;
+		int size=sockets.size();
+		for(int i=0;i<size;i++)
+			if(Send(i,data)>0)
+				ret++;
+		return ret;
 	}
 	template<typename ...types>
 	int SendToAll(const char* data,types ...args)
 	{
 		int ret=0;
-		sprintf(buff,data,args...);
-		sprintf(buff2,"%d %s",strlen(buff),buff);
-		int len=strlen(buff2);
-		for(auto i:sockets)
-			if(send(i,buff2,len,0)>0)
+		int size=sockets.size();
+		for(int i=0;i<size;i++)
+			if(Send(i,data,args...)>0)
 				ret++;
 		return ret;
 	}
 	int Receive(int session,char* dest)
 	{
+		if(!valid(session))
+			return SOCKET_ERROR;
 		if(buff[0]=='\0')
 		{
-			int ret=recv(sockets[session],buff,SK_MAX_BUFF,0);
+			int ret=recv(sockets[session].soc,buff,pcSK_MAX_BUFF,0);
 			if(ret<0)	return ret;
 			buff[ret]='\0';
 		}
@@ -97,12 +141,45 @@ public:
 		buff[now2]='\0';
 		return len;
 	}
+	int ReceiveFormAll(void (*proc)(int session,const char* msg))
+	{
+		int ret=0;
+		int size=sockets.size();
+		for(int i=0;i<size;i++)
+			if(Receive(i,buff2)>0)
+				ret++,proc(i,buff2);
+		return ret;
+	}
+	int BlockReceive(int session,char* dest,int timeout=1000,int interval=50)
+	{
+		int ret=SOCKET_ERROR;
+		int end=clock()+timeout;
+		while(clock()<end&&ret==SOCKET_ERROR)
+			ret=Receive(session,dest),
+			Sleep(interval);
+		return ret;
+	}
 	int GetConnectedCnt(){return sockets.size();}
 	bool CheckAlive(int session)
 	{
-		int res=Send(session,SK_PING_INFO);
-		if(res>0)	return true;
-		else		return false;
+		int res=Send(session,pcSK_PING_INFO);
+		sockets[session].alive=(res>0);
+		return sockets[session].alive;
+	}
+	int GetAliveCnt()
+	{
+		int ret=0;
+		for(auto i:sockets)
+			if(i.alive)
+				ret++;
+		return ret;
+	}
+	void Kick(int session)
+	{
+		Send(session,pcSK_KICK_INFO);
+		shutdown(sockets[session].soc,SD_BOTH);
+		sockets[session].alive=false;
+		return;
 	}
 };
 
@@ -112,7 +189,14 @@ class ClientSocket
 private:
 	WSADATA wsaData;
 	SOCKET sock=INVALID_SOCKET;
-	char buff[SK_MAX_BUFF],buff2[SK_MAX_BUFF];
+	char buff[pcSK_MAX_BUFF],buff2[pcSK_MAX_BUFF];
+	bool create()
+	{
+		sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+		unsigned long mode=-1;
+		ioctlsocket(sock,FIONBIO,&mode);
+		return sock!=INVALID_SOCKET;
+	}
 public:
 	ClientSocket()
 	{
@@ -125,13 +209,6 @@ public:
 	{
 		closesocket(sock);
 		WSACleanup();
-	}
-	bool Create()
-	{
-		sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-		unsigned long mode=-1;
-		ioctlsocket(sock,FIONBIO,&mode);
-		return sock!=INVALID_SOCKET;
 	}
 	/** @return `0` means succeeded, check [MSDN](https://learn.microsoft.com/zh-cn/windows/win32/winsock/windows-sockets-error-codes-2)
 	 * ```
@@ -168,18 +245,28 @@ public:
 		}
 		else return 0;
 	}
+	void Disconnect()
+	{
+		closesocket(sock);
+		sock=INVALID_SOCKET;
+		create();
+	}
+	bool Send(const char* data)
+	{
+		sprintf(buff2,"%d %s",strlen(data),data);
+		return send(sock,buff2,strlen(buff2),0)!=SOCKET_ERROR;
+	}
 	template<typename ...types>
 	bool Send(const char* data,types ...args)
 	{
 		sprintf(buff,data,args...);
-		sprintf(buff2,"%d %s",strlen(buff),buff);
-		return send(sock,buff2,strlen(buff2),0)!=SOCKET_ERROR;
+		return Send(buff);
 	}
 	int Receive(char* dest)
 	{
 		if(buff[0]=='\0')
 		{
-			int ret=recv(sock,buff,SK_MAX_BUFF,0);
+			int ret=recv(sock,buff,pcSK_MAX_BUFF,0);
 			if(ret<0)	return ret;
 			buff[ret]='\0';
 		}
@@ -197,10 +284,16 @@ public:
 			buff[now2++]=buff[now++];
 		dest[len]='\0';
 		buff[now2]='\0';
-		if(strcmp(dest,SK_PING_INFO)==0)
+		if(strcmp(dest,pcSK_PING_INFO)==0)
 		{
 			dest[0]='\0';
 			return SOCKET_ERROR;
+		}
+		else if(strcmp(dest,pcSK_KICK_INFO)==0)
+		{
+			dest[0]='\0';
+			Disconnect();
+			return WSAEKICKED;
 		}
 		return len;
 	}

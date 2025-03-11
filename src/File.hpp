@@ -1,4 +1,4 @@
-#ifndef PCL_FILE
+#pragma once
 #define PCL_FILE
 
 #include<cstdio>
@@ -63,6 +63,19 @@ public:
 		{
 			dest[i]=FileOp::getchar();
 			if(Eof()||dest[i]==' '||dest[i]=='\n')
+				break;
+			i++;
+		}
+		dest[i]='\0';
+		return;
+	}
+	void getline(char* dest)
+	{
+		int i=0;
+		while(true)
+		{
+			dest[i]=FileOp::getchar();
+			if(Eof()||dest[i]=='\n')
 				break;
 			i++;
 		}
@@ -153,5 +166,3 @@ public:
 		return;
 	}
 };
-
-#endif
