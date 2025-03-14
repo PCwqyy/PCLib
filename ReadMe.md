@@ -18,7 +18,7 @@ View it on [Github](https://github.com/PCwqyy/PCLib).
 
 # PClib 1.1.9 (Not released)
 - Command managing
-- More powerful socket opearting
+- More powerful socket operating
 
 # Change Log
 [History](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
@@ -30,3 +30,14 @@ View it on [Github](https://github.com/PCwqyy/PCLib).
 - Not finished yet.
 ### `Socket.hpp`
 - Finished socket recycle part.
+## 25v5a
+### New file: `VarSet.hpp`
+- Variant set of `std::any`
+### `Command.hpp`
+- Finished with `VarSet`
+- Now the command func only accept those params are `VarSet`
+- TODO: subcommand & trigger
+### `IO.hpp`
+- Finished input part ~~(the file before is called `O.hpp`)~~
+- Fit `int`, `long long`, `double`, `std::string`, `char`, `char[]`, `std::any` (by using `ScanAnyIn<type>()`), `Large`, `rational`.
+TODO: colorful print

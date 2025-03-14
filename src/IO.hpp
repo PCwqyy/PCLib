@@ -3,9 +3,12 @@
 
 #include<cstdio>
 #include<cstring>
+#include<cctype>
 
 #define pcPF_MAX_PRINT 100000
-#define pcPF_DOUBLEACC 1e8
+#ifndef pcB_DOUBLEACC
+#define pcB_DOUBLEACC 1e8
+#endif
 
 namespace pcpri
 {
@@ -16,6 +19,87 @@ namespace pcpri
 		if(a<0)	return -a;
 		else return a;
 	}
+#ifdef _GLIBCXX_ANY
+	template<typename Tp>
+	struct any_scanner
+	{
+		std::any* tar;
+		Tp temp;
+		void GiveBack()
+			{*tar=std::forward<Tp>(temp);}
+	};
+#endif
+}
+
+int ssscanpc(const char* Src,int& Th)
+{
+	int now=0;
+	bool neg=false;
+	Th=0;
+	while(isspace(Src[now]))
+		now++;
+	if(Src[now]=='-')
+		neg=true,now++;
+	while(Src[now]>='0'&&Src[now]<='9')
+		Th*=10,Th+=Src[now++]-'0';
+	if(neg)
+		Th=-Th;
+	return now;
+}
+int ssscanpc(const char* Src,long long& Th)
+{
+	int now=0;
+	bool neg=false;
+	Th=0;
+	while(isspace(Src[now]))
+		now++;
+	if(Src[now]=='-')
+		neg=true,now++;
+	while(Src[now]>='0'&&Src[now]<='9')
+		Th*=10,Th+=Src[now++]-'0';
+	if(neg)
+		Th=-Th;
+	return now;
+}
+int ssscanpc(const char* Src,double& Th)
+{
+	int now=0,iFing=0,fFing=0;
+	long long iTh=0,fTh=0;
+	bool neg=false;
+	while(isspace(Src[now]))
+		now++;
+	if(Src[now]=='-')
+		neg=true,now++;
+	while(Src[now]>='0'&&Src[now]<='9')
+		iTh*=10,iTh+=Src[now++]-'0';
+	if(Src[now]=='.')
+	{
+		now++;
+		while(Src[now]>='0'&&Src[now]<='9')
+			fTh*=10,fTh+=Src[now++]-'0',fFing++;
+	}
+	Th=fTh;
+	while(fFing--)	Th/=10;
+	Th+=iTh;
+	if(Src[now]=='E'||Src[now]=='e')
+		now+=ssscanpc(Src+(++now),iFing);
+	while(iFing--)	Th*=10;
+	if(neg)	Th=-Th;
+	return now;
+}
+int ssscanpc(const char* Src,char& Th)
+{
+	Th=Src[0];
+	return 1;
+}
+int ssscanpc(const char* Src,char* Th)
+{
+	int now=0,i=0;
+	while(Src[now]!='\0'&&isspace(Src[now]))
+		now++;
+	while(Src[now]!='\0'&&!isspace(Src[now]))
+		Th[i++]=Src[now++];
+	return now;
 }
 
 int ssprintpc(char* Dest,double Th)
@@ -28,10 +112,12 @@ int ssprintpc(char* Dest,double Th)
 			Th=pcpri::abs(Th),
 			pcpri::temp[tlen++]='-';
 		int nTh=Th;
-		int dTh=(Th-nTh)*pcPF_DOUBLEACC;
+		int dTh=(Th-nTh+0.1/pcB_DOUBLEACC)*pcB_DOUBLEACC;
 		while(nTh>0)
 			pcpri::temp[tlen++]='0'+nTh%10,
 			nTh/=10;
+		if(tlen==0)
+			pcpri::temp[tlen++]='0';
 		pcpri::temp[tlen]='\0';
 		strrev(pcpri::temp);
 		pcpri::temp[tlen++]='.';
@@ -46,6 +132,7 @@ int ssprintpc(char* Dest,double Th)
 	}
 	pcpri::temp[tlen]='\0';
 	strcpy(Dest,pcpri::temp);
+	Dest[tlen]='\0';
 	return tlen;
 }
 int ssprintpc(char* Dest,int Th)
@@ -65,18 +152,94 @@ int ssprintpc(char* Dest,int Th)
 	strrev(pcpri::temp);
 	pcpri::temp[tlen]='\0';
 	strcpy(Dest,pcpri::temp);
+	Dest[tlen]='\0';
+	return tlen;
+}
+int ssprintpc(char* Dest,long long Th)
+{
+	int tlen=0;
+	if(Th==0)	pcpri::temp[tlen++]='0';
+	else
+	{
+		if(Th<0)
+			Th=pcpri::abs(Th),
+			pcpri::temp[tlen++]='-';
+		while(Th>0)
+			pcpri::temp[tlen++]='0'+Th%10,
+			Th/=10;
+	}
+	pcpri::temp[tlen]='\0';
+	strrev(pcpri::temp);
+	pcpri::temp[tlen]='\0';
+	strcpy(Dest,pcpri::temp);
+	Dest[tlen]='\0';
 	return tlen;
 }
 int ssprintpc(char* Dest,const char* Th)
 {
 	int tlen=strlen(Th);
 	strcpy(Dest,Th);
+	Dest[tlen]='\0';
 	return tlen;
 }
 int ssprintpc(char* Dest,char Th)
 {
 	Dest[0]=Th;
+	Dest[1]='\0';
 	return 1;
+}
+
+#ifdef _GLIBCXX_STRING
+int ssscanpc(const char* Src,std::string& Th)
+{
+	int ret=ssscanpc(Src,pcpri::temp);
+	Th=pcpri::temp;
+	return ret;
+}
+int ssprintpc(char* Dest,std::string Th)
+{
+	return ssprintpc(Dest,Th.c_str());
+}
+#endif
+
+#ifdef _GLIBCXX_ANY
+/// @brief Get a input handle to use in `scanpc()`
+template<typename Tp>
+pcpri::any_scanner<Tp>& ScanAnyIn(std::any& Dest)
+{
+	pcpri::any_scanner<Tp>* a=new pcpri::any_scanner<Tp>;
+	a->tar=&Dest;
+	return *a;
+}
+template<typename Tp>
+int ssscanpc(const char* Src,pcpri::any_scanner<Tp> Th)
+{
+	int ret=ssscanpc(Src,Th.temp);
+	Th.GiveBack();
+	return ret;
+}
+#endif
+
+void sscanpc(const char* Src){return;}
+template<typename Tp,typename... Tps>
+void sscanpc(const char* Src,Tp& Th,Tps& ...args)
+{
+	sscanpc(Src+ssscanpc(Src,Th),args...);
+	return;
+}
+template<typename... Tps>
+void scanpc(Tps& ...args)
+{
+	int now=0;
+	while(true)
+	{
+		pcpri::buff[now]=getchar();
+		if(pcpri::buff[now]=='\n')
+			if(!now==0)	break;
+		now++;
+	}
+	pcpri::buff[now]='\0';
+	sscanpc(pcpri::buff,args...);
 }
 
 void sprintpc(char* Dest){return;}
