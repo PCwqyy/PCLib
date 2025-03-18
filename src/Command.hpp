@@ -119,3 +119,5 @@ public:
 		void (*d)(const char* arg,PubTp ...args)):
 		command(v),unknown(u),deny(d){}
 };
+
+#include"Multinclude.hpp"

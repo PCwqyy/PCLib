@@ -160,3 +160,5 @@ int Invertions(Tp *a,int size)
 	delete []A;
 	return ans;
 }
+
+#include"Multinclude.hpp"

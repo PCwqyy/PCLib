@@ -298,3 +298,5 @@ public:
 		return len;
 	}
 };
+
+#include"Multinclude.hpp"

@@ -136,21 +136,4 @@ class basicRational
 typedef basicRational<int> rational;
 typedef basicRational<long long> long_rational;
 
-#ifdef PCL_IO
-template<typename Tp>
-int ssprintpc(char* Dest,basicRational<Tp> Th)
-{
-	Th.ToString(pcpri::temp);
-	int tlen=strlen(pcpri::temp);
-	pcpri::temp[tlen]='\0';
-	strcpy(Dest,pcpri::temp);
-	return tlen;
-}
-template<typename Tp>
-int ssscanpc(const char* Src,basicRational<Tp>& Th)
-{
-	sscanf(Src,"%s",pcpri::temp);
-	Th=pcpri::temp;
-	return strlen(pcpri::temp);
-}
-#endif
+#include"Multinclude.hpp"

@@ -129,4 +129,6 @@ void PCDrawText(HWND hwnd,int X,int Y,HFONT Font,int col,LPCWSTR Text)
 	ReleaseDC(hwnd,hdc);
 }
 
-}
+}//extern
+
+#include"Multinclude.hpp"

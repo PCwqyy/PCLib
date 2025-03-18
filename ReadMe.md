@@ -40,4 +40,12 @@ View it on [Github](https://github.com/PCwqyy/PCLib).
 ### `IO.hpp`
 - Finished input part ~~(the file before is called `O.hpp`)~~
 - Fit `int`, `long long`, `double`, `std::string`, `char`, `char[]`, `std::any` (by using `ScanAnyIn<type>()`), `Large`, `rational`.
-TODO: colorful print
+- ~~TODO: colorful print~~ Done.
+## 25v6a
+- add `Multinclude.hpp` to the end of all file.
+### New File: `Multinclude.hpp`
+- Some cross include stuff moved into this file
+- Not necessary to include manually.
+- Finished colorful print(`xxxPrint()` series).
+- TODO: Wide char print
+- TODO: Check out `std::format`;

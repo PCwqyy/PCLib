@@ -166,3 +166,5 @@ public:
 		return;
 	}
 };
+
+#include"Multinclude.hpp"

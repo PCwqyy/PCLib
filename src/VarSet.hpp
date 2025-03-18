@@ -64,3 +64,5 @@ public:
 	iterator begin(){return iterator(0);}
 	iterator end(){return iterator(data.size());}
 };
+
+#include"Multinclude.hpp"

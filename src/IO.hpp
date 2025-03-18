@@ -1,6 +1,10 @@
 #pragma once
 #define PCL_IO
 
+#ifndef _INC_STDIO
+#warning Please include stdio!
+#endif
+
 #include<cstdio>
 #include<cstring>
 #include<cctype>
@@ -31,7 +35,9 @@ namespace pcpri
 #endif
 }
 
-int ssscanpc(const char* Src,int& Th)
+namespace pc
+{
+int sscanner(const char* Src,int& Th)
 {
 	int now=0;
 	bool neg=false;
@@ -46,7 +52,7 @@ int ssscanpc(const char* Src,int& Th)
 		Th=-Th;
 	return now;
 }
-int ssscanpc(const char* Src,long long& Th)
+int sscanner(const char* Src,long long& Th)
 {
 	int now=0;
 	bool neg=false;
@@ -61,7 +67,7 @@ int ssscanpc(const char* Src,long long& Th)
 		Th=-Th;
 	return now;
 }
-int ssscanpc(const char* Src,double& Th)
+int sscanner(const char* Src,double& Th)
 {
 	int now=0,iFing=0,fFing=0;
 	long long iTh=0,fTh=0;
@@ -82,17 +88,17 @@ int ssscanpc(const char* Src,double& Th)
 	while(fFing--)	Th/=10;
 	Th+=iTh;
 	if(Src[now]=='E'||Src[now]=='e')
-		now+=ssscanpc(Src+(++now),iFing);
+		now+=sscanner(Src+(++now),iFing);
 	while(iFing--)	Th*=10;
 	if(neg)	Th=-Th;
 	return now;
 }
-int ssscanpc(const char* Src,char& Th)
+int sscanner(const char* Src,char& Th)
 {
 	Th=Src[0];
 	return 1;
 }
-int ssscanpc(const char* Src,char* Th)
+int sscanner(const char* Src,char* Th)
 {
 	int now=0,i=0;
 	while(Src[now]!='\0'&&isspace(Src[now]))
@@ -102,7 +108,7 @@ int ssscanpc(const char* Src,char* Th)
 	return now;
 }
 
-int ssprintpc(char* Dest,double Th)
+int sprinter(char* Dest,double Th)
 {
 	int tlen=0;
 	if(Th==0)	pcpri::temp[tlen++]='0';
@@ -135,7 +141,7 @@ int ssprintpc(char* Dest,double Th)
 	Dest[tlen]='\0';
 	return tlen;
 }
-int ssprintpc(char* Dest,int Th)
+int sprinter(char* Dest,int Th)
 {
 	int tlen=0;
 	if(Th==0)	pcpri::temp[tlen++]='0';
@@ -155,7 +161,7 @@ int ssprintpc(char* Dest,int Th)
 	Dest[tlen]='\0';
 	return tlen;
 }
-int ssprintpc(char* Dest,long long Th)
+int sprinter(char* Dest,long long Th)
 {
 	int tlen=0;
 	if(Th==0)	pcpri::temp[tlen++]='0';
@@ -175,14 +181,14 @@ int ssprintpc(char* Dest,long long Th)
 	Dest[tlen]='\0';
 	return tlen;
 }
-int ssprintpc(char* Dest,const char* Th)
+int sprinter(char* Dest,const char* Th)
 {
 	int tlen=strlen(Th);
 	strcpy(Dest,Th);
 	Dest[tlen]='\0';
 	return tlen;
 }
-int ssprintpc(char* Dest,char Th)
+int sprinter(char* Dest,char Th)
 {
 	Dest[0]=Th;
 	Dest[1]='\0';
@@ -190,20 +196,20 @@ int ssprintpc(char* Dest,char Th)
 }
 
 #ifdef _GLIBCXX_STRING
-int ssscanpc(const char* Src,std::string& Th)
+int sscanner(const char* Src,std::string& Th)
 {
-	int ret=ssscanpc(Src,pcpri::temp);
+	int ret=pc::sscanner(Src,pcpri::temp);
 	Th=pcpri::temp;
 	return ret;
 }
-int ssprintpc(char* Dest,std::string Th)
+int sprinter(char* Dest,std::string Th)
 {
-	return ssprintpc(Dest,Th.c_str());
+	return sprinter(Dest,Th.c_str());
 }
 #endif
 
 #ifdef _GLIBCXX_ANY
-/// @brief Get a input handle to use in `scanpc()`
+/// @brief Get a input handle to use in `pc::scan()`
 template<typename Tp>
 pcpri::any_scanner<Tp>& ScanAnyIn(std::any& Dest)
 {
@@ -212,23 +218,23 @@ pcpri::any_scanner<Tp>& ScanAnyIn(std::any& Dest)
 	return *a;
 }
 template<typename Tp>
-int ssscanpc(const char* Src,pcpri::any_scanner<Tp> Th)
+int sscanner(const char* Src,pcpri::any_scanner<Tp> Th)
 {
-	int ret=ssscanpc(Src,Th.temp);
+	int ret=pc::sscanner(Src,Th.temp);
 	Th.GiveBack();
 	return ret;
 }
 #endif
 
-void sscanpc(const char* Src){return;}
+void sscan(const char* Src){return;}
 template<typename Tp,typename... Tps>
-void sscanpc(const char* Src,Tp& Th,Tps& ...args)
+void sscan(const char* Src,Tp& Th,Tps& ...args)
 {
-	sscanpc(Src+ssscanpc(Src,Th),args...);
+	sscan(Src+pc::sscanner(Src,Th),args...);
 	return;
 }
 template<typename... Tps>
-void scanpc(Tps& ...args)
+void scan(Tps& ...args)
 {
 	int now=0;
 	while(true)
@@ -239,23 +245,27 @@ void scanpc(Tps& ...args)
 		now++;
 	}
 	pcpri::buff[now]='\0';
-	sscanpc(pcpri::buff,args...);
+	sscan(pcpri::buff,args...);
 }
 
-void sprintpc(char* Dest){return;}
+void sprint(char* Dest){return;}
 template<typename Tp,typename... Tps>
-void sprintpc(char *Dest,Tp Th,Tps ...args)
+void sprint(char *Dest,Tp Th,Tps ...args)
 {
-	sprintpc(Dest+ssprintpc(Dest,Th),args...);
+	sprint(Dest+pc::sprinter(Dest,Th),args...);
 	return;
 }
 
 template<typename... Tps>
-void printpc(Tps... args)
+void print(Tps... args)
 {
-	sprintpc(pcpri::buff,args...);
+	sprint(pcpri::buff,args...);
 	int len=strlen(pcpri::buff);
 	for(int i=0;i<len;i++)
 		putchar(pcpri::buff[i]);
 	return;
 }
+
+}//namespace
+
+#include"Multinclude.hpp"

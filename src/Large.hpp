@@ -508,3 +508,5 @@ int ssprintpc(char* Dest,Large<Length> Th)
 	return tlen;
 }
 #endif
+
+#include"Multinclude.hpp"

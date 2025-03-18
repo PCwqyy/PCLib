@@ -262,3 +262,5 @@ namespace ConScr
 };
 
 #endif
+
+#include"Multinclude.hpp"
