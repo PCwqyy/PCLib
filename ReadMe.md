@@ -48,4 +48,7 @@ View it on [Github](https://github.com/PCwqyy/PCLib).
 - Not necessary to include manually.
 - Finished colorful print(`xxxPrint()` series).
 - TODO: Wide char print
-- TODO: Check out `std::format`;
+- TODO: Check out `std::format`
+## 25v6b
+### File: `Socket.hpp`
+- Now `ClientSocket::Connect()` accepts address.

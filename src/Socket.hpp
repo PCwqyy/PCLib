@@ -230,7 +230,13 @@ public:
 		sockaddr_in Addr;
 		Addr.sin_family=AF_INET;
 		Addr.sin_port=htons(port);
-		Addr.sin_addr.s_addr=inet_addr(address);
+		addrinfo hints={0},*res=nullptr;
+		hints.ai_family=AF_INET;
+		hints.ai_socktype=SOCK_STREAM;
+		if(getaddrinfo(address,nullptr,&hints,&res)!=0)
+			return WSAGetLastError();
+		Addr.sin_addr=((sockaddr_in*)res->ai_addr)->sin_addr;
+		freeaddrinfo(res);
 		if(connect(sock,(sockaddr*)&Addr,sizeof(Addr))==SOCKET_ERROR)
 		{
 			if(WSAGetLastError()!=WSAEWOULDBLOCK)
