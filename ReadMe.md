@@ -1,5 +1,13 @@
 # PClib
 
+![lang](https://img.shields.io/badge/Lang-C++-yellow?logo=cplusplus)
+![version](https://img.shields.io/badge/Version-25v7c-blueviolet)
+[![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
+)
+](https://github.com/PCwqyy/PCLib)
+[![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23
+)](https://gitee.com/pcwqyy/PClib)
+
 This is a personal C++ lib, and some features only available on Windows.
 
 It includes:
@@ -14,8 +22,6 @@ It includes:
 - And more...
 
 The author is a Chinese high school student, who is not so good at English, so please forgive him when you found that he made some stupid mistakes (commonly misspellings).
-
-View it on [Github](https://github.com/PCwqyy/PCLib) or [Gitee](https://gitee.com/pcwqyy/PClib).
 
 # PClib 1.1.9 (Not released)
 - Command managing
