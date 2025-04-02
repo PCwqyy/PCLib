@@ -1,5 +1,6 @@
-#ifndef PCL_WINDOWS
+#pragma once
 #define PCL_WINDOWS
+
 #include<cstdio>
 #include<cwchar>
 #include<windows.h>
@@ -130,4 +131,4 @@ void PCDrawText(HWND hwnd,int X,int Y,HFONT Font,int col,LPCWSTR Text)
 
 }//extern
 
-#endif
+#include"Multinclude.hpp"

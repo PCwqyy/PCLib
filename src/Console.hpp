@@ -1,4 +1,4 @@
-#ifndef PCL_CONSOLE
+#pragma once
 #define PCL_CONSOLE
 
 #include<windows.h>
@@ -131,67 +131,6 @@ void PosPrintf(short x,short y,const wchar_t* format,types... args)
 }
 #endif
 
-#ifdef PCL_COLOR
-void SetColorIOEx(Color fore,Color back)
-{
-	lkOutputOpt.lock();
-	if(!back.DontModify())
-		printf("\033[48;2;%d;%d;%dm",
-			back.R,back.G,back.B);
-	if(!fore.DontModify())
-		printf("\033[38;2;%d;%d;%dm",
-			fore.R,fore.G,fore.B);
-	lkOutputOpt.unlock();
-	return;
-}
-template<typename... types>
-void ColorPrintfEx(Color fore,Color back,const char* format,types... args)
-{
-	lkOutput.lock();
-	SetColorIOEx(fore,back);
-	printf(format,args...);
-	SetColorIO(ConDefaultColor);
-	lkOutput.unlock();
-	return;
-}
-template<typename... types>
-void ColorPosPrintfEx(Color fore,Color back,short x,short y,const char* format,types... args)
-{
-	lkOutput.lock();
-	CursorGoto(x,y);
-	SetColorIOEx(fore,back);
-	printf(format,args...);
-	SetColorIO(ConDefaultColor);
-	lkOutput.unlock();
-	return;
-}
-
-#ifdef UNICODE
-template<typename... types>
-void ColorPrintfEx(Color fore,Color back,const wchar_t* format,types... args)
-{
-	lkOutput.lock();
-	SetColorIOEx(fore,back);
-	printf(format,args...);
-	SetColorIO(ConDefaultColor);
-	lkOutput.unlock();
-	return;
-}
-template<typename... types>
-void ColorPosPrintfEx(Color fore,Color back,short x,short y,const wchar_t* format,types... args)
-{
-	lkOutput.lock();
-	CursorGoto(x,y);
-	SetColorIOEx(fore,back);
-	printf(format,args...);
-	SetColorIO(ConDefaultColor);
-	lkOutput.unlock();
-	return;
-}
-#endif
-
-#endif
-
 #define pcCS_INTERVAL 50
 #define pcCS_MAX_BUFFER 1024
 class ConCursor
@@ -243,6 +182,7 @@ private:
 						if(in2==77&&it<len) it++;
 					}
 				}
+				else if(iscntrl(in));
 				else
 				{
 					for(int i=len;i>it;i--)
@@ -462,4 +402,4 @@ bool isWindowsTerminal(){
 	return false;
 }
 
-#endif
+#include"Multinclude.hpp"

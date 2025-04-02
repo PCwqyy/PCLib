@@ -1,12 +1,15 @@
+#pragma once
+#define PCL_LARGE
+
 #include<cstdio>
 #include<bitset>
 #include<cmath>
 #include<algorithm>
 using std::min;
 
-#define PClg_ERR_OF "Large overflowed!"
-#define PClg_ERR_DIV0 "Cannot div by 0!"
-#define PClg_ERR_INDEX "Not a Hex num!"
+#define pcLG_ERR_OF "Large overflowed!"
+#define pcLG_ERR_DIV0 "Cannot div by 0!"
+#define pcLG_ERR_INDEX "Not a Hex num!"
 
 namespace pcpri
 {
@@ -124,7 +127,7 @@ class Large{
 			bin=0;
 			for(unsigned i=0;str[i];i++)
 				if(str[i]!=' '&&pcpri::ctoi(str[i])>=10){
-					fprintf(stderr,PClg_ERR_INDEX);
+					fprintf(stderr,pcLG_ERR_INDEX);
 				}
 			for(unsigned i=0;str[i];i++)
 				if(str[i]!=' ')
@@ -145,7 +148,7 @@ class Large{
 		bool operator[](Tp a)
 		{
 			if(a>=Length||a<0)
-				fprintf(stderr,PClg_ERR_OF);
+				fprintf(stderr,pcLG_ERR_OF);
 			return bin[a];
 		}
 		//Operator!
@@ -409,7 +412,7 @@ class Large{
 			if(dividend==0)
 				{return result;}
 			if(divisor==0)
-				fprintf(stderr,PClg_ERR_DIV0);
+				fprintf(stderr,pcLG_ERR_DIV0);
 			Large multiple(1),initDivisor(divisor);
 			while(dividend>=divisor)
 			{
@@ -435,7 +438,7 @@ class Large{
 			if(dividend==0)
 				return result;
 			if(divisor==0)
-				fprintf(stderr,PClg_ERR_DIV0);
+				fprintf(stderr,pcLG_ERR_DIV0);
 			Large multiple(1),initDivisor(divisor);
 			while(dividend>=divisor)
 			{
@@ -505,3 +508,5 @@ int ssprintpc(char* Dest,Large<Length> Th)
 	return tlen;
 }
 #endif
+
+#include"Multinclude.hpp"

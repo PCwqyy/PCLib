@@ -1,4 +1,4 @@
-#ifndef PCL_SORTTING
+#pragma once
 #define PCL_SORTTING 
 
 template<typename Tp>
@@ -161,4 +161,4 @@ int Invertions(Tp *a,int size)
 	return ans;
 }
 
-#endif
+#include"Multinclude.hpp"

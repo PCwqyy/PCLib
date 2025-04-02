@@ -1,6 +1,7 @@
 #git rm -r --cached .
 
 dev/*
+test/*
 .vscode/*
 
 *.exe
@@ -8,3 +9,8 @@ dev/*
 *.log
 *.zip
 *.7z
+
+test.*
+Test.*
+ignore.*
+Ignore.*
