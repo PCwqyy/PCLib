@@ -74,11 +74,13 @@ namespace pcpri
 			return format("{}",pcANSI_MARKER_CHAR);
 		}
 	}
-
 	int parseMark(string& res,string input,int len,int i)
 	{
 		string link,text;
 		int temp1=0,temp2=0;
+#ifdef PCL_COLOR
+		Color col;
+#endif
 		switch(input[i])
 		{
 		break;case pcANSI_LINK:
@@ -102,6 +104,19 @@ namespace pcpri
 			for(;i<len&&input[i]!=']';i++)
 				temp2*=10,temp2+=input[i]-'0';
 			res+=format("\e[{};5;{}m",temp1,temp2);
+#ifdef PCL_COLOR
+		break;case pcANSI_COLOR_TRUE:
+			i++;
+			if(input[i]==pcANSI_COLOR_BACK)	temp1=48;
+			if(input[i]==pcANSI_COLOR_FORE)	temp1=38;
+			if(input[++i]!='[')	break;	i++;
+			for(;i<len&&input[i]!=']';i++)
+				text+=input[i];
+			col=StringToColor(text);
+			if(col.DontModify())
+				break;
+			res+=format("\e[{};2;{};{};{}m",temp1,col.R,col.G,col.B);
+#endif
 		break;default:
 			res+=parseSimpleMark(input[i]);
 		break;}

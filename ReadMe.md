@@ -57,7 +57,7 @@ View it on [Github](https://github.com/PCwqyy/PCLib) or [Gitee](https://gitee.co
 ### New File: `Ansi.hpp`
 - Provide functions (`AnsiPrase()`) that escapes string to [ANSI](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html) string which contains formatting information that used in virtual console.
 
-|Format|Escape|Discription|
+|Format|Escape|Description|
 |-:|:-|:-|
 |END_REGION|`$/`|End latest trigger's effect|
 |BOLD|`$b`|**Bold**|
@@ -71,3 +71,10 @@ View it on [Github](https://github.com/PCwqyy/PCLib) or [Gitee](https://gitee.co
 |STRIKETHROUGH|`$s`|~~StrickThrough~~|
 |TWINKLE|`$t`|Blinking text|
 |UNDERLINE|`$u`|Underline|
+## 25v7b
+### File: `Ansi.hpp`, `Color.hpp`
+Support true color ANSI out.
+
+|Format|Escape|Description|
+|-:|:-|:-|
+|COLOR_256|`$c(q\|f)[color]`|true color, `color` accept HTML named colors (`DodgerBlue`, Case sensitive) and HEX colors (`#abcdef`)|
