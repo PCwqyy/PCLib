@@ -14,7 +14,7 @@ It includes:
 
 The author is a Chinese high school student, who is not so good at English, so please forgive him when you found that he made some stupid mistakes (commonly misspellings).
 
-View it on [Github](https://github.com/PCwqyy/PCLib).
+View it on [Github](https://github.com/PCwqyy/PCLib) or [Gitee](https://gitee.com/pcwqyy/PClib).
 
 # PClib 1.1.9 (Not released)
 - Command managing
