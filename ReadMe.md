@@ -1,7 +1,7 @@
 # PClib
 
 ![lang](https://img.shields.io/badge/Lang-C++-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-25v7c-blueviolet)
+![version](https://img.shields.io/badge/Version-1.1.9-green)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
 )
 ](https://github.com/PCwqyy/PCLib)
@@ -23,7 +23,7 @@ It includes:
 
 The author is a Chinese high school student, who is not so good at English, so please forgive him when you found that he made some stupid mistakes (commonly misspellings).
 
-# PClib 1.1.9 (Not released)
+# PClib 1.1.9
 - Command managing
 - More powerful socket operating
 - Ansi print
