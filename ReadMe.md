@@ -19,6 +19,7 @@ View it on [Github](https://github.com/PCwqyy/PCLib).
 # PClib 1.1.9 (Not released)
 - Command managing
 - More powerful socket operating
+- Ansi output
 
 # Change Log
 [History](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
@@ -48,7 +49,25 @@ View it on [Github](https://github.com/PCwqyy/PCLib).
 - Not necessary to include manually.
 - Finished colorful print(`xxxPrint()` series).
 - TODO: Wide char print
-- TODO: Check out `std::format`
+- ~~TODO: Check out `std::format`~~ Done.
 ## 25v6b
 ### File: `Socket.hpp`
 - Now `ClientSocket::Connect()` accepts address.
+## 25v7a
+### New File: `Ansi.hpp`
+- Provide functions (`AnsiPrase()`) that escapes string to [ANSI](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html) string which contains formatting information that used in virtual console.
+
+|Format|Escape|Discription|
+|-:|:-|:-|
+|END_REGION|`$/`|End latest trigger's effect|
+|BOLD|`$b`|**Bold**|
+|COLOR_8|`$q(b\|f)`|4-bit color, `f` means foreground, and `b` meas back.<br>Ex. `qb3` means set background color to yellow.
+|COLOR_256|`$c(q\|f)`|8-bit color|
+|DARKEN|`$d`|Black text|
+|GRAY|`$g`|Gray text|
+|INVERT|`$!`|Invert color|
+|ITALIC|`$i`|*Italic*|
+|LINK|`$l[url](dis)`|[dis](url)|
+|STRIKETHROUGH|`$s`|~~StrickThrough~~|
+|TWINKLE|`$t`|Blinking text|
+|UNDERLINE|`$u`|Underline|

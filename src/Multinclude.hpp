@@ -218,3 +218,14 @@ void ColorPosPrintEx(short x,short y,types... args)
 
 #endif
 #endif
+
+#ifndef PCL_COLOR
+#ifdef PCL_ANSI
+#define PCL_ANSI_INCLUDE_1ST
+#endif
+#else
+#ifdef PCL_ANSI_INCLUDE_1ST
+#warning Please including Color before Ansi, \
+so you can use true color print
+#endif
+#endif
