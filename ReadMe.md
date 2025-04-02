@@ -8,8 +8,9 @@ It includes:
 - Some algorithms
 - Math supporting
 - Color calculation
-- Web socket
-- Console extension
+- Ansi print
+- (Windows) Web socket
+- (Windows) Console extension
 - And more...
 
 The author is a Chinese high school student, who is not so good at English, so please forgive him when you found that he made some stupid mistakes (commonly misspellings).
@@ -19,7 +20,7 @@ View it on [Github](https://github.com/PCwqyy/PCLib) or [Gitee](https://gitee.co
 # PClib 1.1.9 (Not released)
 - Command managing
 - More powerful socket operating
-- Ansi output
+- Ansi print
 
 # Change Log
 [History](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
@@ -59,18 +60,18 @@ View it on [Github](https://github.com/PCwqyy/PCLib) or [Gitee](https://gitee.co
 
 |Format|Escape|Description|
 |-:|:-|:-|
-|END_REGION|`$/`|End latest trigger's effect|
-|BOLD|`$b`|**Bold**|
-|COLOR_8|`$q(b\|f)`|4-bit color, `f` means foreground, and `b` meas back.<br>Ex. `qb3` means set background color to yellow.
-|COLOR_256|`$c(q\|f)`|8-bit color|
-|DARKEN|`$d`|Black text|
-|GRAY|`$g`|Gray text|
-|INVERT|`$!`|Invert color|
-|ITALIC|`$i`|*Italic*|
-|LINK|`$l[url](dis)`|[dis](url)|
-|STRIKETHROUGH|`$s`|~~StrickThrough~~|
-|TWINKLE|`$t`|Blinking text|
-|UNDERLINE|`$u`|Underline|
+|End region|`$/`|End latest trigger's effect|
+|Bold|`$b`|**Bold**|
+|Color 8|`$q(b\|f)`|4-bit color, `f` means foreground, and `b` meas back.<br>Ex. `qb3` means set background color to yellow.
+|Color 256|`$c(q\|f)`|8-bit color|
+|Darken|`$d`|Black text|
+|Grey|`$g`|Gray text|
+|Invert|`$!`|Invert color|
+|Italic|`$i`|*Italic*|
+|Link|`$l[url](text)`|[text](url)|
+|StrickThrough|`$s`|~~StrickThrough~~|
+|Twinkle|`$t`|Blinking text|
+|Underline|`$u`|Underline|
 ## 25v7b
 ### File: `Ansi.hpp`, `Color.hpp`
 Support true color ANSI out.
@@ -78,3 +79,7 @@ Support true color ANSI out.
 |Format|Escape|Description|
 |-:|:-|:-|
 |COLOR_256|`$c(q\|f)[color]`|true color, `color` accept HTML named colors (`DodgerBlue`, Case sensitive) and HEX colors (`#abcdef`)|
+## 25v7c
+### File: `Ansi.hpp`
+- Complete `Ansi.hpp`.
+- link syntax changed into `$l[text](url)`. ~~More reasonable, didn't it?~~

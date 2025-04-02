@@ -86,10 +86,10 @@ namespace pcpri
 		break;case pcANSI_LINK:
 			if(input[++i]!='[')	break;	i++;
 			for(;i<len&&input[i]!=']';i++)
-				link+=input[i];
+				text+=input[i];
 			if(input[++i]!='(')	break;	i++;
 			for(;i<len&&input[i]!=')';i++)
-				text+=input[i];
+				link+=input[i];
 			res+=format("\e]8;;{}\e\\{}\e]8;;\e\\",link,text);
 		break;case pcANSI_COLOR_8:
 			i++;
@@ -170,5 +170,24 @@ inline void AnsiPrintB(string fmt,Tps ...args)
 #else
 #define AnsiPrint AnsiPrintA
 #endif
+
+#ifndef PCL_CONSOLE
+void CursorGoto(short x,short y)
+	{print("\e[{};{}H",x,y);return;}
+#endif
+void ClearCurrentLine()
+	{print("\e[2K");return;}
+void ClearWholeScreen()
+	{print("\e[2J");return;}
+void SaveCurrentCursorPos()
+	{print("\e[2s");return;}
+void RestoreCursorPos()
+	{print("\e[2u");return;}
+void HideCursor()
+	{print("\e[?25l");return;}
+void ShowCursor()
+	{print("\e[?25h");return;}
+void SetConsoleTitle(string title)
+	{print("\e]0;{}\a",title);return;}
 
 #include "Multinclude.hpp"
