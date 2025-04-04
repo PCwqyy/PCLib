@@ -1,3 +1,25 @@
+## 1.1
+- Removed `ConScreen` because it is on dev.
+- Completely fixed mouse input function.
+- Modified Lib structure.
+## 1.1.1
+- Fixed `Large`.
+## 1.1.2
+- Optimized `Large`.
+## 1.1.3
+- Optimized project structure.
+- Move all code to `src`.
+## 1.1.5
+- Add lock for outputs
+## 1.1.6
+- Add RGB256 for `ColorPrintf`
+## 1.1.7
+- New File: `IO.hpp`
+- Rewrite File: `Rational.hpp`
+### `IO.hpp`
+use `printpc(args...)` to print stuff!
+- Adapted `Large` output.
+- Adapted `rational` output.
 ## 25v1a
 ### `Console.hpp`
 - Split `printf` series into Normal / Color / Unicode parts.  
