@@ -1,7 +1,7 @@
 # PClib
 
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-25v8a-blueviolet)
+![version](https://img.shields.io/badge/Version-25v9a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
 )
 ](https://github.com/PCwqyy/PCLib)
@@ -11,12 +11,13 @@
 This is a personal C++ lib, and some features only available on Windows.
 
 It includes:
+- Text user interface
 - Packaged containers
 - IO & file operations
+- Ansi escaping
 - Some algorithms
 - Math supporting
 - Color calculation
-- Ansi print
 - (Windows) Web socket
 - (Windows) Console extension
 - And more...
@@ -34,3 +35,8 @@ The author is a Chinese high school student, who is not so good at English, so p
 - Add class `TextBox` to draw a text box on the screen.
 ### File: `Ansi.hpp`
 - Slightly update for `TUI.hpp`.
+## 25v9a
+### File: `TUI.hpp`
+- Add **StyleSheet** syntax to control the style of text box.
+### File: `Color.hpp`
+- Remove color macros. Use `NamedColor[]` instead.

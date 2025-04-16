@@ -137,7 +137,7 @@ std::string AnsiParse(std::string input,bool close=false)
 			}
 			else
 			{
-				res+=pcpri::parseSimpleMark(pcANSI_END_REGION);
+				res+=pcpri::parseSimpleMark(pcANSI_END_REGION)+(close?"\a":"");
 				fmt.pop_back();
 				for(auto j:fmt)
 					pcpri::parseMark(res,j,j.size(),0,close);
