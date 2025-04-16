@@ -35,7 +35,7 @@ map<string,int> NamedColor=
 #define pcTB_NO_TITLE		0x20
 #define pcTB_NO_TITLE_SPACE	0x40
 
-namespace pcpri
+namespace stylepri
 {
 	const regex MatchAttr(R"((\S+):\s*(\S+);)");
 	struct Border
@@ -82,7 +82,7 @@ namespace pcpri
 		if(it==NamedStyle.end())
 			return false;
 		if(it->second.has("*COLOR"))
-			return NamedColor.find(val)!=NamedColor.end();
+			return !StringToColor(val).DontModify();
 		if(it->second.has("*BORDER"))
 			return NamedBorders.find(val)!=NamedBorders.end();
 		return it->second.has(val);
@@ -96,7 +96,7 @@ private:
 	void parse(string t)
 	{
 		std::smatch res;
-		auto begin=std::sregex_iterator(t.begin(),t.end(),pcpri::MatchAttr);
+		auto begin=std::sregex_iterator(t.begin(),t.end(),stylepri::MatchAttr);
 		auto end=std::sregex_iterator();
 		string k,v;
 		for(auto it=begin;it!=end;it++)
@@ -109,7 +109,7 @@ public:
 	StyleSheet(string t){parse(t);}
 	bool SetAttribute(string attr,string val)
 	{
-		if(!pcpri::ValidStyle(attr,val))
+		if(!stylepri::ValidStyle(attr,val))
 			return false;
 		s[attr]=val;
 		return true;
@@ -117,7 +117,7 @@ public:
 	string GetAttribute(string attr)
 	{
 		if(s.find(attr)==s.end())
-			return pcpri::NamedStyle.find(attr)->second.def;
+			return stylepri::NamedStyle.find(attr)->second.def;
 		else return s[attr];
 	}
 	string operator[] (string k){return GetAttribute(k);}
@@ -137,16 +137,21 @@ public:
 		if(s.find("border-color")!=s.end())
 			AnsiPrint("${}f[{}]",COLOR_MODE,GetAttribute("border-color"));
 	}
-	pcpri::Border GetBorder()
-		{return pcpri::NamedBorders.find(GetAttribute("border"))->second;}
+	stylepri::Border GetBorder()
+		{return stylepri::NamedBorders.find(GetAttribute("border"))->second;}
 };
 
-class TextBox
+class Element
 {
 protected:
-	string text,title;
-	short left,top,height,width,visHei;
 	StyleSheet style;
+};
+
+class TextBox:public Element
+{
+protected:
+	string text,name;
+	short height,width,visHei;
 	struct word
 	{
 		string word;char space;
@@ -225,7 +230,7 @@ protected:
 		visHei=(height==-1)?lines.size():height;
 		return ell;
 	}
-	void printBox()
+	void printBox(short left,short top)
 	{
 		CursorGoto(left,top);
 		for(int i=0;i<visHei;i++)
@@ -233,7 +238,7 @@ protected:
 			std::print("{}",string(width,' '));
 		CursorGoto(left,top);
 	}
-	void printText(vector<line> lines,bool ell)
+	void printText(short left,short top,vector<line> lines,bool ell)
 	{
 		CursorGoto(left,top);
 		int l=lines.size();
@@ -244,16 +249,16 @@ protected:
 			CursorGoto(left+width-1,top+height-1),
 			std::print("…");
 	}
-	void printBorder()
+	void printBorder(short left,short top)
 	{
-		short borderPos[4][2]=
+		int borderPos[4][2]=
 		{
-			{static_cast<short>(left-1),static_cast<short>(top-1)},
-			{static_cast<short>(left+width),static_cast<short>(top-1)},
-			{static_cast<short>(left-1),static_cast<short>(top+visHei)},
-			{static_cast<short>(left+width),static_cast<short>(top+visHei)}
+			{left-1,top-1},
+			{left+width,top-1},
+			{left-1,top+visHei},
+			{left+width,top+visHei}
 		};
-		pcpri::Border border=style.GetBorder();
+		stylepri::Border border=style.GetBorder();
 		for(int i=0;i<4;i++)
 			CursorGoto(borderPos[i][0],borderPos[i][1]),
 			std::print("{}",border.c[i]);
@@ -270,9 +275,9 @@ protected:
 			CursorGoto(left+width,top+i),
 			std::print("{}",border.c[5]);
 		if(style["title"]=="hidden")	return;
-		string t=title;
-		if(title.length()>width)
-			t=title.substr(0,width)+"…";
+		string t=name;
+		if(name.length()>width)
+			t=name.substr(0,width)+"…";
 		if(style["title-space"]=="true")
 			t=" "+t+" ";
 		int len=t.length();
@@ -282,10 +287,10 @@ protected:
 			CursorGoto(left+width-len,top-1);
 		else if(style["title-align"]=="left")
 			CursorGoto(left,top-1);
-		std::print("{}",t);
+		AnsiPrint("{}",t);
 	}
 public:
-	void Print()
+	void Print(short left,short top)
 	{
 		vector<line> lines;
 		bool ell=prepareLine(lines);
@@ -294,10 +299,10 @@ public:
 		ResetAnsiStyle();
 		if(style["border"]!="none")
 			style.ApplyBorderStyle(),
-			printBorder();
+			printBorder(left,top);
 		AnsiPrint("{}",style.GetTextAnsi());
-		printBox();
-		printText(lines,ell);
+		printBox(left,top);
+		printText(left,top,lines,ell);
 		ResetAnsiStyle();
 		RestoreCursorPos();
 		ShowCursor();
@@ -307,7 +312,6 @@ public:
 	void SetText(string t)
 	{
 		text=t;
-		Print();
 		return;
 	}
 	/**
@@ -317,10 +321,17 @@ public:
 	 * @param h height
 	 * @param w width
 	 * @param t text
-	 * @param tt title
+	 * @param n title
 	 * @param s stylesheet (Yes the grammar IS what you think.)
 	 */
-	TextBox(short x,short y,short w,short h,string tt,string t,string s=""):
-		text(t),style(s),left(x),top(y),height(h),width(w),title(tt)
-	{}
+	TextBox(short w,short h,string n,string t,string s=""):
+		text(t),height(h),width(w),name(n)
+	{
+		style=s;
+	}
+};
+
+class ProgressBar:public Element
+{
+	
 };

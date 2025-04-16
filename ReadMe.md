@@ -25,7 +25,7 @@ It includes:
 The author is a Chinese high school student, who is not so good at English, so please forgive him when you found that he made some stupid mistakes (commonly misspellings).
 
 # PClib 1.2 (Not Released)
-- TUI lib! Try to become a C++ version [Rich]().
+- TUI lib! Try to become a C++ version [Rich](https://github.com/Textualize/rich).
 
 # Change Log
 [History](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
