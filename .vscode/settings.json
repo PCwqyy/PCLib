@@ -65,7 +65,8 @@
 		"thread": "cpp",
 		"typeinfo": "cpp",
 		"variant": "cpp",
-		"print": "cpp"
+		"print": "cpp",
+		"set": "cpp"
 	},
 	"cSpell.words": [
 		"Cornsilk",

@@ -3,6 +3,7 @@
 
 #include<map>
 #include<cstdio>
+#include<string>
 using std::string;
 using std::map;
 

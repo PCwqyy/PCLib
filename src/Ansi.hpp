@@ -18,7 +18,7 @@ namespace pcpri
 	}
 }
 
-#define pcANSI_MARKER_CHAR '$'
+#define pcANSI_MARKER_CHAR '%'
 #define pcANSI_END_REGION '/'
 #define pcANSI_BOLD 'b'
 #define pcANSI_COLOR_8 'q'

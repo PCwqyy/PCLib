@@ -40,3 +40,6 @@ The author is a Chinese high school student, who is not so good at English, so p
 - Add **StyleSheet** syntax to control the style of text box.
 ### File: `Color.hpp`
 - Remove color macros. Use `NamedColor[]` instead.
+## 25v10a
+- Split file `TUI.hpp` to multi files under `src/TUI/`.
+- Add console context.
