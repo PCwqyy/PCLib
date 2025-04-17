@@ -14,17 +14,18 @@ using std::map;
 #include"./TUI/SytleSheet.hpp"
 #include"./TUI/Element.hpp"
 #include"./TUI/TextBox.hpp"
+#include"./TUI/ProgressBar.hpp"
 
 class ConsoleContext
 {
 	short x=0,y=0,my=0,width;
 public:
 	ConsoleContext(short w){width=w;}
-	void Print(TextBox tb)
+	void Print(Element& ele)
 	{
-		pcpri::COORD a=tb.Print(x,y,width-x);
+		pcpri::COORD a=ele.Print(x,y,width-x);
 		if(a.x==-1)
-			y=my,a=tb.Print(0,y,width);
+			y=my,a=ele.Print(0,y,width);
 		x=a.x,my=std::max(my,a.y);
 		if(a.x==width)	x=0,y=my;
 		CursorGoto(x,y);

@@ -30,7 +30,7 @@ bool ValidNamedColor(string a)
 
 namespace stylepri{
 
-const regex MatchAttr(R"((\S+):\s*(\S+);)");
+const regex MatchAttr(R"((\S+):\s*(.+);)");
 struct Border
 {
 	string c[6];
@@ -41,15 +41,33 @@ struct Border
 		c[4]=vertical,c[5]=horizontal;
 	}
 };
-const map<string,Border> NamedBorders=
+map<string,Border> NamedBorders=
 {
 	{"ascii",Border("+","+","+","+","-","|")},
 	{"solid",Border("┌","┐","└","┘","─","│")},
 	{"round",Border("╭","╮","╰","╯","─","│")},
 	{"double",Border("╔","╗","╚","╝","═","║")},
 	{"dotdot",Border("·","·","·","·","·",":")},
+	{"block",Border(" "," "," "," "," "," ")},
 	{"none",Border("","","","","","")}
 };
+struct Bar
+{
+	string t,f,l,r;
+	Bar(string finished,string unfinished,
+		string leftbracket,string rightbracket):
+		t(finished),f(unfinished),l(leftbracket),r(rightbracket){}
+};
+map<string,Bar> NamedBars=
+{
+	{"line",Bar("━","─","<",">")},
+	{"block",Bar(" "," ","[","]")},
+	{"cube",Bar("■","□","[","]")},
+	{"dashed",Bar("─","┈","<",">")},
+	{"ascii",Bar("#"," ","[","]")}
+};
+
+
 struct StyleVals
 {
 	std::set<string> vals;string def;
@@ -62,31 +80,43 @@ const map<string,StyleVals> NamedStyle=
 	{"height",{{"<LENGTH>"},"fit"}},
 #ifdef PCL_COLOR
 	{"color",{{"<COLOR>"},"lightgray"}},
+	{"title-color",{{"<COLOR>"},"lightgray"}},
 	{"background-color",{{"<COLOR>"},"black"}},
 	{"border-color",{{"<COLOR>"},"lightgray"}},
 #else
 	{"color",{{"<COLOR>"},"7"}},
+	{"title-color",{{"<COLOR>"},"7"}},
 	{"background-color",{{"<COLOR>"},"0"}},
 	{"border-color",{{"<COLOR>"},"7"}},
 #endif
-	{"border",{{"<BORDER>"},"solid"}},
 	{"text-align",{{"left","right","center"},"left"}},
 	{"title-align",{{"left","right","center"},"left"}},
 	{"overflow",{{"cut","ellipsis"},"ellipsis"}},
 	{"title",{{"hidden","visible"},"visible"}},
-	{"title-space",{{"true","false"},"true"}}
+	{"title-space",{{"true","false"},"true"}},
+	{"border",{{"<BORDER>"},"solid"}},
+	{"bar",{{"<BAR>"},"line"}},
+	{"bar-bracket",{{"true","false"},"false"}},
+	// 0:advance, 1:tot, 2:percent, 3:speed, 4:estimate, 5:title
+	{"bar-format",{{"<STRING>"}," {0:.1f}/{1:.1f}"}},
 };
 bool ValidStyle(string att,string val)
 {
 	auto it=NamedStyle.find(att);
 	if(it==NamedStyle.end())
 		return false;
+	if(it->second.has("<STRING>"))
+		return true;
 	if(it->second.has("<COLOR>"))
+	{
+		if(val=="unset")
+			return true;
 #ifdef PCL_COLOR
 		return !StringToColor(val).DontModify();
 #else
 		return ValidNamedColor(val);
 #endif
+	}
 	if(it->second.has("<BORDER>"))
 		return NamedBorders.find(val)!=NamedBorders.end();
 	if(it->second.has("<LENGTH>"))
@@ -117,8 +147,6 @@ private:
 		return;
 	}
 public:
-	StyleSheet(){}
-	StyleSheet(string t){parse(t);}
 	bool SetAttribute(string attr,string val)
 	{
 		if(!stylepri::ValidStyle(attr,val))
@@ -128,34 +156,61 @@ public:
 	}
 	string GetAttribute(string attr)
 	{
-		if(s.find(attr)==s.end())
-			return stylepri::NamedStyle.find(attr)->second.def;
-		else return s[attr];
+		auto res=s.find(attr);
+		if(res==s.end()||res->second=="unset")
+		{
+			auto res2=stylepri::NamedStyle.find(attr);
+			if(res2==stylepri::NamedStyle.end())
+				throw "Invalid attribute!";
+			return res2->second.def;
+		}
+			
+		else return res->second;
 	}
 	string operator[] (string k){return GetAttribute(k);}
 	string GetTextAnsi()
 	{
 		ResetAnsiStyle();
 		string res;
-		res+=std::format("%{}f[{}]",COLOR_MODE,GetAttribute("color"));
-		res+=std::format("%{}b[{}]",COLOR_MODE,GetAttribute("background-color"));
+		res+=std::format("{}{}f[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,GetAttribute("color"));
+		res+=std::format("{}{}b[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,GetAttribute("background-color"));
 		return res;
+	}
+	void ApplyBarStyle(bool fini)
+	{
+		ResetAnsiStyle();
+		string v=GetAttribute(fini?"color":"background-color");
+		AnsiPrint("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v);
 	}
 	void ApplyBorderStyle()
 	{
 		ResetAnsiStyle();
-		if(s.find("border-color")!=s.end())
-			AnsiPrint("%{}f[{}]",COLOR_MODE,GetAttribute("border-color"));
+		string v=GetAttribute("border-color");
+		AnsiPrint("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v);
+	}
+	void ApplyTitleStyle()
+	{
+		ResetAnsiStyle();
+		string v=GetAttribute("title-color");
+		AnsiPrint("{}{}f[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,v);
+	}
+	void GetSize(short& width,short& height)
+	{
+		string att=GetAttribute("width");
+		int a=-1,b=-1;
+		if(att=="max")	a=-1;
+		else if(sscanf(att.c_str(),"%d",&a)!=1)	a=-1;
+		att=GetAttribute("height");
+		if(att=="fit")	b=-1;
+		else if(sscanf(att.c_str(),"%d",&b)!=1)	b=-1;
+		width=a;
+		height=b;
 	}
 	stylepri::Border GetBorder()
 		{return stylepri::NamedBorders.find(GetAttribute("border"))->second;}
-	void GetSize(short& w,short& h)
-	{
-		string wi=GetAttribute("width");
-		string he=GetAttribute("height");
-		if(wi=="max")	w=-1;
-		else	sscanf(wi.c_str(),"%d",&w);
-		if(he=="fit")	h=-1;
-		else	sscanf(he.c_str(),"%d",&h);
-	}
+	stylepri::Bar GetBar()
+		{return stylepri::NamedBars.find(GetAttribute("bar"))->second;}
+	StyleSheet(){}
+	StyleSheet(string t){parse(t);}
+	StyleSheet(const char* s){parse(string(s));}
 };

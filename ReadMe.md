@@ -22,7 +22,12 @@ It includes:
 - (Windows) Console extension
 - And more...
 
+## Contact
+
 The author is a Chinese high school student, who is not so good at English, so please forgive him when you found that he made some stupid mistakes (commonly misspellings).
+
+E-Mail: w123567910@outlook.com  
+Blogs: [www.cnblogs.com/PCwqyy](https://www.cnblogs.com/PCwqyy)
 
 # PClib 1.2 (Not Released)
 - TUI lib! Try to become a C++ version [Rich](https://github.com/Textualize/rich).
@@ -43,3 +48,9 @@ The author is a Chinese high school student, who is not so good at English, so p
 ## 25v10a
 - Split file `TUI.hpp` to multi files under `src/TUI/`.
 - Add console context.
+## 25v11a
+### TUI
+- Add `ProgressBar`.
+- Fixed `TextBox` logic mistakes.
+### File: `File.hpp`
+- Add c++23 style out.

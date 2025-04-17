@@ -7,7 +7,14 @@ class Element
 {
 protected:
 	StyleSheet style;
+	short left,top,height,width;
 public:
-	pcpri::COORD Print(short left,short top,short visWid=-1)
-		{return {left,top};}
+	virtual pcpri::COORD Print(short x,short y,short visWid=-1)
+	{
+		left=x,top=y;
+		return {left,top};
+	}
+	Element()
+		{height=0,width=0,left=0,top=0;}
+	virtual ~Element(){}
 };

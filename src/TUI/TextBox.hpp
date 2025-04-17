@@ -29,7 +29,7 @@ protected:
 		}
 	};
 	struct line{int pre;string line;};
-	void breakWord(short width,vector<word>& words)
+	void breakWord(vector<word>& words)
 	{
 		string parsed=AnsiParse(style.GetTextAnsi()+text,true);
 		char l=-1;int len=parsed.length();
@@ -57,20 +57,19 @@ protected:
 		}
 		words.push_back(word(cur,l));
 	}
-	bool prepareLine(short height,short width,vector<line>& lines)
+	bool prepareLine(vector<line>& lines)
 	{
 		vector<word> words;
-		breakWord(width,words);
+		breakWord(words);
 		int x=0,y=1,sw,sx,len=words.size();
-		bool ell=false;
+		bool ell=false,ovfl=style["overflow"]=="ellipsis";
 		string cur;
 		for(int i=0;i<len;i++)
 		{
 			sx=x,x+=words[i].visibleLen();
 			if(words[i].space=='\n'||x>width)
 			{
-				if(style["overflow"]=="ellipsis"&&i<len&&
-				   height!=-1&&lines.size()==height-1)
+				if(ovfl&&i<len&&height!=-1&&lines.size()==height-1)
 					if(sx<width)	cur+="…",sx++;
 					else			ell=true;
 				if(style["text-align"]=="center")	sw=(width-sx)/2;
@@ -81,7 +80,7 @@ protected:
 			}
 			cur+=words[i].toString();
 		}
-		sx=cur.length();
+		sx=x;
 		if(style["text-align"]=="center")	sw=(width-sx)/2;
 		else if(style["text-align"]=="right")	sw=width-sx;
 		else if(style["text-align"]=="left")	sw=0;
@@ -89,7 +88,7 @@ protected:
 		visHei=(height==-1)?lines.size():height;
 		return ell;
 	}
-	void printBox(short height,short width,short left,short top)
+	void printBox()
 	{
 		CursorGoto(left,top);
 		for(int i=0;i<visHei;i++)
@@ -97,7 +96,7 @@ protected:
 			std::print("{}",string(width,' '));
 		CursorGoto(left,top);
 	}
-	void printText(short height,short width,short left,short top,vector<line> lines,bool ell)
+	void printText(vector<line> lines,bool ell)
 	{
 		CursorGoto(left,top);
 		int l=lines.size();
@@ -108,7 +107,7 @@ protected:
 			CursorGoto(left+width-1,top+height-1),
 			std::print("…");
 	}
-	void printBorder(short height,short width,short left,short top)
+	void printBorder()
 	{
 		int borderPos[4][2]=
 		{
@@ -134,6 +133,7 @@ protected:
 			CursorGoto(left+width,top+i),
 			std::print("{}",border.c[5]);
 		if(style["title"]=="hidden")	return;
+		style.ApplyTitleStyle();
 		string t=name;
 		if(name.length()>width)
 			t=name.substr(0,width)+"…";
@@ -149,51 +149,68 @@ protected:
 		AnsiPrint("{}",t);
 	}
 public:
-	pcpri::COORD Print(short left,short top,short visWid=-1)
+	pcpri::COORD Print(short x,short y,short visWid=-1)
 	{
-		short height,width;
+		left=x,top=y;
 		bool hasBorder=style["border"]!="none";
-		style.GetSize(width,height);
-		if(visWid<width)
-			return {-1,-1};
-		if(hasBorder&&visWid!=-1)
-			left++,top++,visWid-=2;
-		if(visWid!=-1&&width==-1)
-			width=visWid,visWid=-2;
+		if(width==0||height==0)
+			style.GetSize(width,height);
+		if(visWid!=-1)
+		{
+			if(visWid<width)	return {-1,-1};
+			if(hasBorder)	left++,top++,visWid-=2;
+			if(width==-1)	width=visWid,visWid=-2;
+		}
 		vector<line> lines;
-		bool ell=prepareLine(height,width,lines);
+		bool ell=prepareLine(lines);
 		HideCursor();
 		ResetAnsiStyle();
 		if(hasBorder)
 			style.ApplyBorderStyle(),
-			printBorder(height,width,left,top);
+			printBorder();
 		AnsiPrint("{}",style.GetTextAnsi());
-		printBox(height,width,left,top);
-		printText(height,width,left,top,lines,ell);
+		printBox();
+		printText(lines,ell);
 		ResetAnsiStyle();
 		ShowCursor();
-		left+=width,top+=visHei;
-		if(hasBorder)
-			left++,top++;
-		if(visWid==-2)	width=-1;
-		return {left,top};
+		height=visHei;
+		x+=width,y+=visHei;
+		if(hasBorder)	x+=2,y+=2;
+		return {x,y};
+	}
+	void Reprint(short x,short y)
+	{
+		left=x,top=y;
+		bool hasBorder=style["border"]!="none";
+		if(width==0||height==0)
+			style.GetSize(width,height);
+		vector<line> lines;
+		bool ell=prepareLine(lines);
+		HideCursor();
+		ResetAnsiStyle();
+		AnsiPrint("{}",style.GetTextAnsi());
+		printBox();
+		printText(lines,ell);
+		ResetAnsiStyle();
+		ShowCursor();
+		height=visHei;
+		x+=width,y+=visHei;
+		if(hasBorder)	x+=2,y+=2;
+		return;
 	}
 	string GetText(){return text;}
 	void SetText(string t)
 	{
 		text=t;
+		Reprint(left,top);
 		return;
 	}
 	/**
 	 * @brief Construct a textbox. Ansi supported
-	 * @param x left
-	 * @param y top
-	 * @param h height
-	 * @param w width
-	 * @param t text
 	 * @param n title
+	 * @param t text
 	 * @param s stylesheet (Yes the grammar IS what you think.)
 	 */
-	TextBox(string n,string t,string s=""):
-		text(t),name(n){style=s;}
+	TextBox(string n,string t,StyleSheet s=""):
+		Element(),text(t),name(n){style=s;}
 };
