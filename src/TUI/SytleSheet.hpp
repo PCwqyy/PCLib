@@ -30,7 +30,7 @@ bool ValidNamedColor(string a)
 
 namespace stylepri{
 
-const regex MatchAttr(R"((\S+):\s*(.+);)");
+const regex MatchAttr(R"(([^:\s]+?):\s*([^;]+?);)");
 struct Border
 {
 	string c[6];
@@ -120,6 +120,8 @@ bool ValidStyle(string att,string val)
 	}
 	if(it->second.has("<BORDER>"))
 		return NamedBorders.find(val)!=NamedBorders.end();
+	if(it->second.has("<BAR>"))
+		return NamedBars.find(val)!=NamedBars.end();
 	if(it->second.has("<LENGTH>")||it->second.has("<NUMBER>"))
 	{
 		if(val=="fit"&&val=="max")
@@ -204,8 +206,7 @@ public:
 		att=GetAttribute("height");
 		if(att=="fit")	b=-1;
 		else if(sscanf(att.c_str(),"%d",&b)!=1)	b=-1;
-		width=a;
-		height=b;
+		width=a,height=b;
 	}
 	int GetLazy()
 	{

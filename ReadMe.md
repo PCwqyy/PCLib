@@ -58,3 +58,5 @@ Blogs: [www.cnblogs.com/PCwqyy](https://www.cnblogs.com/PCwqyy)
 ### TUI
 - `ProgressBar` finished
 TODO: `AnsiString`
+## 25v12b
+- Fix logic mistakes
