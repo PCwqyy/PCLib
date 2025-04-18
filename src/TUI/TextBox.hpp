@@ -9,7 +9,7 @@ using std::vector;
 class TextBox:public Element
 {
 protected:
-	string text,name;
+	string text,name,sb,stt,st;
 	short visHei;
 	struct word
 	{
@@ -133,7 +133,7 @@ protected:
 			CursorGoto(left+width,top+i),
 			std::print("{}",border.c[5]);
 		if(style["title"]=="hidden")	return;
-		style.ApplyTitleStyle();
+		std::print("{}",stt);
 		string t=name;
 		if(name.length()>width)
 			t=name.substr(0,width)+"…";
@@ -147,6 +147,13 @@ protected:
 		else if(style["title-align"]=="left")
 			CursorGoto(left,top-1);
 		AnsiPrint("{}",t);
+	}
+	void getStyles()
+	{
+		if(stt.empty())	stt=style.GetTitleStyle();
+		if(st.empty())	st=style.GetTextAnsi();
+		if(sb.empty())	sb=style.GetBorderStyle();
+		return;
 	}
 public:
 	pcpri::COORD Print(short x,short y,short visWid=-1)
@@ -166,7 +173,7 @@ public:
 		HideCursor();
 		ResetAnsiStyle();
 		if(hasBorder)
-			style.ApplyBorderStyle(),
+			std::print("{}",sb),
 			printBorder();
 		AnsiPrint("{}",style.GetTextAnsi());
 		printBox();

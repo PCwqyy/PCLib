@@ -99,6 +99,7 @@ const map<string,StyleVals> NamedStyle=
 	{"bar-bracket",{{"true","false"},"false"}},
 	// 0:advance, 1:tot, 2:percent, 3:speed, 4:estimate, 5:title
 	{"bar-format",{{"<STRING>"}," {0:.1f}/{1:.1f}"}},
+	{"bar-lazy",{{"<NUMBER>"},"200"}},
 };
 bool ValidStyle(string att,string val)
 {
@@ -119,7 +120,7 @@ bool ValidStyle(string att,string val)
 	}
 	if(it->second.has("<BORDER>"))
 		return NamedBorders.find(val)!=NamedBorders.end();
-	if(it->second.has("<LENGTH>"))
+	if(it->second.has("<LENGTH>")||it->second.has("<NUMBER>"))
 	{
 		if(val=="fit"&&val=="max")
 			return true;
@@ -176,23 +177,23 @@ public:
 		res+=std::format("{}{}b[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,GetAttribute("background-color"));
 		return res;
 	}
-	void ApplyBarStyle(bool fini)
+	string GetBarStyle(bool fini)
 	{
 		ResetAnsiStyle();
 		string v=GetAttribute(fini?"color":"background-color");
-		AnsiPrint("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v);
+		return AnsiParse(std::format("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v));
 	}
-	void ApplyBorderStyle()
+	string GetBorderStyle()
 	{
 		ResetAnsiStyle();
 		string v=GetAttribute("border-color");
-		AnsiPrint("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v);
+		return AnsiParse(std::format("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v));
 	}
-	void ApplyTitleStyle()
+	string GetTitleStyle()
 	{
 		ResetAnsiStyle();
 		string v=GetAttribute("title-color");
-		AnsiPrint("{}{}f[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,v);
+		return AnsiParse(std::format("{}{}f[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,v));
 	}
 	void GetSize(short& width,short& height)
 	{
@@ -205,6 +206,12 @@ public:
 		else if(sscanf(att.c_str(),"%d",&b)!=1)	b=-1;
 		width=a;
 		height=b;
+	}
+	int GetLazy()
+	{
+		int a=25;
+		sscanf(GetAttribute("bar-lazy").c_str(),"%d",&a);
+		return a;
 	}
 	stylepri::Border GetBorder()
 		{return stylepri::NamedBorders.find(GetAttribute("border"))->second;}
