@@ -14,6 +14,8 @@ public:
 		left=x,top=y;
 		return {left,top};
 	}
+	string GetStyle(string attr){return style[attr];}
+	void SetStyle(string attr,string val){style.SetAttribute(attr,val);}
 	Element()
 		{height=0,width=0,left=0,top=0;}
 	virtual ~Element(){}

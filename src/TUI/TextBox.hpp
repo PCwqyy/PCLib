@@ -9,7 +9,7 @@ using std::vector;
 class TextBox:public Element
 {
 protected:
-	string text,name,sb,stt,st;
+	string text,title;
 	short visHei;
 	struct word
 	{
@@ -133,13 +133,11 @@ protected:
 			CursorGoto(left+width,top+i),
 			std::print("{}",border.c[5]);
 		if(style["title"]=="hidden")	return;
-		std::print("{}",stt);
-		string t=name;
-		if(name.length()>width)
-			t=name.substr(0,width)+"…";
+		std::print("{}",style.GetTitleStyle());
+		string t=title;
 		if(style["title-space"]=="true")
 			t=" "+t+" ";
-		int len=t.length();
+		int len=AnsiVisLen(t);
 		if(style["title-align"]=="center")
 			CursorGoto(left+width/2-len/2,top-1);
 		else if(style["title-align"]=="right")
@@ -147,13 +145,6 @@ protected:
 		else if(style["title-align"]=="left")
 			CursorGoto(left,top-1);
 		AnsiPrint("{}",t);
-	}
-	void getStyles()
-	{
-		if(stt.empty())	stt=style.GetTitleStyle();
-		if(st.empty())	st=style.GetTextAnsi();
-		if(sb.empty())	sb=style.GetBorderStyle();
-		return;
 	}
 public:
 	pcpri::COORD Print(short x,short y,short visWid=-1)
@@ -173,7 +164,7 @@ public:
 		HideCursor();
 		ResetAnsiStyle();
 		if(hasBorder)
-			std::print("{}",sb),
+			std::print("{}",style.GetBorderStyle()),
 			printBorder();
 		AnsiPrint("{}",style.GetTextAnsi());
 		printBox();
@@ -219,5 +210,5 @@ public:
 	 * @param s stylesheet (Yes the grammar IS what you think.)
 	 */
 	TextBox(string n,string t,StyleSheet s=""):
-		Element(),text(t),name(n){style=s;}
+		Element(),text(t),title(n){style=s;}
 };

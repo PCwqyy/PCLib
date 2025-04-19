@@ -5,6 +5,7 @@
 #include<string>
 #include<print>
 #include<deque>
+#include<regex>
 
 namespace pcpri
 {
@@ -138,7 +139,8 @@ std::string AnsiParse(std::string input,bool close=false)
 			else
 			{
 				res+=pcpri::parseSimpleMark(pcANSI_END_REGION)+(close?"\a":"");
-				fmt.pop_back();
+				if(!fmt.empty())
+					fmt.pop_back();
 				for(auto j:fmt)
 					pcpri::parseMark(res,j,j.size(),0,close);
 			}
@@ -204,5 +206,18 @@ void ShowCursor()
 	{std::print("\e[?25h");return;}
 void SetConsoleTitle(std::string title)
 	{std::print("\e]0;{}\a",title);return;}
+
+int AnsiVisLen(std::string s)
+{
+	std::string t=AnsiParse(s,true);
+	int len=t.length(),ans=0;
+	for(int i=0;i<len;i++)
+		if(t[i]=='\e')
+			while(t[i]!='\a')	i++;
+		else if(t[i]=='\a')
+			continue;
+		else ans++;
+	return ans;
+};
 
 #include "Multinclude.hpp"

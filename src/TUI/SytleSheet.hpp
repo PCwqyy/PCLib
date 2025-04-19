@@ -47,8 +47,10 @@ map<string,Border> NamedBorders=
 	{"solid",Border("┌","┐","└","┘","─","│")},
 	{"round",Border("╭","╮","╰","╯","─","│")},
 	{"double",Border("╔","╗","╚","╝","═","║")},
+	{"thick",Border("┏","┓","┗","┛","━","┃")},
 	{"dotdot",Border("·","·","·","·","·",":")},
 	{"block",Border(" "," "," "," "," "," ")},
+	{"cube",Border("■","■","■","■","■","■")},
 	{"none",Border("","","","","","")}
 };
 struct Bar
@@ -60,11 +62,17 @@ struct Bar
 };
 map<string,Bar> NamedBars=
 {
-	{"line",Bar("━","─","<",">")},
-	{"block",Bar(" "," ","[","]")},
+	{"arrow",Bar(">","-",">","<")},
+	{"block",Bar(" "," ","|","|")},
+	{"dotdot",Bar("*","·","[","]")},
 	{"cube",Bar("■","□","[","]")},
-	{"dashed",Bar("─","┈","<",">")},
-	{"ascii",Bar("#"," ","[","]")}
+	{"dashed",Bar("━","┈",">","<")},
+	{"double",Bar("═","─",">","<")},
+	{"hash",Bar("#",".","[","]")},
+	{"line",Bar("━","─",">","<")},
+	{"o",Bar("O","o","[","]")},
+	{"virtical",Bar("|","|","[","]")},
+	{"wave",Bar("~","-","+","+")}
 };
 
 
@@ -106,18 +114,16 @@ bool ValidStyle(string att,string val)
 	auto it=NamedStyle.find(att);
 	if(it==NamedStyle.end())
 		return false;
+	if(val=="unset")
+		return true;
 	if(it->second.has("<STRING>"))
 		return true;
 	if(it->second.has("<COLOR>"))
-	{
-		if(val=="unset")
-			return true;
 #ifdef PCL_COLOR
 		return !StringToColor(val).DontModify();
 #else
 		return ValidNamedColor(val);
 #endif
-	}
 	if(it->second.has("<BORDER>"))
 		return NamedBorders.find(val)!=NamedBorders.end();
 	if(it->second.has("<BAR>"))
@@ -167,7 +173,6 @@ public:
 				throw "Invalid attribute!";
 			return res2->second.def;
 		}
-			
 		else return res->second;
 	}
 	string operator[] (string k){return GetAttribute(k);}
@@ -183,13 +188,19 @@ public:
 	{
 		ResetAnsiStyle();
 		string v=GetAttribute(fini?"color":"background-color");
-		return AnsiParse(std::format("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v));
+		char fb=(GetAttribute("bar")=="block")?pcANSI_COLOR_BACK:pcANSI_COLOR_FORE;
+		return AnsiParse(std::format("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,fb,v));
 	}
 	string GetBorderStyle()
 	{
 		ResetAnsiStyle();
 		string v=GetAttribute("border-color");
-		return AnsiParse(std::format("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,(v=="block")?'b':'f',v));
+		return AnsiParse(std::format("{}{}{}[{}]",
+			pcANSI_MARKER_CHAR,COLOR_MODE,
+			(GetAttribute("border")=="block")
+				?pcANSI_COLOR_BACK
+				:pcANSI_COLOR_FORE
+			,v));
 	}
 	string GetTitleStyle()
 	{

@@ -60,3 +60,6 @@ Blogs: [www.cnblogs.com/PCwqyy](https://www.cnblogs.com/PCwqyy)
 TODO: `AnsiString`
 ## 25v12b
 - Fix logic mistakes
+## 25v12c
+- Fix logic mistakes
+- Add more styles for `TextBox` & `ProgressBar`
