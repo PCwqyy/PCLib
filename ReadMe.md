@@ -1,10 +1,9 @@
 # PClib
 
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-25v9a-blueviolet)
+![version](https://img.shields.io/badge/Version-25v12c-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
-)
-](https://github.com/PCwqyy/PCLib)
+)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23
 )](https://gitee.com/pcwqyy/PClib)
 
