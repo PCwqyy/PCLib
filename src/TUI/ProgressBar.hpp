@@ -57,10 +57,11 @@ protected:
 		return t;
 	}
 public:
-	pcpri::COORD Print(short x,short y,short visWidth=-1)
+	pcpri::COORD Print(short x,short y,
+		short visWidth=-1,map<string,StyleSheet>* c=nullptr)
 	{
+		printInit(x,y,c);
 		stamp=clock(),start=clock();
-		left=x,top=y;
 		if(width==0)	style.GetSize(width,height);
 		if(visWidth!=-1&&visWidth<width)	return {-1,-1};
 		if(width==-1)	width=visWidth,visWidth=-2;
@@ -81,9 +82,9 @@ public:
 		ShowCursor();
 		return {short(left+width),short(top)};
 	}
-	void Reprint(short x,short y)
+	void Reprint(short x,short y,map<string,StyleSheet>* c=nullptr)
 	{
-		left=x,top=y;
+		printInit(x,y,c);
 		if(width==0)	return;
 		string t=genTitle(),u=genInfo();
 		if(clock()-stamp<style.GetLazy()&&advance<tot)	return;
@@ -113,7 +114,7 @@ public:
 		Print(left,top);
 	}
 	ProgressBar(string tt,double t,double a,StyleSheet s=""):
-		title(tt),tot(t),advance(a){style=s;}
+		Element(s),title(tt),tot(t),advance(a){}
 	ProgressBar(string tt,StyleSheet s=string("")):
-		title(tt),tot(100),advance(0),last(0){style=s;}
+		Element(s),title(tt),tot(100),advance(0),last(0){}
 };

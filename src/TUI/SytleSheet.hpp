@@ -8,6 +8,7 @@
 using std::string;
 using std::map;
 using std::regex;
+using std::set;
 
 #include"../Ansi.hpp"
 
@@ -156,6 +157,9 @@ private:
 		return;
 	}
 public:
+	StyleSheet(){}
+	StyleSheet(string t){parse(t);}
+	StyleSheet(const char* s){parse(string(s));}
 	bool SetAttribute(string attr,string val)
 	{
 		if(!stylepri::ValidStyle(attr,val))
@@ -176,6 +180,13 @@ public:
 		else return res->second;
 	}
 	string operator[] (string k){return GetAttribute(k);}
+	friend StyleSheet operator+ (StyleSheet a,StyleSheet b)
+	{
+		for(auto i:b.s)
+			a.SetAttribute(i.first,i.second);
+		return a;
+	}
+
 	string GetTextAnsi()
 	{
 		ResetAnsiStyle();
@@ -229,7 +240,36 @@ public:
 		{return stylepri::NamedBorders.find(GetAttribute("border"))->second;}
 	stylepri::Bar GetBar()
 		{return stylepri::NamedBars.find(GetAttribute("bar"))->second;}
-	StyleSheet(){}
-	StyleSheet(string t){parse(t);}
-	StyleSheet(const char* s){parse(string(s));}
+};
+
+namespace stylepri
+{
+	class StringSet
+	{
+	private:
+		set<string> c;
+	public:
+		void Add(string arg)
+			{c.insert(arg);}
+		template<typename ...Tps>
+		void Add(string arg,Tps ...args)
+		{
+			Add(arg);
+			Add(args...);
+			return;
+		}
+		bool Has(string arg)
+			{return c.find(arg)!=c.end();}
+		void Delete(string arg)
+			{c.erase(arg);}
+		void Toggle(string arg)
+		{
+			if(c.find(arg)==c.end())
+				c.insert(arg);
+			else
+				c.erase(arg);
+		}
+		auto begin() const {return c.begin();}
+		auto end() const {return c.end();}
+	};
 };

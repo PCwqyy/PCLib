@@ -62,3 +62,6 @@ TODO: `AnsiString`
 ## 25v12c
 - Fix logic mistakes
 - Add more styles for `TextBox` & `ProgressBar`
+## 25v13a
+### TUI
+- Add class system to `Element`. Now elements' style will culc with `Element.eleStyle` (which has highest priority) and style of each classes.

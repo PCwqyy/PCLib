@@ -147,9 +147,10 @@ protected:
 		AnsiPrint("{}",t);
 	}
 public:
-	pcpri::COORD Print(short x,short y,short visWid=-1)
+	pcpri::COORD Print(short x,short y,
+		short visWid=-1,map<string,StyleSheet>* c=nullptr)
 	{
-		left=x,top=y;
+		printInit(x,y,c);
 		bool hasBorder=style["border"]!="none";
 		if(width==0||height==0)
 			style.GetSize(width,height);
@@ -176,9 +177,9 @@ public:
 		if(hasBorder)	x+=2,y+=2;
 		return {x,y};
 	}
-	void Reprint(short x,short y)
+	void Reprint(short x,short y,map<string,StyleSheet>* c=nullptr)
 	{
-		left=x,top=y;
+		printInit(x,y,c);
 		bool hasBorder=style["border"]!="none";
 		if(width==0||height==0)
 			style.GetSize(width,height);
@@ -210,5 +211,5 @@ public:
 	 * @param s stylesheet (Yes the grammar IS what you think.)
 	 */
 	TextBox(string n,string t,StyleSheet s=""):
-		Element(),text(t),title(n){style=s;}
+		Element(s),text(t),title(n){}
 };
