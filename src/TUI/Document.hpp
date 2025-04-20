@@ -1,6 +1,3 @@
-#pragma once
-#define PCL_TUI
-
 #include<string>
 #include<cctype>
 #include<vector>
@@ -11,17 +8,12 @@ using std::string;
 using std::vector;
 using std::map;
 
-#include"./TUI/SytleSheet.hpp"
-#include"./TUI/Element.hpp"
-#include"./TUI/TextBox.hpp"
-#include"./TUI/ProgressBar.hpp"
-
-class ConsoleContext
+class Document
 {
 	short x=0,y=0,my=0,width;
 	map<string,StyleSheet> styles;
 public:
-	ConsoleContext(short w){width=w;}
+	Document(short w){width=w;}
 	void Print(Element& ele)
 	{
 		pcpri::COORD a=ele.Print(x,y,width-x,&styles);
@@ -34,5 +26,3 @@ public:
 	void AddClass(string className,StyleSheet s)
 		{styles[className]=s;}
 };
-
-#include"Multinclude.hpp"

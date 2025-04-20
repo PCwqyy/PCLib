@@ -10,7 +10,7 @@ using std::map;
 using std::regex;
 using std::set;
 
-#include"../Ansi.hpp"
+#include"Ansi.hpp"
 
 namespace pcpri
 {
@@ -72,7 +72,7 @@ map<string,Bar> NamedBars=
 	{"hash",Bar("#",".","[","]")},
 	{"line",Bar("━","─",">","<")},
 	{"o",Bar("O","o","[","]")},
-	{"virtical",Bar("|","|","[","]")},
+	{"vertical",Bar("|","|","[","]")},
 	{"wave",Bar("~","-","+","+")}
 };
 

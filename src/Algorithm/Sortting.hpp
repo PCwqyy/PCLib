@@ -161,4 +161,4 @@ int Invertions(Tp *a,int size)
 	return ans;
 }
 
-#include"Multinclude.hpp"
+#include"../Multinclude.hpp"
