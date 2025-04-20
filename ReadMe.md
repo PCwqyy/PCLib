@@ -70,13 +70,13 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 将 `TUI.hpp` 文件拆分为 `src/TUI/` 下的多个文件
 - 添加了 `ConsoleContext`
 ## 25v11a
-### 途易
+### TUI
 - 添加了 `ProgressBar'
 - 修复了 `TextBox` 的逻辑错误
 ### 文件： 'File.hpp'
 - 添加了 C++23 风格的输出
 ## 25v12a
-### 途易
+### TUI
 - 完成了 `ProgressBar`
 ~~TODO： 'AnsiString'~~ 换成了 'VisibleLen()'
 ## 25v12b
@@ -85,7 +85,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 修复了逻辑错误
 - 为 `TextBox` 和 `ProgressBar` 添加了更多样式
 ## 25v13a
-### 途易
+### TUI
 - 向 `Element` 添加了类（class）系统现在，元素的样式将基于 `Element.eleStyle` （具有最高优先级） 和每个类的样式进行计算
 ## 25v14a
 - 将 `ConsoleContext` 重命名为 `Document`
