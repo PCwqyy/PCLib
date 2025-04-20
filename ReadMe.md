@@ -10,7 +10,6 @@
 This is a personal C++ lib, and some features are only available on Windows.
 
 ## Features
-
 - Text user interface
 - Packaged containers
 - IO & file operations
@@ -23,15 +22,20 @@ This is a personal C++ lib, and some features are only available on Windows.
 - And more...
 
 ## Install
-
 Simply clone the repo and include the header file.
+
 ```bash
 git clone https://github.com/PCwqyy/PCLib.git
 git clone https://gitee.com/pcwqyy/PClib.git
 ```
 
-## Contact
+Example:
 
+```cpp
+#include"/path/to/PCLib/TUI/TUI.hpp"
+```
+
+## Contact
 The author is a Chinese high school student who is not so good at English, so please forgive him when you find that he made some stupid mistakes (commonly misspellings).
 
 Email: w123567910@outlook.com  
