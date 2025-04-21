@@ -4,6 +4,10 @@
 #include<cstdio>
 #include<ctime>
 
+#ifdef __cpp_lib_format
+#include<format>
+#endif
+
 #define FL_MAX_PATH_LEN 1000
 
 #define INSERTWRITE "r+"
@@ -88,6 +92,15 @@ public:
 		fflush(pointer);
 		return ret;
 	}
+#ifdef __cpp_lib_format
+	template<typename ...Tps>
+	void print(std::string fmt,Tps ...args)
+	{
+		std::string res=std::vformat(fmt,std::make_format_args(args...));
+		fwrite(res.c_str(),sizeof char,res.length(),pointer);
+		return;
+	}
+#endif
 	void flush(){fflush(pointer);return;}
 	int CursorMove(int offset)
 		{return fseek(pointer,offset,SEEK_CUR);}
@@ -167,4 +180,4 @@ public:
 	}
 };
 
-#include"Multinclude.hpp"
+#include"../Multinclude.hpp"

@@ -131,4 +131,4 @@ void PCDrawText(HWND hwnd,int X,int Y,HFONT Font,int col,LPCWSTR Text)
 
 }//extern
 
-#include"Multinclude.hpp"
+#include"../Multinclude.hpp"

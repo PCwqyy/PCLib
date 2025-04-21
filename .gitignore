@@ -2,7 +2,6 @@
 
 dev/*
 test/*
-.vscode/*
 
 *.exe
 *.txt
