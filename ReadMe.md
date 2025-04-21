@@ -6,7 +6,7 @@
 </div>
 
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-25v12c-blueviolet)
+![version](https://img.shields.io/badge/版本-1.2-green)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
 )](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23

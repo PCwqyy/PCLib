@@ -1,7 +1,7 @@
 # PClib
 
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-25v12c-blueviolet)
+![version](https://img.shields.io/badge/Version-1.2-green)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
 )](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23
@@ -9,7 +9,7 @@
 
 <p style="text-align: center;">
 
-[English](ReadMe-EN.md)|[中文](ReadMe.md)
+[English](ReadMe-EN.md) | [中文](ReadMe.md)
 
 </p>
 
@@ -58,8 +58,8 @@ Any contribution is welcome! You can take part through the methods below:
 2. Submit pull requests to fix issues
 3. Improve documents.
 
-# PClib 1.2 (Not Released)
-- TUI lib! Trying to become a C++ version of [Rich](https://github.com/Textualize/rich).
+# PClib 1.2
+- TUI lib!
 
 # Change Log
 [History](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
@@ -100,3 +100,5 @@ Any contribution is welcome! You can take part through the methods below:
 - Optimized project structure.
 - Fixed misspellings.
 - Fixed grammar errors in `ReadMe.md`.
+## 1.2
+- TUI lib!
