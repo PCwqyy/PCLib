@@ -219,5 +219,3 @@ int AnsiVisLen(std::string s)
 		else ans++;
 	return ans;
 };
-
-#include "Multinclude.hpp"
