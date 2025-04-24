@@ -3,15 +3,10 @@
 <div style="text-align: center;">
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
+
+![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-1.2-green) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+
 </div>
-
-![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-1.2-green)
-[![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
-)](https://github.com/PCwqyy/PCLib)
-[![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23
-)](https://gitee.com/pcwqyy/PClib)
-
 
 这是一个个人 C++ 库，其中某些功能仅在 Windows 上可用
 
@@ -57,28 +52,28 @@ git clone https://gitee.com/pcwqyy/PClib.git
 [历史](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
 
 ## 25v8a
-### 新文件：'TUI.hpp'
+### 新文件：`TUI.hpp`
 - 添加了类 `TextBox` ：在屏幕上绘制文本框
-### 文件：'Ansi.hpp'
-- 稍微改了一下 `TUI.hpp`
+### 文件：`Ansi.hpp`
+- 稍微改了一下以适配 `TUI.hpp`
 ## 25v9a
-### 文件：'TUI.hpp'
+### 文件：`TUI.hpp`
 - 添加了 **StyleSheet** 语法来控制文本框的样式
-### 文件：'Color.hpp'
+### 文件：`Color.hpp`
 - 删除了颜色宏，改用 `NamedColor[]`
 ## 25v10a
 - 将 `TUI.hpp` 文件拆分为 `src/TUI/` 下的多个文件
 - 添加了 `ConsoleContext`
 ## 25v11a
 ### TUI
-- 添加了 `ProgressBar'
+- 添加了 `ProgressBar`
 - 修复了 `TextBox` 的逻辑错误
-### 文件： 'File.hpp'
+### 文件： `File.hpp`
 - 添加了 C++23 风格的输出
 ## 25v12a
 ### TUI
 - 完成了 `ProgressBar`
-~~TODO： 'AnsiString'~~ 换成了 'VisibleLen()'
+~~TODO： `AnsiString`~~ 换成了 `VisibleLen()`
 ## 25v12b
 - 修复了逻辑错误
 ## 25v12c
@@ -91,6 +86,6 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 将 `ConsoleContext` 重命名为 `Document`
 - 优化了项目结构
 - 修复了拼写错误
-- 修复了 'ReadMe.md' 中的语法错误
+- 修复了 `ReadMe.md` 中的语法错误
 ## PClib 1.2
 - TUI库！

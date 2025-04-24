@@ -59,16 +59,6 @@
 					"ignoreFailures": true
 				}
 			]
-		},
-		{"name": "Doxygen",
-			"type": "cppvsdbg",
-			"request": "launch",
-			"program": "cmd",
-			"args": [
-				"/C",
-				"${workspaceRoot}/.vscode/doxybuild.bat"
-			],
-			"cwd": "${workspaceRoot}"
 		}
 	]
 }

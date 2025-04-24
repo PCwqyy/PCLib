@@ -29,6 +29,14 @@
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 				// "-lWs2_32"
 			]
+		},{
+			"label": "Doxygen",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-File",
+				"${workspaceRoot}/.vscode/doxybuild.ps1"
+			]
 		}
 	],
 	"problemMatcher":
