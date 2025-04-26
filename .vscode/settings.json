@@ -68,7 +68,8 @@
 		"print": "cpp",
 		"set": "cpp",
 		"chrono": "cpp",
-		"iomanip": "cpp"
+		"iomanip": "cpp",
+		"codecvt": "cpp"
 	},
 	"cSpell.words": [
 		"Cornsilk",

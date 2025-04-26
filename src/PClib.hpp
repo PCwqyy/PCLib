@@ -1,6 +1,9 @@
 #pragma once
 #define PCL_PCLIB
 
+/** @brief Some private util of PCLib placed here */
+namespace pcpri{};
+
 #include"./TUI/TUI.hpp"
 
 #include"./Container/Large.hpp"

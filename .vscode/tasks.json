@@ -9,11 +9,10 @@
 				"-xc++",
 				"-std=c++23",
 				"-finput-charset=UTF-8",
-				"-fexec-charset=GBK",
+				"-fexec-charset=UTF-8",
 				"-I","${workspaceFolder}",
 				"-s","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
-				// "-lWs2_32"
 			]
 		},{
 			"label": "GDB Build",
@@ -27,7 +26,6 @@
 				"-I","${workspaceFolder}",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
-				// "-lWs2_32"
 			]
 		},{
 			"label": "Doxygen",

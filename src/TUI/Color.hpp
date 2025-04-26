@@ -7,6 +7,7 @@
 using std::string;
 using std::map;
 
+/// @brief The Color class.
 struct Color
 {
 	int R,G,B;
@@ -38,12 +39,24 @@ struct Color
 #undef RGB
 #undef HSL
 
+/**
+ * @brief Make `Color` with RGB.
+ * @param R Red
+ * @param G Green
+ * @param B Blue
+ */
 Color RGB(int R,int G,int B)
 {
 	Color ret;
 	ret.R=R,ret.G=G,ret.B=B;
 	return ret;
 }
+/**
+ * @brief Make `Color` with HSL.
+ * @param H Hue
+ * @param S Saturation
+ * @param L Lightness
+ */
 Color HSL(int H,int S,int L)
 {
 	double r,g,b;
@@ -75,6 +88,13 @@ Color HSL(int H,int S,int L)
 	return ret;
 }
 
+/**
+ * @brief Calculate the average color the two color.
+ * @param index Position of the middle color.
+ * ```
+ * Col1 0 ---------+--------- 1 Col2
+ * ```
+ */
 Color Gradient(Color Col1,Color Col2,double index=0.5)
 {
 	Color ret;
@@ -83,14 +103,20 @@ Color Gradient(Color Col1,Color Col2,double index=0.5)
 	ret.B=int(Col1.B*index+Col2.B*(1-index));
 	return ret;
 }
-Color HighContrust(Color col,double index=0.5)
-	{return Gradient(col,0xFFFFFF,index);}
 
+/** @brief Get highlight version of a color.
+ *  The bigger `index` is, the whiter the result is. */
+Color HighLightColor(Color col,double index=0.5)
+	{return Gradient(col,0xFFFFFF,index);}
+/// @brief Invert the color.
 Color InvertColor(Color col)
 	{return RGB(255-col.R,255-col.G,255-col.B);}
 
+/** @brief All the HTML named color.
+ *  @note See https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
+*/
 const map<string,Color> NamedColor=
-{
+{// cSpell: disable
 	{"aliceblue",0xF0F8FF},
 	{"antiquewhite",0xFAEBD7},
 	{"aqua",0x00FFFF},
@@ -231,7 +257,7 @@ const map<string,Color> NamedColor=
 	{"whitesmoke",0xF5F5F5},
 	{"yellow",0xFFFF00},
 	{"yellowgreen",0x9ACD32}
-};
+};// cSpell: enable
 namespace pcpri
 {
 	string toLowerCase(string a)
@@ -242,6 +268,7 @@ namespace pcpri
 		return res;
 	}
 };
+/// @brief Get named color. Case insensitive. 
 Color GetColorByName(string n)
 {
 	n=pcpri::toLowerCase(n);
@@ -251,6 +278,16 @@ Color GetColorByName(string n)
 	return Color(-1);
 }
 
+/**
+ * @brief Convert a string to color.
+ * Accepts 3-digit hex, 6-digit hex and named color.
+ * @example
+ * ```cpp
+ * StrintToColor("#333");
+ * StrintToColor("#123456");
+ * StrintToColor("red");
+ * ```
+ */
 Color StringToColor(string a)
 {
 	if(a[0]=='#')
