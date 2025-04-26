@@ -1,112 +1,38 @@
-## 1.1
-- Removed `ConScreen` because it is on dev.
-- Completely fixed mouse input function.
-- Modified Lib structure.
-## 1.1.1
-- Fixed `Large`.
-## 1.1.2
-- Optimized `Large`.
-## 1.1.3
-- Optimized project structure.
-- Move all code to `src`.
-## 1.1.5
-- Add lock for outputs
-## 1.1.6
-- Add RGB256 for `ColorPrintf`
-## 1.1.7
-- New File: `IO.hpp`
-- Rewrite File: `Rational.hpp`
-### `IO.hpp`
-use `printpc(args...)` to print stuff!
-- Adapted `Large` output.
-- Adapted `rational` output.
-## 25v1a
-### `Console.hpp`
-- Split `printf` series into Normal / Color / Unicode parts.  
-Enable them by define `PCL_COLOR` and `UNICODE`.
-- Add environmental check
-### `Color.hpp`
-- Add HTML named colors
-- Add color calcs, such as `RGB()`, `HLS()`...
-### `Log.hpp`
-- Fix misspelling.
-## 25v2a
-### New File: `Socket.hpp`
-- Packaged up WinSock.
-## 25v3a
-### New Demo: `CMD Fight`
-A game about attacking other using cmd and defending with regex.
-### `Socket.hpp`
-- Fix packet splicing
-### `Console.hpp`
-- New class `ConCursor`: provides multi-cursor for console.
-## 25v3b
-- fix bugs for demo `CMD Fight`
-- Complete `ReadMe.md`
-## 25v3c
-- Slightly `CMD Fight` update
-## 1.1.8
-- Change C++ standard into c++23, and change (my) compiler into MinGW.
-## 25v4a
-- Modified all file's header.
-- Update demo `CmdFight` with `Command.hpp`
-### New file: `Command.hpp`
-- A easy way to explain a command line.
-- Not finished yet.
-### `Socket.hpp`
-- Finished socket recycle part.
-## 25v5a
-### New file: `VarSet.hpp`
-- Variant set of `std::any`
-### `Command.hpp`
-- Finished with `VarSet`
-- Now the command func only accept those params are `VarSet`
-- TODO: subcommand & trigger
-### `IO.hpp`
-- Finished input part ~~(the file before is called `O.hpp`)~~
-- Fit `int`, `long long`, `double`, `std::string`, `char`, `char[]`, `std::any` (by using `ScanAnyIn<type>()`), `Large`, `rational`.
-- ~~TODO: colorful print~~ Done.
-## 25v6a
-- add `Multinclude.hpp` to the end of all file.
-### New File: `Multinclude.hpp`
-- Some cross include stuff moved into this file
-- Not necessary to include manually.
-- Finished colorful print(`xxxPrint()` series).
-- TODO: Wide char print
-- ~~TODO: Check out `std::format`~~ Done.
-## 25v6b
-### File: `Socket.hpp`
-- Now `ClientSocket::Connect()` accepts address.
-## 25v7a
-### New File: `Ansi.hpp`
-- Provide functions (`AnsiPrase()`) that escapes string to [ANSI](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html) string which contains formatting information that used in virtual console.
-
-|Format|Escape|Description|
-|-:|:-|:-|
-|End region|`$/`|End latest trigger's effect|
-|Bold|`$b`|**Bold**|
-|Color 8|`$q(b\|f)`|4-bit color, `f` means foreground, and `b` meas back.<br>Ex. `qb3` means set background color to yellow.
-|Color 256|`$c(q\|f)`|8-bit color|
-|Darken|`$d`|Black text|
-|Grey|`$g`|Gray text|
-|Invert|`$!`|Invert color|
-|Italic|`$i`|*Italic*|
-|Link|`$l[url](text)`|[text](url)|
-|StrickThrough|`$s`|~~StrickThrough~~|
-|Twinkle|`$t`|Blinking text|
-|Underline|`$u`|Underline|
-## 25v7b
-### File: `Ansi.hpp`, `Color.hpp`
-Support true color ANSI out.
-
-|Format|Escape|Description|
-|-:|:-|:-|
-|COLOR_256|`$c(q\|f)[color]`|true color, `color` accept HTML named colors (`DodgerBlue`, Case sensitive) and HEX colors (`#abcdef`)|
-## 25v7c
-### File: `Ansi.hpp`
-- Complete `Ansi.hpp`.
-- link syntax changed into `$l[text](url)`. ~~More reasonable, didn't it?~~
-## 1.1.9
-- Command managing
-- More powerful socket operating
-- Ansi print
+## 25v8a
+### 新文件：`TUI.hpp`
+- 添加了类 `TextBox` ：在屏幕上绘制文本框
+### 文件：`Ansi.hpp`
+- 稍微改了一下以适配 `TUI.hpp`
+## 25v9a
+### 文件：`TUI.hpp`
+- 添加了 **StyleSheet** 语法来控制文本框的样式
+### 文件：`Color.hpp`
+- 删除了颜色宏，改用 `NamedColor[]`
+## 25v10a
+- 将 `TUI.hpp` 文件拆分为 `src/TUI/` 下的多个文件
+- 添加了 `ConsoleContext`
+## 25v11a
+### TUI
+- 添加了 `ProgressBar`
+- 修复了 `TextBox` 的逻辑错误
+### 文件： `File.hpp`
+- 添加了 C++23 风格的输出
+## 25v12a
+### TUI
+- 完成了 `ProgressBar`
+~~TODO： `AnsiString`~~ 换成了 `VisibleLen()`
+## 25v12b
+- 修复了逻辑错误
+## 25v12c
+- 修复了逻辑错误
+- 为 `TextBox` 和 `ProgressBar` 添加了更多样式
+## 25v13a
+### TUI
+- 向 `Element` 添加了类（class）系统现在，元素的样式将基于 `Element.eleStyle` （具有最高优先级） 和每个类的样式进行计算
+## 25v14a
+- 将 `ConsoleContext` 重命名为 `Document`
+- 优化了项目结构
+- 修复了拼写错误
+- 修复了 `ReadMe.md` 中的语法错误
+## PClib 1.2
+- TUI库！
