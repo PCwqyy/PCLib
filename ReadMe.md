@@ -54,3 +54,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 ## 25v15a
 - 写了一些注释文档
 - 优化了 `Large`，但是暂时变成 unsigned 的了……
+## 25v15b
+- 重新添加了 `Large` 的符号
+## 25v15c
+- 添加了 `pc::Exception` 类，用于管理异常
+- 完善了 `Large` 的异常处理

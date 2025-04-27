@@ -51,7 +51,7 @@ The project uses [MIT License](https://opensource.org/licenses/MIT).
 Any contribution is welcome! You can take part through the methods below:
 1. Submit issues to report a bug or suggest a new feature
 2. Submit pull requests to fix issues
-3. Improve documents.
+3. Improve documents
 
 # PClib 1.2
 - TUI lib!
@@ -60,5 +60,10 @@ Any contribution is welcome! You can take part through the methods below:
 [History](ChangeLogHistory-EN.md)
 
 ## 25v15a
-- Addad some comment (Doc actually)
+- Added some comment (Doc actually)
 - Optimized `Large`, and it temporarily becomes unsigned...
+## 25v15b
+- Make `Large` sign again ~~(MLSA)~~
+## 25v15c
+- Added class `pc::Exception`, which will be used in exception management.
+- Refined throws in `Large`
