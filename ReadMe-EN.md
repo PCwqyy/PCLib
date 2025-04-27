@@ -67,3 +67,5 @@ Any contribution is welcome! You can take part through the methods below:
 ## 25v15c
 - Added class `pc::Exception`, which will be used in exception management.
 - Refined throws in `Large`
+## 25v15d
+- Comments and spellings.

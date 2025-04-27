@@ -1,5 +1,5 @@
 #pragma once
-#define PCL_SORTTING 
+#define PCL_SORTING 
 
 template<typename Tp>
 void Swap(Tp&a,Tp&b)
@@ -107,6 +107,8 @@ void MergeSort(Tp*a,int size)
 	delete []A;
 	return;
 }
+namespace pcpri
+{
 template<typename Tp>
 void preheapsort(Tp*a,int s,int e)
 {
@@ -120,23 +122,26 @@ void preheapsort(Tp*a,int s,int e)
 	}
 	return;
 }
+}//namespace
 template<typename Tp>
 void HeapSort(Tp*a,int size)
 {
 	for(int i=(size-2)/2;i>=0;i--)
-		preheapsort(a,i,size-1);
+		pcpri::preheapsort(a,i,size-1);
 	for(int i=size-1;i>0;i--)
 		Swap(a[0],a[i]),
-		preheapsort(a,0,i-1);
+		pcpri::preheapsort(a,0,i-1);
 	return;
 }
+namespace pcpri
+{
 template<typename Tp>
-void preinvertions(Tp*a,int size,int&ans)
+void preinversions(Tp*a,int size,int&ans)
 {
 	if(size<=1) return;
 	int msize=size/2;
-	preinvertions(a,msize,ans);
-	preinvertions(a+msize,size-msize,ans);
+	preinversions(a,msize,ans);
+	preinversions(a+msize,size-msize,ans);
 	Tp*i=a,*j=a+msize,*A=new Tp[size+2];
 	int G=0;
 	while(G<size)
@@ -149,14 +154,15 @@ void preinvertions(Tp*a,int size,int&ans)
 	delete []A;
 	return;
 }
+}//namespace
 template<typename Tp>
-int Invertions(Tp *a,int size)
+int Inversions(Tp *a,int size)
 {
 	Tp*A=new Tp[size+2];
 	int ans=0;
 	for(int i=0;i<size;i++)
 		A[i]=a[i];
-	preinvertions(A,size,ans);
+	pcpri::preinversions(A,size,ans);
 	delete []A;
 	return ans;
 }

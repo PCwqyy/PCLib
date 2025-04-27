@@ -104,7 +104,7 @@ public:
 		return 0;
 	}
 	/**
-	 * @brief Weather the count of `1` in bin is odd or even
+	 * @brief Whether the count of `1` in bin is odd or even
 	 * @return `true` when odd \
 	 * @return `false` when even
 	 */

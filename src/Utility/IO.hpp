@@ -37,6 +37,7 @@ namespace pcpri
 
 namespace pc
 {
+
 int sscanner(const char* Src,int& Th)
 {
 	int now=0;
@@ -226,13 +227,30 @@ int sscanner(const char* Src,pcpri::any_scanner<Tp> Th)
 }
 #endif
 
+/// @brief Scan from string
 void sscan(const char* Src){return;}
 template<typename Tp,typename... Tps>
+/// @brief Scan form string
 void sscan(const char* Src,Tp& Th,Tps& ...args)
 {
 	sscan(Src+pc::sscanner(Src,Th),args...);
 	return;
 }
+/**
+ * @brief Scan from console
+ * @note ##### How to make a custom class compatible with this function
+ * @note Define a `pc::sscanner()` function like this:
+ * ```cpp
+ * int sscanner(const char* Src,YourClass& Th)
+ * {// Scan from Src and save to Th
+ * 	// Do scan logics...
+ * 	// Do scan logics...
+ * 	return CursorPosition;
+ * 	// remember to return how many characters you've read
+ * }
+ * ```
+ * Don't forget to put it under `namespace pc`!
+ */
 template<typename... Tps>
 void scan(Tps& ...args)
 {
@@ -248,14 +266,30 @@ void scan(Tps& ...args)
 	sscan(pcpri::buff,args...);
 }
 
+/// @brief Print to string
 void sprint(char* Dest){return;}
+/// @brief Print to string
 template<typename Tp,typename... Tps>
 void sprint(char *Dest,Tp Th,Tps ...args)
 {
 	sprint(Dest+pc::sprinter(Dest,Th),args...);
 	return;
 }
-
+/**
+ * @brief Print to console
+ * @note ##### How to make a custom class compatible with this function
+ * @note Define a `pc::sprinter()` function like this:
+ * ```cpp
+ * int sprinter(char* Dest,YourClass Th)
+ * {// Print Th to Dest
+ * 	// Do print logics...
+ * 	// Do print logics...
+ * 	return CursorPosition;
+ * 	// remember to return how many characters you've put
+ * }
+ * ```
+ * Don't forget to put it under `namespace pc`!
+ */
 template<typename... Tps>
 void print(Tps... args)
 {

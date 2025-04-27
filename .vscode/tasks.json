@@ -2,7 +2,33 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "GCC Build",
+			"label": "GCC Build GBK",
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-xc++",
+				"-std=c++23",
+				"-finput-charset=UTF-8",
+				"-fexec-charset=GBK",
+				"-I","${workspaceFolder}",
+				"-s","${fileDirname}/${fileBasename}",
+				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+			]
+		},{
+			"label": "GDB Build GBK",
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-xc++",
+				"-std=c++23",
+				"-finput-charset=UTF-8",
+				"-fexec-charset=GBK",
+				"-I","${workspaceFolder}",
+				"-g","${fileDirname}/${fileBasename}",
+				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+			]
+		},{
+			"label": "GCC Build UTF-8",
 			"type": "shell",
 			"command": "g++",
 			"args": [
@@ -15,14 +41,14 @@
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
 		},{
-			"label": "GDB Build",
+			"label": "GDB Build UTF-8",
 			"type": "shell",
 			"command": "g++",
 			"args": [
 				"-xc++",
 				"-std=c++23",
 				"-finput-charset=UTF-8",
-				"-fexec-charset=GBK",
+				"-fexec-charset=UTF-8",
 				"-I","${workspaceFolder}",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",

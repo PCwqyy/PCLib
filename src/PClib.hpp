@@ -1,8 +1,13 @@
 #pragma once
 #define PCL_PCLIB
 
-/** @brief Some private util of PCLib placed here */
+/// @brief Some private util of PCLib placed here
 namespace pcpri{};
+
+/** @brief Classes and functions that can easily
+ *  cause naming conflicts placed here
+ */
+namespace pc{};
 
 #include"./TUI/TUI.hpp"
 
@@ -17,4 +22,4 @@ namespace pcpri{};
 #include"Windows/Socket.hpp"
 #endif
 
-#include"Algorithm/File.hpp"
+#include "Utility/File.hpp"
