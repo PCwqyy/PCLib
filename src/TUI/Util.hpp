@@ -179,23 +179,6 @@ public:
 	ClassSet(const char* a){Parse(string(a));}
 };
 
-class ID: public string
-{
-public:
-	ID operator=(string a)
-	{
-		if(CheckNameValid(a))
-			return string::operator=(a);
-		return *this;
-	}
-	ID(string a):string(a)
-	{
-		if(!CheckNameValid(a))
-			string::operator=("");
-	}
-	ID():string(""){}
-};
-
 /// @brief Container of `Attribute`
 class AttributeMap
 {

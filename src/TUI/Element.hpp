@@ -14,7 +14,7 @@ using std::set;
 class Element
 {
 protected:
-	string Tag;
+	string ID,Tag;
 	Element* Parent;
 	vector<Element> Children;
 	string UUID;
@@ -55,7 +55,7 @@ protected:
 	{
 		bool match=true;
 		if(s[0]=='#')
-			if(Id!=util::BreakName(s))
+			if(ID!=util::BreakName(s))
 				return false;
 			else;
 		else if(s[0]=='.')
@@ -68,13 +68,12 @@ protected:
 public:
 	util::ClassSet ClassList;
 	util::AttributeMap Attribute;
-	util::ID Id;
 	/**
 	 * @brief Append a node as a child
 	 * @return `true` if succeed \
 	 * @return `false` if this node already is a child
 	 */
-	bool AppendChild(Element& n)
+	bool AppendChild(Element n)
 	{
 		n.Parent=this;
 		if(findNode(n)!=Children.end())
@@ -87,7 +86,7 @@ public:
 	 * @return `true` if succeed \
 	 * @return `false` if no such node
 	 */
-	bool RemoveChild(Element& n)
+	bool RemoveChild(Element n)
 	{
 		n.Parent=nullptr;
 		auto i=findNode(n);
@@ -98,6 +97,8 @@ public:
 	}
 	bool Append(Element&n){return n.AppendChild(*this);}
 	bool Remove(Element&n){return n.RemoveChild(*this);}
+	string GetID(){return ID;}
+	string GetTag(){return Tag;}
 	/// @brief Work like what you think.
 	/// @bug 递归有问题，匹不到
 	vector<Element> QuerySelectorAll(string s)
@@ -129,9 +130,10 @@ public:
 		util::AttributeMap attr={})
 	{
 		UUID=util::GenUUID();
+		Parent=nullptr;
 		height=0,width=0,left=0,top=0;
 		StyleMap=nullptr;
-		Tag=tag,Id=id;
+		Tag=tag,ID=id;
 		for(auto i:classes)
 			ClassList.Add(i);
 		Attribute=attr;

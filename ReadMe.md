@@ -64,5 +64,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 ## 25v16a
 - 开始写 DOM 树
 ## 25v16b
-- 开始写PCML解析器
-- 考虑把TUI改名为 *钼 Molybdenum*？
+- 开始写 PCML 解析器
+- 考虑把 TUI 改名为 *钼 Molybdenum*？
+## 25v16c
+- 元素 PCML 解析器完成，尚未调试

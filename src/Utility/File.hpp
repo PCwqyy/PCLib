@@ -3,6 +3,7 @@
 
 #include<cstdio>
 #include<ctime>
+#include<string>
 
 #ifdef __cpp_lib_format
 #include<format>
@@ -147,7 +148,7 @@ public:
 	void print(std::string fmt,Tps ...args)
 	{
 		std::string res=std::vformat(fmt,std::make_format_args(args...));
-		fwrite(res.c_str(),sizeof char,res.length(),pointer);
+		fwrite(res.c_str(),sizeof(char),res.length(),pointer);
 		return;
 	}
 #endif
@@ -177,6 +178,13 @@ public:
 	/// @brief Set currert cursor position
 	int SetCursorPos(long long x)
 		{return fsetpos(pointer,&x);}
+	std::string String()
+	{
+		std::string ans;
+		while(!Eof())
+			ans+=getchar();
+		return ans;
+	}
 };
 
 /**
@@ -232,7 +240,7 @@ public:
 		sprintf(FilePath,Path,args...);
 		pointer=fopen(FilePath,Mode);
 		TimeLoc();
-		fprintf(pointer,LogStartFormat,Ye,Mo,Da,Ho,Mi,Se);
+		fprintf(pointer,pcpri::LogStartFormat,Ye,Mo,Da,Ho,Mi,Se);
 		fflush(pointer);
 		return;
 	}
