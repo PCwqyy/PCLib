@@ -4,7 +4,7 @@
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
 
-![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v16c-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v16d-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -68,5 +68,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 考虑把 TUI 改名为 *钼 Molybdenum*？
 ## 25v16c
 - 元素 PCML 解析器完成，尚未调试
+## 25v16d
+- `Element::QuerySelectorAll()` 的标签、类、ID选择器完成，后代选择器完成，差一个子元素选择器
+- 修复了 `pc::File::String()` 总会多一个 `\377` 的问题
 
 <!--记得改徽章的版本！-->

@@ -19,7 +19,7 @@ namespace PCML
 const regex XMLDeclaration(R"(^\s*<\?xml(.*?)\?>)");
 const regex OpenTag(R"(^\s*<(\w+.*?)>)");
 const regex SelfCloseTag(R"(^\s*<(\w+.*?)/>)");
-const regex Comment(R"(^\s*<!--(.*?)-->)");
+const regex Comment(R"(^\s*<!--[\s\S]*?-->)");
 const regex Attribute("(\\w+?)=\"(.*?)\"");
 
 /// @brief Parse content inside `< >`

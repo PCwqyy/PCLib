@@ -81,7 +81,6 @@ string BreakWord(string& a,bool modify=true)
 		if(isspace(a[i]))	break;
 		else	ans+=a[i];
 	if(!modify)	return ans;
-	while(i<len&&isspace(a[i]))	i++;
 	a=a.substr(i);
 	return ans;
 }
@@ -100,9 +99,15 @@ string BreakName(string& a,bool modify=true)
 			ans+=a[i];
 		else break;
 	if(!modify)	return ans;
-	while(i<len&&!isalnum(a[i]))	i++;
 	a=a.substr(i);
 	return ans;
+}
+bool EmptyString(string a)
+{
+	for(char i:a)
+		if(!isspace(i))
+			return false;
+	return true;
 }
 
 /// @brief If is a valid var name 

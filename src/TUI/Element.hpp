@@ -53,16 +53,18 @@ protected:
 	 */
 	bool matchSelector(string s)
 	{
-		bool match=true;
-		if(s[0]=='#')
-			if(ID!=util::BreakName(s))
+		int i;
+		while(s.length()>0)
+		{
+			i=0;	while(isspace(s[i]))	i++;
+			s=s.substr(i);
+			if(s[0]=='#'&&ID!=util::BreakName(s))
 				return false;
-			else;
-		else if(s[0]=='.')
-			if(!ClassList.Has(util::BreakName(s)))
+			else if(s[0]=='.'&&!ClassList.Has(util::BreakName(s)))
 				return false;
-			else;
-		else return false;
+			else if(isalnum(s[0])&&Tag!=util::BreakName(s))
+				return false;
+		}
 		return true;
 	}
 public:
@@ -100,7 +102,7 @@ public:
 	string GetID(){return ID;}
 	string GetTag(){return Tag;}
 	/// @brief Work like what you think.
-	/// @bug 递归有问题，匹不到
+	/// @todo `>` 选择器，匹配仅下一级子元素
 	vector<Element> QuerySelectorAll(string s)
 	{
 		vector<Element> ans;
@@ -109,11 +111,16 @@ public:
 		if(matchSelector(thisSelect))
 		{
 			matched=true;
-			if(s.length()==0)
+			if(util::EmptyString(s))
 				ans.push_back(*this);
 		}
-		if(!matched)	s=thisSelect+' '+s;
-		for(auto i:Children)
+		for(auto i:Children) // 原选择器
+		{
+			vector<Element> tmp=i.QuerySelectorAll(thisSelect+' '+s);
+			ans.insert(ans.end(),tmp.begin(),tmp.end());
+		}
+		if(!matched||util::EmptyString(s))	return ans;
+		for(auto i:Children) // 子选择器
 		{
 			vector<Element> tmp=i.QuerySelectorAll(s);
 			ans.insert(ans.end(),tmp.begin(),tmp.end());

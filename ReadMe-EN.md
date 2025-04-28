@@ -4,7 +4,7 @@
 
 [English](ReadMe-EN.md) | [中文](ReadMe.md) 
 
-![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v16c-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v16d-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -76,5 +76,8 @@ Any contribution is welcome! You can take part through the methods below:
 - Considering rename the TUI part to *钼 Molybdenum*?
 ## 25v16c
 - PCML element parser finished, but haven't debugged yet.
+## 25v16d
+- Finished tag, class and id selector, offspring selector of `Element::QuerySelectorAll()`, and here is still child selector left.
+- Fixed the issue that `pc::File::String()` will always return a addtional `\377` wrongly.
 
 <!--记得改徽章的版本！-->

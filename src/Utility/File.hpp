@@ -181,8 +181,13 @@ public:
 	std::string String()
 	{
 		std::string ans;
-		while(!Eof())
-			ans+=getchar();
+		char ch;
+		while(true)
+		{
+			ch=getchar();
+			if(Eof())	break;
+			ans+=ch;
+		}
 		return ans;
 	}
 };
