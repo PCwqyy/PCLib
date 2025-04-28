@@ -242,34 +242,3 @@ public:
 		{return stylepri::NamedBars.find(GetAttribute("bar"))->second;}
 };
 
-namespace stylepri
-{
-	class StringSet
-	{
-	private:
-		set<string> c;
-	public:
-		void Add(string arg)
-			{c.insert(arg);}
-		template<typename ...Tps>
-		void Add(string arg,Tps ...args)
-		{
-			Add(arg);
-			Add(args...);
-			return;
-		}
-		bool Has(string arg)
-			{return c.find(arg)!=c.end();}
-		void Delete(string arg)
-			{c.erase(arg);}
-		void Toggle(string arg)
-		{
-			if(c.find(arg)==c.end())
-				c.insert(arg);
-			else
-				c.erase(arg);
-		}
-		auto begin() const {return c.begin();}
-		auto end() const {return c.end();}
-	};
-};
