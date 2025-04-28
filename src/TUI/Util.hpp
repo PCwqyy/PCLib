@@ -105,25 +105,36 @@ string BreakName(string& a,bool modify=true)
 	return ans;
 }
 
+/// @brief If is a valid var name 
+bool CheckNameValid(string name)
+{
+	bool hasAlp=false;
+	for(char i:name)
+		if(isalpha(i))
+			hasAlp=true;
+		else if(isdigit(i));
+		else if(i=='_');
+		else return false;
+	return hasAlp;
+}
+/// @brief If is a valid var name 
+bool CheckTagValid(string name)
+{
+	for(char i:name)
+		if(!isalpha(i))
+			return false;
+	return true;
+}
+
 /// @brief Contianer of `ClassList`
 class ClassSet
 {
 private:
 	set<string> c;
-	bool valid(string name)
-	{
-		bool hasAlp=false;
-		for(char i:name)
-			if(isalpha(i))
-				hasAlp=true;
-			else if(isdigit(i));
-			else return false;
-		return hasAlp;
-	}
 public:
 	void Add(string arg)
 	{
-		if(valid(arg))
+		if(CheckNameValid(arg))
 			c.insert(arg);
 	}
 	template<typename ...Tps>
@@ -133,19 +144,19 @@ public:
 		Add(args...);
 		return;
 	}
-	bool Has(string arg)
+	bool Has(string arg) const
 	{
-		if(!valid(arg))	return false;
+		if(!CheckNameValid(arg))	return false;
 		return c.find(arg)!=c.end();
 	}
 	void Delete(string arg)
 	{
-		if(valid(arg))
+		if(CheckNameValid(arg))
 			c.erase(arg);
 	}
 	void Toggle(string arg)
 	{
-		if(!valid(arg))	return;
+		if(!CheckNameValid(arg))	return;
 		if(c.find(arg)==c.end())
 			c.insert(arg);
 		else
@@ -153,6 +164,36 @@ public:
 	}
 	auto begin() const {return c.begin();}
 	auto end() const {return c.end();}
+	void Parse(string a)
+	{
+		string n;
+		while(a.length()>0)
+			n=BreakWord(a),
+			Add(n);
+		return;
+	}
+	ClassSet operator=(string a)
+		{Parse(a);return *this;}
+	ClassSet(){}
+	ClassSet(string a){Parse(a);}
+	ClassSet(const char* a){Parse(string(a));}
+};
+
+class ID: public string
+{
+public:
+	ID operator=(string a)
+	{
+		if(CheckNameValid(a))
+			return string::operator=(a);
+		return *this;
+	}
+	ID(string a):string(a)
+	{
+		if(!CheckNameValid(a))
+			string::operator=("");
+	}
+	ID():string(""){}
 };
 
 /// @brief Container of `Attribute`

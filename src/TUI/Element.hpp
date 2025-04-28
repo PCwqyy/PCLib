@@ -14,7 +14,7 @@ using std::set;
 class Element
 {
 protected:
-	string tag;
+	string Tag;
 	Element* Parent;
 	vector<Element> Children;
 	string UUID;
@@ -68,7 +68,7 @@ protected:
 public:
 	util::ClassSet ClassList;
 	util::AttributeMap Attribute;
-	string Id;
+	util::ID Id;
 	/**
 	 * @brief Append a node as a child
 	 * @return `true` if succeed \
@@ -98,7 +98,8 @@ public:
 	}
 	bool Append(Element&n){return n.AppendChild(*this);}
 	bool Remove(Element&n){return n.RemoveChild(*this);}
-	/// @brief Work like what you think. 
+	/// @brief Work like what you think.
+	/// @bug 递归有问题，匹不到
 	vector<Element> QuerySelectorAll(string s)
 	{
 		vector<Element> ans;
@@ -124,14 +125,16 @@ public:
 	string GetStyle(string attr){return style[attr];}
 	void SetStyle(string attr,string val){style.SetAttribute(attr,val);}
 	void SetStyle(StyleSheet a){style=a;}
-	Element(string id="",vector<string> classes={})
+	Element(string tag="",string id="",util::ClassSet classes="",
+		util::AttributeMap attr={})
 	{
 		UUID=util::GenUUID();
 		height=0,width=0,left=0,top=0;
 		StyleMap=nullptr;
-		Id=id;
+		Tag=tag,Id=id;
 		for(auto i:classes)
 			ClassList.Add(i);
+		Attribute=attr;
 	}
 	virtual ~Element(){}
 };
