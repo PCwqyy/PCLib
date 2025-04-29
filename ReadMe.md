@@ -4,7 +4,7 @@
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
 
-![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v16d-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v16e-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -45,8 +45,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 2. 提交 pull request 以修复问题
 3. 改进文档
 
-# PClib 1.2
-- TUI 库！
+# PClib 1.2.1（未发布）
+- TUI 库的 DOM 结构（这并不是一个小改动）
 
 # 更新日志
 [历史](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
@@ -71,5 +71,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 ## 25v16d
 - `Element::QuerySelectorAll()` 的标签、类、ID选择器完成，后代选择器完成，差一个子元素选择器
 - 修复了 `pc::File::String()` 总会多一个 `\377` 的问题
+## 25v16e
+- 修复了 `PCML::Make()` 的严重逻辑错误
+- 完成了 `Element::QuerySelectorAll()`
 
 <!--记得改徽章的版本！-->

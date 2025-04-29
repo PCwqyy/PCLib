@@ -16,9 +16,9 @@ using std::regex_search;
 namespace PCML
 {
 
-const regex XMLDeclaration(R"(^\s*<\?xml(.*?)\?>)");
-const regex OpenTag(R"(^\s*<(\w+.*?)>)");
-const regex SelfCloseTag(R"(^\s*<(\w+.*?)/>)");
+const regex XMLDeclaration(R"(^\s*<\?xml([^<>]*?)\?>)");
+const regex OpenTag(R"(^\s*<(\w+[^<>]*?)>)");
+const regex SelfCloseTag(R"(^\s*<(\w+[^<>]*?)/>)");
 const regex Comment(R"(^\s*<!--[\s\S]*?-->)");
 const regex Attribute("(\\w+?)=\"(.*?)\"");
 
@@ -61,16 +61,17 @@ std::optional<Element> Make(string& pcml)
 		return std::nullopt;
 	Element ans=parseTag(res[1]);
 	pcml=res.suffix();
-	if(!regex_search(pcml,res,regex(format("</{}(| .*?)>",ans.GetTag()))))
-		throw pc::Exception("Unable to find a close tag </%d>",ans.GetTag());
-	string work=res.prefix();
-	pcml=res.suffix();
 	std::optional<Element> tmp;
 	while(true)
 	{
-		tmp=Make(work);
-		if(!tmp.has_value())
+		if(regex_search(pcml,res,
+			regex(format(R"(^\s*</{}(| .*?)>)",ans.GetTag()))))
+		{
+			pcml=res.suffix();
 			break;
+		}
+		tmp=Make(pcml);
+		if(!tmp.has_value())	break;
 		ans.AppendChild(tmp.value());
 	}
 	return ans;

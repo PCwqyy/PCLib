@@ -105,16 +105,18 @@ public:
 	/// @todo `>` 选择器，匹配仅下一级子元素
 	vector<Element> QuerySelectorAll(string s)
 	{
+		util::ShrinkStringHead(s);
 		vector<Element> ans;
-		bool matched=false;
-		string thisSelect=util::BreakWord(s);
+		bool matched=false,child=(s[0]=='>');
+		string thisSelect=util::BreakString(
+			s,[](char a){return a=='>'||isspace(a);});
 		if(matchSelector(thisSelect))
 		{
 			matched=true;
 			if(util::EmptyString(s))
 				ans.push_back(*this);
 		}
-		for(auto i:Children) // 原选择器
+		if(!child) for(auto i:Children) // 原选择器
 		{
 			vector<Element> tmp=i.QuerySelectorAll(thisSelect+' '+s);
 			ans.insert(ans.end(),tmp.begin(),tmp.end());

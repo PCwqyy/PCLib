@@ -67,40 +67,41 @@ string GenUUID()
     return string(uuid);
 }
 
+void ShrinkStringHead(string&a)
+{
+	int len=a.length(),i=0;
+	while(i<len&&isspace(a[i]))	i++;
+	a=a.substr(i);
+}
 /**
- * @brief Get a word from string
- * @param modify whether delete the word form origin string
+ * @brief Get a word breaking with `breaker()` from string
+ * @param modify Whether delete the word form origin string
+ * @param breaker Determine whether the char is a breaker
  * @return The gotten word
  */
-string BreakWord(string& a,bool modify=true)
+string BreakString(string& a,bool (*breaker)(char a),bool modify=true)
 {
 	string ans;
 	int i=0,len=a.length();
-	while(i<len&&isspace(a[i]))	i++;
+	while(i<len&&breaker(a[i]))	i++;
 	for(;i<len;i++)
-		if(isspace(a[i]))	break;
+		if(breaker(a[i]))	break;
 		else	ans+=a[i];
 	if(!modify)	return ans;
 	a=a.substr(i);
 	return ans;
 }
-/**
- * @brief Get a name (with only alphabets and numbers) from string
- * @param modify whether delete the word form origin string
- * @return The name
- */
+string BreakWord(string& a,bool modify=true)
+{
+	return BreakString(a,
+		[](char a){return bool(isspace(a));},
+		modify);
+}
 string BreakName(string& a,bool modify=true)
 {
-	string ans;
-	int i=0,len=a.length();
-	while(i<len&&!isalnum(a[i]))	i++;
-	for(;i<len;i++)
-		if(isalnum(a[i]))
-			ans+=a[i];
-		else break;
-	if(!modify)	return ans;
-	a=a.substr(i);
-	return ans;
+	return BreakString(a,
+		[](char a){return !isalnum(a)&&a!='_';},
+		modify);
 }
 bool EmptyString(string a)
 {
