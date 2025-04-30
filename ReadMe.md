@@ -74,5 +74,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 ## 25v16e
 - 修复了 `PCML::Make()` 的严重逻辑错误
 - 完成了 `Element::QuerySelectorAll()`
+## 25v17a
+- 添加了新的容器：`SyncedData<Tp>`，用于创建一个实时相互同步的数据组，即修改一个值时，组内的其他变量会同步修改
 
 <!--记得改徽章的版本！-->

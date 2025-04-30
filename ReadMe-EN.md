@@ -54,7 +54,7 @@ Any contribution is welcome! You can take part through the methods below:
 3. Improve documents
 
 # PClib 1.2.1 (Not released)
-- DOM stucture for TUI lib. (This is not a small change)
+- DOM structure for TUI lib. (This is not a small change)
 
 # Change Log
 [History](ChangeLogHistory-EN.md)
@@ -82,5 +82,7 @@ Any contribution is welcome! You can take part through the methods below:
 ## 25v16e
 - Fixed lethal logical mistake in `PCML::Make`
 - Finished `Element::QuerySelectorAll()`
+## 25v17a
+- Add a new container `SyncedData`, which is used to create a data group that will automatically synchronize the data to each other. That means if you modified a variable in group, the other variables will also changed.
 
 <!--记得改徽章的版本！-->
