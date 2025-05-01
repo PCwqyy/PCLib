@@ -4,7 +4,7 @@
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
 
-![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v16e-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v17b-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -47,6 +47,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 
 # PClib 1.2.1（未发布）
 - TUI 库的 DOM 结构（这并不是一个小改动）
+- 自动同步数据容器 `SyncedData`
 
 # 更新日志
 [历史](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
@@ -76,5 +77,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 完成了 `Element::QuerySelectorAll()`
 ## 25v17a
 - 添加了新的容器：`SyncedData<Tp>`，用于创建一个实时相互同步的数据组，即修改一个值时，组内的其他变量会同步修改
+## 25v17b
+- 将 `SyncedData` 改为双端树，现在可以安全地析构了
 
 <!--记得改徽章的版本！-->

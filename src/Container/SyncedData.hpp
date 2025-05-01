@@ -1,8 +1,10 @@
 #pragma once
 #define PCL_ASYNCDATA
 
-#include<vector>
-using std::vector;
+#include<set>
+using std::set;
+
+#include"../Exception.hpp"
 
 /**
  * @brief A data container that synchronizes with each other
@@ -15,27 +17,31 @@ class SyncedData
 {
 private:
 	SyncedData* from;
+	set<SyncedData*> to;
 	Tp data;
 	SyncedData* root()
 	{
 		if(from!=this)
-			from=from->root();
+			from=from->root(),
+			from->to.insert(this);
 		return from;
 	}
 public:
 	SyncedData(){from=this;}
-	SyncedData(Tp d){from=this;data=d;}
-	SyncedData(SyncedData& source)
-		{SetSource(source);}
+	SyncedData(Tp& d):data(d){from=this;}
 	/// @brief Check if the two `SyncedData` shared same source.
-	friend bool SameSource(SyncedData a,SyncedData b)
+	friend bool SameSource(SyncedData &a,SyncedData &b)
 		{return a.root()==b.root();}
 	/**
 	 * @brief Set source of **the whole synced group**,
 	 * which means **merge** the two groups.
 	 */
-	void SetSource(SyncedData a)
-		{root()->from=a.root();}
+	void SetSource(SyncedData &a)
+	{
+		SyncedData *cur=root();
+		cur->from=a.root();
+		a.root()->to.insert(cur);
+	}
 	/// @brief Set data and sync to the whole synced group.
 	void SetData(Tp a)
 		{root()->data=a;}
@@ -43,4 +49,25 @@ public:
 	Tp GetData(){return root()->data;}
 	/// @brief Set data and sync to the whole synced group. 
 	Tp operator=(Tp d){SetData(d);return d;}
+	~SyncedData()
+	{
+		if(from==this)
+			if(!to.empty())
+			{
+				SyncedData* newRoot=(*to.begin());
+				to.erase(to.begin());
+				newRoot->from=newRoot;
+				for(auto i:to)
+					i->from=newRoot,
+					newRoot->to.insert(i);
+			}
+			else;
+		else
+		{
+			from->to.erase(this);
+			for(auto i:to)
+				i->from=from,
+				from->to.insert(i);
+		}
+	}
 };
