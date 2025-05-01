@@ -10,40 +10,42 @@ using std::string;
 using std::set;
 using std::map;
 
-#ifdef _WIN32
-#include<windef.h>
-#include<winbase.h>
-#include<wingdi.h>
-#include<wincon.h>
-#elif defined(__linux__)||defined(__APPLE__)
-#include<sys/ioctl.h>
-#include<unistd.h>
-#endif
+#include"../Exception.hpp"
+
+// #ifdef _WIN32
+// #include<windef.h>
+// #include<winbase.h>
+// #include<wingdi.h>
+// #include<wincon.h>
+// #elif defined(__linux__)||defined(__APPLE__)
+// #include<sys/ioctl.h>
+// #include<unistd.h>
+// #endif
 
 /// @brief Utilitys for TUI
 namespace util
 {
 
-#ifdef _WIN32
-/// @brief Get how big the term is 
-int GetTerminalWidth()
-{
-	CONSOLE_SCREEN_BUFFER_INFO info;
-	if(GetConsoleScreenBufferInfo(
-		GetStdHandle(STD_OUTPUT_HANDLE),&info))
-		return info.dwSize.X;
-	return 80;
-}
-#elif defined(__linux__)||defined(__APPLE__)
-/// @brief Get how big the term is 
-int GetTerminalWidth()
-{
-	struct winsize w;
-	if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&w)!=-1)
-		return w.ws_col;
-	return 80;
-}
-#endif
+// #ifdef _WIN32
+// /// @brief Get how big the term is 
+// int GetTerminalWidth()
+// {
+// 	CONSOLE_SCREEN_BUFFER_INFO info;
+// 	if(GetConsoleScreenBufferInfo(
+// 		GetStdHandle(STD_OUTPUT_HANDLE),&info))
+// 		return info.dwSize.X;
+// 	return 80;
+// }
+// #elif defined(__linux__)||defined(__APPLE__)
+// /// @brief Get how big the term is 
+// int GetTerminalWidth()
+// {
+// 	struct winsize w;
+// 	if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&w)!=-1)
+// 		return w.ws_col;
+// 	return 80;
+// }
+// #endif
 
 /// @brief Generate an UUID 
 string GenUUID()
@@ -116,10 +118,9 @@ bool CheckNameValid(string name)
 {
 	bool hasAlp=false;
 	for(char i:name)
-		if(isalpha(i))
+		if(isalpha(i)||i=='_')
 			hasAlp=true;
 		else if(isdigit(i));
-		else if(i=='_');
 		else return false;
 	return hasAlp;
 }
@@ -132,59 +133,6 @@ bool CheckTagValid(string name)
 	return true;
 }
 
-/// @brief Contianer of `ClassList`
-class ClassSet
-{
-private:
-	set<string> c;
-public:
-	void Add(string arg)
-	{
-		if(CheckNameValid(arg))
-			c.insert(arg);
-	}
-	template<typename ...Tps>
-	void Add(string arg,Tps ...args)
-	{
-		Add(arg);
-		Add(args...);
-		return;
-	}
-	bool Has(string arg) const
-	{
-		if(!CheckNameValid(arg))	return false;
-		return c.find(arg)!=c.end();
-	}
-	void Delete(string arg)
-	{
-		if(CheckNameValid(arg))
-			c.erase(arg);
-	}
-	void Toggle(string arg)
-	{
-		if(!CheckNameValid(arg))	return;
-		if(c.find(arg)==c.end())
-			c.insert(arg);
-		else
-			c.erase(arg);
-	}
-	auto begin() const {return c.begin();}
-	auto end() const {return c.end();}
-	void Parse(string a)
-	{
-		string n;
-		while(a.length()>0)
-			n=BreakWord(a),
-			Add(n);
-		return;
-	}
-	ClassSet operator=(string a)
-		{Parse(a);return *this;}
-	ClassSet(){}
-	ClassSet(string a){Parse(a);}
-	ClassSet(const char* a){Parse(string(a));}
-};
-
 /// @brief Container of `Attribute`
 class AttributeMap
 {
@@ -193,16 +141,148 @@ private:
 public:
 	bool Has(string key)
 		{return m.find(key)!=m.end();}
-	void Set(string key,string val)
-		{m[key]=val;}
+	/// @return Whether succeed or not
+	bool Set(string key,string val)
+	{
+		if(EmptyString(key)||EmptyString(val))
+			return false;
+		if(!CheckNameValid(key))
+			return false;
+		m[key]=val;
+		return true;
+	}
 	string Get(string key)
 	{
+		if(!CheckNameValid(key))
+			return "Invalid key name";
 		auto i=m.find(key);
-		if(i==m.end())	return "undefined";
+		if(i==m.end())	return "";
 		else return i->second;
+	}
+	/**
+	 * @brief Format attribute like this:
+	 * ```
+	 * key1="value1" key2="value2" key3="value3"...
+	 * ```
+	 * @param ansi If `true`, it will add color to string with ansi
+	 */
+	string ToString(bool ansi=false)
+	{
+		string ans;
+		if(ansi) for(auto i:m)
+			ans+=std::format(
+				" %Cf[skyblue]{}%/=%Cf[chocolate]\"{}\"%/",
+				i.first,i.second);
+		else for(auto i:m)
+			ans+=std::format(" {}=\"{}\"",i.first,i.second);
+		if(ans.empty())	return ans;
+		else	return ans.substr(1);
 	}
 	auto operator[](string key)
 		{return m[key];}
+};
+
+class AttributeTracer
+{
+protected:
+	string key,val;
+	AttributeMap *tar;
+	virtual void pull(){val=tar->Get(key);}
+	virtual void push(){tar->Set(key,val);}
+public:
+	string operator=(string a){val=a;push();return a;}
+	string Val()
+	{
+		if(tar==nullptr)
+			throw pc::Exception("AttributeTracer not bound!");
+		pull();
+		return val;
+	}
+	void Bind(string k,AttributeMap* a)
+	{
+		tar=a;key=k;
+		pull();
+	}
+	AttributeTracer():tar(nullptr){}
+};
+/// @brief Contianer of `ClassList`
+class ClassSet: public AttributeTracer
+{
+private:
+	set<string> c;
+	void push()
+	{
+		val=ToString();
+		AttributeTracer::push();
+	}
+	void pull()
+	{
+		AttributeTracer::pull();
+		Parse(val);
+	}
+public:
+	void Add(string arg)
+	{
+		pull();
+		if(CheckNameValid(arg))
+			c.insert(arg);
+		push();
+	}
+	template<typename ...Tps>
+	void Add(string arg,Tps ...args)
+	{
+		pull();
+		Add(arg);
+		Add(args...);
+		push();
+	}
+	bool Has(string arg)
+	{
+		pull();
+		if(!CheckNameValid(arg))	return false;
+		return c.find(arg)!=c.end();
+	}
+	void Delete(string arg)
+	{
+		pull();
+		if(CheckNameValid(arg))
+			c.erase(arg);
+		push();
+	}
+	void Toggle(string arg)
+	{
+		pull();
+		if(!CheckNameValid(arg))	return;
+		if(c.find(arg)==c.end())
+			c.insert(arg);
+		else
+			c.erase(arg);
+		push();
+	}
+	void Parse(string a)
+	{
+		c.clear();
+		string n;
+		while(a.length()>0)
+		{
+			n=BreakWord(a);
+			if(CheckNameValid(n))
+				c.insert(n);
+		}
+	}
+	string ToString()
+	{
+		string ans;
+		for(auto i:c)
+			ans+=' '+i;
+		if(ans.empty())	return ans;
+		else	return ans.substr(1);
+	}
+	ClassSet operator=(string a)
+		{Parse(a);return *this;}
+	ClassSet():AttributeTracer(){}
+	auto begin() const {return c.begin();}
+	auto end() const {return c.end();}
 };
 
 }//namespace

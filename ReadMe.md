@@ -4,7 +4,7 @@
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
 
-![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v17b-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v18a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -79,5 +79,9 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 添加了新的容器：`SyncedData<Tp>`，用于创建一个实时相互同步的数据组，即修改一个值时，组内的其他变量会同步修改
 ## 25v17b
 - 将 `SyncedData` 改为双端树，现在可以安全地析构了
+## 25v18a
+- 为 `SyncedData` 添加了拷贝函数，现在可以安全地拷贝了
+- 将 `Element::ID`、`Element::ClassList` 改为 `Element::Attribute` 的映射而不是独立的变量，以匹配 Web DOM 的行为
+- 将 `Element::QuerySelectorAll` 的返回类型改为指针指向原元素，以模仿 Web DOM 的行为 
 
 <!--记得改徽章的版本！-->

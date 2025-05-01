@@ -14,7 +14,8 @@ using std::set;
 class Element
 {
 protected:
-	string ID,Tag;
+	util::AttributeTracer ID;
+	string Tag;
 	Element* Parent;
 	vector<Element> Children;
 	string UUID;
@@ -54,11 +55,16 @@ protected:
 	bool matchSelector(string s)
 	{
 		int i;
-		while(s.length()>0)
+		util::ShrinkStringHead(s);
+		if(util::EmptyString(s))
+			return false;
+		if(s[0]=='*')
+			return true;
+		while(!util::EmptyString(s))
 		{
 			i=0;	while(isspace(s[i]))	i++;
 			s=s.substr(i);
-			if(s[0]=='#'&&ID!=util::BreakName(s))
+			if(s[0]=='#'&&ID.Val()!=util::BreakName(s))
 				return false;
 			else if(s[0]=='.'&&!ClassList.Has(util::BreakName(s)))
 				return false;
@@ -99,14 +105,22 @@ public:
 	}
 	bool Append(Element&n){return n.AppendChild(*this);}
 	bool Remove(Element&n){return n.RemoveChild(*this);}
-	string GetID(){return ID;}
+	string GetID(){return ID.Val();}
+	bool SetID(string a)
+	{
+		if(!util::CheckNameValid(a))
+			return false;
+		ID=a;
+		Attribute.Set("id",a);
+		return true;
+	}
 	string GetTag(){return Tag;}
 	/// @brief Work like what you think.
 	/// @todo `>` 选择器，匹配仅下一级子元素
-	vector<Element> QuerySelectorAll(string s)
+	vector<Element*> QuerySelectorAll(string s)
 	{
 		util::ShrinkStringHead(s);
-		vector<Element> ans;
+		vector<Element*> ans;
 		bool matched=false,child=(s[0]=='>');
 		string thisSelect=util::BreakString(
 			s,[](char a){return a=='>'||isspace(a);});
@@ -114,17 +128,18 @@ public:
 		{
 			matched=true;
 			if(util::EmptyString(s))
-				ans.push_back(*this);
+				ans.push_back(this);
 		}
-		if(!child) for(auto i:Children) // 原选择器
-		{
-			vector<Element> tmp=i.QuerySelectorAll(thisSelect+' '+s);
-			ans.insert(ans.end(),tmp.begin(),tmp.end());
-		}
+		if(!child) // 原选择器
+			for(auto i=Children.begin();i!=Children.end();i++)
+			{
+				vector<Element*> tmp=i->QuerySelectorAll(thisSelect+' '+s);
+				ans.insert(ans.end(),tmp.begin(),tmp.end());
+			}
 		if(!matched||util::EmptyString(s))	return ans;
-		for(auto i:Children) // 子选择器
+		for(auto i=Children.begin();i!=Children.end();i++) // 子选择器
 		{
-			vector<Element> tmp=i.QuerySelectorAll(s);
+			vector<Element*> tmp=i->QuerySelectorAll(s);
 			ans.insert(ans.end(),tmp.begin(),tmp.end());
 		}
 		return ans;
@@ -135,17 +150,28 @@ public:
 	string GetStyle(string attr){return style[attr];}
 	void SetStyle(string attr,string val){style.SetAttribute(attr,val);}
 	void SetStyle(StyleSheet a){style=a;}
-	Element(string tag="",string id="",util::ClassSet classes="",
-		util::AttributeMap attr={})
+	Element(string tag="",string id="",string classes="")
 	{
 		UUID=util::GenUUID();
 		Parent=nullptr;
 		height=0,width=0,left=0,top=0;
 		StyleMap=nullptr;
-		Tag=tag,ID=id;
-		for(auto i:classes)
-			ClassList.Add(i);
-		Attribute=attr;
+		Tag=tag;
+		ID.Bind("id",&Attribute);
+		ClassList.Bind("class",&Attribute);
+		SetID(id);
+		ClassList=classes;
+	}
+	Element(const Element& a)
+	{
+		UUID=a.UUID;
+		Parent=a.Parent;
+		StyleMap=a.StyleMap;
+		Tag=a.Tag;
+		Children=a.Children;
+		Attribute=a.Attribute;
+		ID.Bind("id",&Attribute);
+		ClassList.Bind("class",&Attribute);
 	}
 	virtual ~Element(){}
 };

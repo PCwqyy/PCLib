@@ -4,7 +4,7 @@
 
 [English](ReadMe-EN.md) | [中文](ReadMe.md) 
 
-![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v17b-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v18a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -87,5 +87,9 @@ Any contribution is welcome! You can take part through the methods below:
 - Add a new container `SyncedData`, which is used to create a data group that will automatically synchronize the data to each other. That means if you modified a variable in group, the other variables will also changed.
 ## 25v17b
 - Change `SyncedData` into double-ended-tree. Now it can be destructed safely.
+## 25v18a
+- Added a copy function for `SyncedData`, which is now safe to copy
+- Change `Element::ID`, `Element::ClassList` to mappings of `Element::Attribute` instead of isolated variables to match the behavior of the Web DOM
+- Changed the return type of `Element::QuerySelectorAll` to pointer to the original element to mimic the behavior of the Web DOM
 
 <!--记得改徽章的版本！-->

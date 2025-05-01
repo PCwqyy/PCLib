@@ -16,7 +16,7 @@ template<typename Tp>
 class SyncedData
 {
 private:
-	SyncedData* from;
+	SyncedData* from=this;
 	set<SyncedData*> to;
 	Tp data;
 	SyncedData* root()
@@ -26,9 +26,23 @@ private:
 			from->to.insert(this);
 		return from;
 	}
+	/// @brief Find the root without modify
+	SyncedData* trace() const
+	{
+		SyncedData* i=from;
+		while(i!=i->from)
+			i=i->from;
+		return i;
+	}
 public:
 	SyncedData(){from=this;}
 	SyncedData(Tp& d):data(d){from=this;}
+	SyncedData(const SyncedData& s)
+	{
+		from=s.trace();
+		from->to.insert(this);
+		data=s.data;
+	}
 	/// @brief Check if the two `SyncedData` shared same source.
 	friend bool SameSource(SyncedData &a,SyncedData &b)
 		{return a.root()==b.root();}
@@ -38,6 +52,7 @@ public:
 	 */
 	void SetSource(SyncedData &a)
 	{
+		if(&a==this)	return;
 		SyncedData *cur=root();
 		cur->from=a.root();
 		a.root()->to.insert(cur);

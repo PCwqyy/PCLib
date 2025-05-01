@@ -1,6 +1,7 @@
 #pragma once
 #define PCL_TUI_PCML
 
+#include<cstdio>
 #include<regex>
 #include<format>
 using std::regex;
@@ -26,20 +27,13 @@ const regex Attribute("(\\w+?)=\"(.*?)\"");
 Element parseTag(string s)
 {
 	string tag=util::BreakWord(s),id;
-	util::ClassSet classes;
-	util::AttributeMap attr;
-	smatch res;
+	Element ans(tag);smatch res;
 	while(regex_search(s,res,Attribute))
 	{
-		if(res[1]=="id")
-			id=res[2];
-		else if(res[1]=="class")
-			classes=res[2];
-		else
-			attr.Set(res[1],res[2]);
+		ans.Attribute.Set(res[1],res[2]);
 		s=res.suffix();
 	}
-	return Element(tag,id,classes,attr);
+	return ans;
 }
 /**
  * @brief Make a element with pcml
@@ -76,7 +70,32 @@ std::optional<Element> Make(string& pcml)
 	}
 	return ans;
 }
+
+#define pcML_ERR_XML "Can't find XML declaration of the Ducument"
 /// @todo 解析整个文档 
-Document Parse(string pcml);
+Document Parse(string path)
+{
+	FILE* flPCML=fopen(path.c_str(),"r");
+	string pcml;char in;
+	while(true)
+	{
+		in=fgetc(flPCML);
+		if(in==EOF)	break;
+		pcml+=in;
+	}
+	smatch res;
+	if(!regex_search(pcml,res,XMLDeclaration))
+		throw pc::Exception(pcML_ERR_XML);
+	pcml=res.suffix();
+	Document ans=parseTag("xml "+string(res[1]));
+	std::optional<Element> tmp;
+	while(!util::EmptyString(pcml))
+	{
+		tmp=Make(pcml);
+		if(tmp.has_value())
+			ans.AppendChild(tmp.value());
+	}
+	return ans;
+}
 
 }//namespace
