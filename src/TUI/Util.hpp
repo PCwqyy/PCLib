@@ -12,40 +12,9 @@ using std::map;
 
 #include"../Exception.hpp"
 
-// #ifdef _WIN32
-// #include<windef.h>
-// #include<winbase.h>
-// #include<wingdi.h>
-// #include<wincon.h>
-// #elif defined(__linux__)||defined(__APPLE__)
-// #include<sys/ioctl.h>
-// #include<unistd.h>
-// #endif
-
 /// @brief Utilitys for TUI
 namespace util
 {
-
-// #ifdef _WIN32
-// /// @brief Get how big the term is 
-// int GetTerminalWidth()
-// {
-// 	CONSOLE_SCREEN_BUFFER_INFO info;
-// 	if(GetConsoleScreenBufferInfo(
-// 		GetStdHandle(STD_OUTPUT_HANDLE),&info))
-// 		return info.dwSize.X;
-// 	return 80;
-// }
-// #elif defined(__linux__)||defined(__APPLE__)
-// /// @brief Get how big the term is 
-// int GetTerminalWidth()
-// {
-// 	struct winsize w;
-// 	if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&w)!=-1)
-// 		return w.ws_col;
-// 	return 80;
-// }
-// #endif
 
 /// @brief Generate an UUID 
 string GenUUID()
