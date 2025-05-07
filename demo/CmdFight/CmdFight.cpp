@@ -1,7 +1,7 @@
-#include"../../src/Command.hpp"
-#include"../../src/Socket.hpp"
-#include"../../src/Console.hpp"
-#include"../../src/File.hpp"
+#include"../../src/Container/Command.hpp"
+#include"../../src/Windows/Socket.hpp"
+#include"../../src/Windows/Console.hpp"
+#include"../../src/Utility/File.hpp"
 #include<string>
 #include<vector>
 #include<regex>
@@ -19,7 +19,7 @@ vector<regex> Rules[100];
 map<string,int> NameMap;
 int NowPlayer,Port,LimitRule=10,LimitPlayer=16;
 bool GameStart=false,EscapeFlag=false;
-FileOp flProfile;
+pc::File flProfile;
 ClientSocket client;
 ServerSocket server;
 #define PLAYER_UNKOWN 0
@@ -33,7 +33,7 @@ char PlayerStatusText[][16]=
 
 void SetProfile()
 {
-	flProfile.open("./profile.txt",OVERWRITE);
+	flProfile.open(OVERWRITE,"./profile.txt");
 	ColorPrintf(0x70,"Update Profile:\n");
 	ColorPrintf(0x07,"Input Ip\n");
 	scanf("%s",IpInput);
@@ -47,7 +47,7 @@ void SetProfile()
 }
 void ReadProfile()
 {
-	flProfile.open("./profile.txt",INSERTWRITE);
+	flProfile.open(INSERTWRITE,"./profile.txt");
 	if(flProfile.null())
 	{
 		SetProfile();
@@ -98,7 +98,7 @@ bool MatchRule(int id,const char* tar)
 }
 void ReadMustNotMatches()
 {
-	FileOp flRead("./Words.txt",READONLY);
+	pc::File flRead(READONLY,"./Words.txt");
 	while(true)
 	{
 		flRead.getline(InStr);

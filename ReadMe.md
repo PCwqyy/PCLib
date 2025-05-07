@@ -4,7 +4,7 @@
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
 
-![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v18a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v19a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -45,6 +45,10 @@ git clone https://gitee.com/pcwqyy/PClib.git
 2. 提交 pull request 以修复问题
 3. 改进文档
 
+## 演示
+
+[Cmd Fight](./demo/CmdFight/readme.md)
+
 # PClib 1.2.1（未发布）
 - TUI 库的 DOM 结构（这并不是一个小改动）
 - 自动同步数据容器 `SyncedData`
@@ -83,5 +87,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 为 `SyncedData` 添加了拷贝函数，现在可以安全地拷贝了
 - 将 `Element::ID`、`Element::ClassList` 改为 `Element::Attribute` 的映射而不是独立的变量，以匹配 Web DOM 的行为
 - 将 `Element::QuerySelectorAll` 的返回类型改为指针指向原元素，以模仿 Web DOM 的行为 
+# 25v19a
+- 回滚 `Command.hpp` 至 25v4a
+- 改动 Cmd Fight 使其又可以编译
 
 <!--记得改徽章的版本！-->

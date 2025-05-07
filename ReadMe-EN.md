@@ -4,7 +4,7 @@
 
 [English](ReadMe-EN.md) | [中文](ReadMe.md) 
 
-![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v18a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v19a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -53,6 +53,10 @@ Any contribution is welcome! You can take part through the methods below:
 2. Submit pull requests to fix issues
 3. Improve documents
 
+## Demonstrations
+
+- [Cmd Fight](./demo/CmdFight/readme.md)
+
 # PClib 1.2.1 (Not released)
 - DOM structure for TUI lib. (This is not a small change)
 - Auto syncing data container `SyncedData`
@@ -91,5 +95,8 @@ Any contribution is welcome! You can take part through the methods below:
 - Added a copy function for `SyncedData`, which is now safe to copy
 - Change `Element::ID`, `Element::ClassList` to mappings of `Element::Attribute` instead of isolated variables to match the behavior of the Web DOM
 - Changed the return type of `Element::QuerySelectorAll` to pointer to the original element to mimic the behavior of the Web DOM
+## 25v19a
+- Scrolled back `Command.hpp` to 25v4a
+- Modified Cmd Fight to make it be able to compiled again.
 
 <!--记得改徽章的版本！-->
