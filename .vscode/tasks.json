@@ -28,27 +28,27 @@
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
 		},{
-			"label": "GCC Build UTF-16",
+			"label": "WSL GCC Build",
 			"type": "shell",
-			"command": "g++",
+			"command": "g++-14",
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-16",
-				"-fexec-charset=GBK",
+				"-finput-charset=UTF-8",
+				"-fexec-charset=UTF-8",
 				"-I","${workspaceFolder}",
 				"-s","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
 		},{
-			"label": "GDB Build UTF-16",
+			"label": "WSL GDB Build",
 			"type": "shell",
-			"command": "g++",
+			"command": "g++-14",
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-16",
-				"-fexec-charset=GBK",
+				"-finput-charset=UTF-8",
+				"-fexec-charset=UTF-8",
 				"-I","${workspaceFolder}",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",

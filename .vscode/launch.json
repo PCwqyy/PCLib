@@ -59,26 +59,48 @@
 					"ignoreFailures": true
 				}
 			]
-		},{"name": "Build U16",
-			"type": "cppvsdbg",
+		},{"name": "WSL Launch",
+			"type": "cppdbg",
 			"request": "launch",
-			"preLaunchTask": "GCC Build UTF-16",
 			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
 			"environment": [],
-			"console": "externalTerminal"
+			"externalConsole": true,
+			"MIMode": "gdb",
+			"miDebuggerPath": "gdb",
+			"setupCommands": [
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				},
+				{
+					"description": "Set Disassembly Flavor to Intel",
+					"text": "-gdb-set disassembly-flavor intel",
+					"ignoreFailures": true
+				}
+			]
 		},
-		{"name": "Debug U16",
+		{"name": "WSL Build",
 			"type": "cppdbg",
 			"request": "launch",
-			"preLaunchTask": "GDB Build UTF-16",
+			"preLaunchTask": "WSL GCC Build",
 			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
-			"externalConsole": true,
+			"environment": []
+		},
+		{"name": "WSL Debug",
+			"type": "cppdbg",
+			"request": "launch",
+			"preLaunchTask": "WSL GDB Build",
+			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${fileDirname}",
 			"environment": [],
 			"MIMode": "gdb",
 			"miDebuggerPath": "gdb",

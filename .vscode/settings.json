@@ -77,5 +77,6 @@
 		"Gainsboro",
 		"Gitee",
 		"Multinclude"
-	]
+	],
+	"C_Cpp.default.compilerPath": "/usr/bin/g++-14"
 }

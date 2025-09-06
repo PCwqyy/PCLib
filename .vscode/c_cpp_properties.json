@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "/home/pecookie/Code/PClib/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -13,7 +13,25 @@
             "cStandard": "c23",
             "cppStandard": "c++23",
             "intelliSenseMode": "windows-gcc-x86",
-            "compilerPath": "D:/Program Files/MinGW/bin/g++.exe"
+            "compilerPath": "D:/Program Files/MinGW/bin/g++.exe",
+            "compilerPathInCppPropertiesJson": "/usr/bin/g++-14",
+            "mergeConfigurations": false,
+            "recursiveIncludes": {},
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true
+            }
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/c++/14/**"
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerPath": "/usr/bin/g++-14"
         }
     ],
     "version": 4
