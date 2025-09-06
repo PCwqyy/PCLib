@@ -1,0 +1,250 @@
+#pragma once
+#define PCL_STRING
+
+#include<cstring>
+#include<format>
+#include"../Exception.hpp"
+
+#ifdef _WIN32
+#include<stringapiset.h>
+#endif
+
+namespace pcpri{
+	void strcpy(char16_t* dest,const char16_t* src)
+	{
+		while(*src)	*dest++=*src++;
+		*dest=u'\0';
+	}
+};
+
+#define pcSTR_EMPTY_CAPACITY 512
+#define pcSTR_SAFE_MULTIPLE 0.8
+class String
+{
+private:
+	char16_t* str=NULL;
+	int cap=pcSTR_EMPTY_CAPACITY,lenCache=0;
+	bool dirty=false;
+	void applyCap()
+	{
+		char16_t* n=new char16_t[cap+5];
+		int len=Length();
+		if(str!=nullptr)
+			pcpri::strcpy(n,str);
+		delete str;
+		str=n;
+	}
+	String& copyFrom(String& f)
+	{
+		int len=f.Length();
+		cap=f.cap;
+		applyCap();
+		pcpri::strcpy(str,f.str);
+		dirty=true;
+		return *this;
+	}
+	String& copyFrom(const char16_t* cstr)
+	{
+		int len=0;
+		for(;cstr[len]!=u'\0';len++);
+		ExtendTo(len);
+		pcpri::strcpy(str,cstr);
+		dirty=true;
+		return *this;
+	}
+	String& copyFrom(const char* cstr)
+	{
+		int len=strlen(cstr);
+		ExtendTo(len);
+		pcpri::strcpy(str,reinterpret_cast<const char16_t*>(cstr));
+		dirty=true;
+		return *this;
+	}
+public:
+	int Size() const
+	{
+		char16_t* s=str;
+		if(s[0]==u'\0')	return 0;
+		while(*s++!=u'\0');
+		return s-str-1;
+	}
+	int Length()
+	{
+		if(!dirty)	return lenCache;
+		int ret=cap;
+		for(int i=0;i<cap;i++)
+			if(str[i]==u'\0')
+				dirty=false,
+				lenCache=i,
+				ret=i;
+		return ret;
+	}
+	void ExtendBy(double multi)
+	{
+		if(multi<=1)	return;
+		int tar=cap*multi;
+		if(tar<=cap)	return;
+		cap=tar;
+		applyCap();
+	}
+	void ExtendTo(int len)
+	{
+		int tar=int(len/pcSTR_SAFE_MULTIPLE);
+		if(tar<=cap)	return;
+		cap=tar;
+		applyCap();
+	}
+	void Shrink()
+	{
+		cap=int(Length()/pcSTR_SAFE_MULTIPLE);
+		applyCap();
+	}
+	String& Append(String a)
+	{
+		int i=Length(),len=a.Length()+Length();
+		ExtendTo(len);
+		for(int j=0;i<len;i++,j++)
+			str[i]=a[j];
+		str[len]=u'\0';
+		dirty=true;
+		return *this;
+	}
+	String& Append(char16_t c)
+	{
+		int len=Length();
+		ExtendTo(len+1);
+		str[len]=c;
+		str[len+1]=u'\0';
+		dirty=true;
+		return *this;
+	}
+	String SubStr(int from,int to)
+	{
+		String ans(to-from);
+		int i=0;
+		for(;from<to;from++,i++)
+			ans[i]=str[from];
+		ans[i]=u'\0';
+		return ans;
+	}
+	int Compare(String a)
+	{
+		int len=Length();
+		if(len!=a.Length())
+			return (len>a.Length())?1:-1;
+		for(int i=0;i<len;i++)
+			if(str[i]!=a[i])
+				return (str[i]>a[i])?1:-1;
+		return 0;
+	}
+	int Capacity(){return cap;}
+	char16_t* CStr() const
+	{
+		char16_t* ret=new char16_t[Size()+5];
+		pcpri::strcpy(ret,str);
+		return ret;
+	}
+	String(){applyCap();}
+	String(String& a)
+	{
+		cap=a.cap;
+		applyCap();
+		copyFrom(a);
+	}
+	String(String&& a)
+	{
+		cap=a.cap;
+		applyCap();
+		copyFrom(a);
+	}
+	String(const char* cstr)
+	{
+		applyCap();
+		copyFrom(cstr);
+	}
+	String(const char16_t* cstr)
+	{
+		applyCap();
+		copyFrom(cstr);
+	}
+	String(int capacity)
+	{
+		cap=int(capacity/pcSTR_SAFE_MULTIPLE);
+		applyCap();
+	}
+	String& operator=(String& from){return copyFrom(from);}
+	String& operator=(const char* from){return copyFrom(from);}
+	String& operator=(const char16_t* from){return copyFrom(from);}
+	char16_t& operator[](int index){return str[index];}
+	String friend operator+(String a,String b)
+	{
+		String ans=a;
+		ans.Append(b);
+		return ans;
+	}
+	int friend operator<=>(String a,String b)
+		{return a.Compare(b);}
+	bool friend operator==(String a,String b)
+		{return a.Compare(b)==0;}
+	bool friend operator>(String a,String b)
+		{return a.Compare(b)==1;}
+	bool friend operator<(String a,String b)
+		{return a.Compare(b)==-1;}
+	bool friend operator>=(String a,String b)
+		{return a.Compare(b)!=-1;}
+	bool friend operator<=(String a,String b)
+		{return a.Compare(b)!=1;}
+	bool friend operator!=(String a,String b)
+		{return a.Compare(b)!=0;} 
+};
+
+void uft16_to_uft8(const char16_t* u16str,char* u8str)
+{
+	int len=0;
+	for(;u16str[len]!=u'\0';len++);
+	int idx=0;
+	for(int i=0;i<len;i++)
+	{
+		char16_t c=u16str[i];
+		if(c<=0x7F)
+			u8str[idx++]=char(c);
+		else if(c<=0x7FF)
+			u8str[idx++]=char(0xC0|(c>>6)),
+			u8str[idx++]=char(0x80|(c&0x3F));
+		else
+			u8str[idx++]=char(0xE0|(c>>12)),
+			u8str[idx++]=char(0x80|((c>>6)&0x3F)),
+			u8str[idx++]=char(0x80|(c&0x3F));
+	}
+	u8str[idx]='\0';
+}
+
+template<>
+struct std::formatter<String,char>
+{
+	constexpr auto parse(std::format_parse_context& ctx)
+	{
+		return ctx.begin();
+	}
+#ifdef _WIN32
+	auto format(const String& s,std::format_context& ctx) const
+	{
+		char* gbkstr=new char[3*s.Size()+5];
+		WideCharToMultiByte(936,0,reinterpret_cast<wchar_t*>(s.CStr()),
+			-1,gbkstr,3*s.Size()+5,nullptr,nullptr);
+		auto result=std::format_to(ctx.out(),"{}",gbkstr);
+		delete[] gbkstr;
+		return result;
+	}
+#endif
+#ifdef __linux__
+	auto format(const String& s,std::format_context& ctx) const
+	{
+		char* u8str=new char[3*s.Size()+5];
+		uft16_to_uft8(s.CStr(),u8str);
+		auto result=std::format_to(ctx.out(),"{}",u8str);
+		delete[] u8str;
+		return result;
+	}
+#endif
+};

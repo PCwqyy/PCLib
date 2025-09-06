@@ -28,30 +28,44 @@
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
 		},{
-			"label": "GCC Build UTF-8",
+			"label": "GCC Build UTF-16",
 			"type": "shell",
 			"command": "g++",
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-8",
-				"-fexec-charset=UTF-8",
+				"-finput-charset=UTF-16",
+				"-fexec-charset=GBK",
 				"-I","${workspaceFolder}",
 				"-s","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
 		},{
-			"label": "GDB Build UTF-8",
+			"label": "GDB Build UTF-16",
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-xc++",
+				"-std=c++23",
+				"-finput-charset=UTF-16",
+				"-fexec-charset=GBK",
+				"-I","${workspaceFolder}",
+				"-g","${fileDirname}/${fileBasename}",
+				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+			]
+		},{
+			"label": "GCC Module",
 			"type": "shell",
 			"command": "g++",
 			"args": [
 				"-xc++",
 				"-std=c++23",
 				"-finput-charset=UTF-8",
-				"-fexec-charset=UTF-8",
+				"-fexec-charset=GBK",
+				"-fmodules-ts",
 				"-I","${workspaceFolder}",
-				"-g","${fileDirname}/${fileBasename}",
-				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+				"-s","${fileDirname}/${fileBasename}",
+				"-c","-o","${fileDirname}/${fileBasenameNoExtension}.pcm",
 			]
 		},{
 			"label": "Doxygen",

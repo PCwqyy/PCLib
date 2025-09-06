@@ -59,10 +59,10 @@
 					"ignoreFailures": true
 				}
 			]
-		},{"name": "Build U8",
+		},{"name": "Build U16",
 			"type": "cppvsdbg",
 			"request": "launch",
-			"preLaunchTask": "GCC Build UTF-8",
+			"preLaunchTask": "GCC Build UTF-16",
 			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
 			"args": [],
 			"stopAtEntry": false,
@@ -70,10 +70,10 @@
 			"environment": [],
 			"console": "externalTerminal"
 		},
-		{"name": "Debug U8",
+		{"name": "Debug U16",
 			"type": "cppdbg",
 			"request": "launch",
-			"preLaunchTask": "GDB Build UTF-8",
+			"preLaunchTask": "GDB Build UTF-16",
 			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
 			"args": [],
 			"stopAtEntry": false,
