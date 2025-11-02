@@ -4,10 +4,13 @@
 #include<string>
 #include<vector>
 #include<set>
+#include<memory>
+#include<algorithm>
+
 using std::vector;
 using std::set;
 
-#include"SytleSheet.hpp"
+#include"StyleSheet.hpp"
 #include"Util.hpp"
 
 /// @brief Element node
@@ -17,14 +20,14 @@ protected:
 	util::AttributeTracer ID;
 	string Tag;
 	Element* Parent;
-	vector<Element> Children;
+	// store children as owning unique_ptrs -> stable addresses, no accidental slicing
+	vector<std::unique_ptr<Element>> Children;
 	string UUID;
-	auto findNode(Element n)
+	// find by UUID
+	auto FindNodeByUUID(const string& uuid)
 	{
-		for(auto i=Children.begin();i!=Children.end();i++)
-			if(i->UUID==n.UUID)
-				return i;
-		return Children.end();
+		return std::find_if(Children.begin(),Children.end(),
+			[&](const std::unique_ptr<Element>& p){return p&&p->UUID==uuid;});
 	}
 	StyleSheet style,eleStyle;
 	short left,top,height,width;
@@ -32,11 +35,11 @@ protected:
 	void applyStyleByClass()
 	{
 		style=eleStyle;
-		if(StyleMap==nullptr)	return;
+		if(StyleMap==nullptr) return;
 		for(string i:ClassList)
 		{
 			auto a=StyleMap->find(i);
-			if(a==StyleMap->end())	continue;
+			if(a==StyleMap->end()) continue;
 			style=style+a->second;
 		}
 	}
@@ -44,32 +47,32 @@ protected:
 		map<string,StyleSheet>* c=nullptr)
 	{
 		left=x,top=y;
-		if(c!=nullptr)	StyleMap=c;
+		if(c!=nullptr) StyleMap=c;
 		applyStyleByClass();
-		return {left,top};
+		return{left,top };
 	}
 	/**
-	 * @brief Check if the element match the single element selector 
+	 * @brief Check ifthe element match the single element selector 
 	 * like `#id.class1.class2` 
 	 */
 	bool matchSelector(string s)
 	{
-		int i;
 		util::ShrinkStringHead(s);
-		if(util::EmptyString(s))
-			return false;
-		if(s[0]=='*')
-			return true;
+		if(util::EmptyString(s)) return false;
+		if(s[0]=='*') return true;
+		// parse tokens: `#id`, `.class`, `tag`
 		while(!util::EmptyString(s))
 		{
-			i=0;	while(isspace(s[i]))	i++;
-			s=s.substr(i);
-			if(s[0]=='#'&&ID.Val()!=util::BreakName(s))
+			util::ShrinkStringHead(s);
+			if(util::EmptyString(s)) break;
+			string name=util::BreakName(s);
+			if(s[0]=='#'&&ID.Val()!=name)
 				return false;
-			else if(s[0]=='.'&&!ClassList.Has(util::BreakName(s)))
+			else if(s[0]=='.'&&!ClassList.Has(name))
 				return false;
-			else if(isalnum(s[0])&&Tag!=util::BreakName(s))
+			else if(isalpha(s[0])&&Tag!=name)
 				return false;
+			else break;
 		}
 		return true;
 	}
@@ -78,78 +81,91 @@ public:
 	util::AttributeMap Attribute;
 	/**
 	 * @brief Append a node as a child
-	 * @return `true` if succeed \
+	 * @return `true` if succeed
 	 * @return `false` if this node already is a child
 	 */
-	bool AppendChild(Element n)
+	bool AppendChild(std::unique_ptr<Element> child)
 	{
-		n.Parent=this;
-		if(findNode(n)!=Children.end())
+		if(!child)	return false;
+		if(child->Parent!=nullptr)
 			return false;
-		Children.push_back(n);
+		if(FindNodeByUUID(child->UUID)!=Children.end())
+			return false;
+		child->Parent=this;
+		Children.push_back(std::move(child));
 		return true;
 	}
 	/**
-	 * @brief Remove a ChildNode
-	 * @return `true` if succeed \
-	 * @return `false` if no such node
+	 * @brief Remove a ChildNode by element or UUID
+	 * @return `true` if succeed
+	 * @return `false` if there's no such node
 	 */
-	bool RemoveChild(Element n)
+	bool RemoveChild(const string& uuid)
 	{
-		n.Parent=nullptr;
-		auto i=findNode(n);
-		if(i==Children.end())
-			return false;
-		Children.erase(i);
+		auto it=FindNodeByUUID(uuid);
+		if(it==Children.end()) return false;
+		(*it)->Parent=nullptr;
+		Children.erase(it);
 		return true;
 	}
-	bool Append(Element&n){return n.AppendChild(*this);}
-	bool Remove(Element&n){return n.RemoveChild(*this);}
+	bool RemoveChild(const Element& n)
+		{return RemoveChild(n.UUID);}
 	string GetID(){return ID.Val();}
 	bool SetID(string a)
 	{
-		if(!util::CheckNameValid(a))
-			return false;
+		if(!util::CheckNameValid(a)) return false;
 		ID=a;
 		Attribute.Set("id",a);
 		return true;
 	}
-	string GetTag(){return Tag;}
+	string GetTag(){return Tag; }
 	/// @brief Work like what you think.
 	/// @todo `>` 选择器，匹配仅下一级子元素
 	vector<Element*> QuerySelectorAll(string s)
 	{
 		util::ShrinkStringHead(s);
 		vector<Element*> ans;
-		bool matched=false,child=(s[0]=='>');
+		bool matched=false;
+		bool childOnly=(!util::EmptyString(s)&&s[0]=='>');
 		string thisSelect=util::BreakString(
-			s,[](char a){return a=='>'||isspace(a);});
+			s,[](char a){return a=='>' || isspace((unsigned char)a); });
 		if(matchSelector(thisSelect))
 		{
 			matched=true;
 			if(util::EmptyString(s))
 				ans.push_back(this);
 		}
-		if(!child) // 原选择器
-			for(auto i=Children.begin();i!=Children.end();i++)
+		// recurse into children: if childOnly is false, search descendants for original selector
+		if(!childOnly)
+		{
+			for(auto& childPtr:Children)
 			{
-				vector<Element*> tmp=i->QuerySelectorAll(thisSelect+' '+s);
+				// pass a constructed selector: thisSelect+' '+s
+				string pass=thisSelect;
+				if(!util::EmptyString(s)) pass += ' ',pass += s;
+				vector<Element*> tmp=childPtr->QuerySelectorAll(pass);
 				ans.insert(ans.end(),tmp.begin(),tmp.end());
 			}
-		if(!matched||util::EmptyString(s))	return ans;
-		for(auto i=Children.begin();i!=Children.end();i++) // 子选择器
+		}
+
+		if(!matched || util::EmptyString(s)) return ans;
+
+		// when matched, continue matching subsequent selectors against children
+		for(auto& childPtr:Children)
 		{
-			vector<Element*> tmp=i->QuerySelectorAll(s);
+			vector<Element*> tmp=childPtr->QuerySelectorAll(s);
 			ans.insert(ans.end(),tmp.begin(),tmp.end());
 		}
 		return ans;
-	} 
+	}
 	virtual pcpri::COORD Print(short x,short y,
 		short visWidth,map<string,StyleSheet>* c=nullptr)
-		{return printInit(x,y,c);}
-	string GetStyle(string attr){return style[attr];}
-	void SetStyle(string attr,string val){style.SetAttribute(attr,val);}
-	void SetStyle(StyleSheet a){style=a;}
+	{
+		return printInit(x,y,c);
+	}
+	string GetStyle(string attr){return style[attr]; }
+	void SetStyle(string attr,string val){style.SetAttribute(attr,val); }
+	void SetStyle(StyleSheet a){style=a; }
 	Element(string tag="",string id="",string classes="")
 	{
 		UUID=util::GenUUID();
@@ -162,16 +178,32 @@ public:
 		SetID(id);
 		ClassList=classes;
 	}
+	/// @brief deep-copy: clone children to keep ownership consistent
 	Element(const Element& a)
 	{
 		UUID=a.UUID;
-		Parent=a.Parent;
+		Parent=nullptr; // copy should not keep same parent pointer
 		StyleMap=a.StyleMap;
 		Tag=a.Tag;
-		Children=a.Children;
+		style=a.style;
+		eleStyle=a.eleStyle;
+		left=a.left; top=a.top; width=a.width; height=a.height;
 		Attribute=a.Attribute;
 		ID.Bind("id",&Attribute);
 		ClassList.Bind("class",&Attribute);
+		// clone children
+		Children.clear();
+		for(const auto& ch:a.Children)
+		{
+			if(ch)
+			{
+				auto cloned=std::make_unique<Element>(*ch);
+				cloned->Parent=this;
+				Children.push_back(std::move(cloned));
+			}
+		}
 	}
+	/// @brief disabled copy-assignment to avoid accidental shallow copies
+	Element& operator=(const Element&)=delete;
 	virtual ~Element(){}
 };

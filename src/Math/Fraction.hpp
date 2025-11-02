@@ -2,6 +2,8 @@
 #define PCL_RATIONAL
 
 #include<cstring>
+#include<cctype>
+#include"../Exception.hpp"
 
 namespace pcpri
 {
@@ -21,12 +23,12 @@ namespace pcpri
 	}
 }
 
-#ifndef pcB_DOUBLEACC
-#define pcB_DOUBLEACC 1e8
+#ifndef pcM_DOUBLEACC
+#define pcM_DOUBLEACC 8
 #endif
 
-#ifndef ERR_DIV0
-#define ERR_DIV0 "Divide 0 occurs"
+#ifndef pcERR_DIV0
+#define pcERR_DIV0 "Divide 0 occurs"
 #endif
 
 /**
@@ -34,7 +36,7 @@ namespace pcpri
  * @tparam Tp The type of numerator and denominator
  */
 template<typename Tp>
-class basicRational
+class Rational
 {
 private:
 	Tp a=0,b=1;
@@ -48,12 +50,12 @@ private:
 	void make(Tp m){a=m,b=1;}
 	void make(double m)
 	{
-		a=m*pcB_DOUBLEACC;
-		b=pcB_DOUBLEACC;
+		a=m*pcM_DOUBLEACC;
+		b=pcM_DOUBLEACC;
 		deduct();
 		return;
 	}
-	void make(basicRational m)
+	void make(Rational m)
 		{a=m.a,b=m.b;deduct();}
 	void make(const char* m)
 	{
@@ -79,7 +81,7 @@ private:
 				break;
 			b*=10,b+=m[now++]-'0';
 		}
-		if(b==0)	throw ERR_DIV0;
+		if(b==0)	throw pc::Exception(pcERR_DIV0);
 		return;
 	}
 public:
@@ -88,18 +90,17 @@ public:
 	 * @tparam Tpm The target type
 	 */ 
 	template<typename Tpm>
-	Tpm To(){return 1.0*a/b;}
-#ifdef _INC_STDIO
-	/// @todo Large??? int??? how to do???
-	/// @brief Convert to string
-	void ToString(char* Dest)
+	Tpm To(int acc=6)const
 	{
-		deduct();
-		sprintf(Dest,b==1?"%d":"%d/%d",a,b);
-		return;
+		if(b==0)	throw pc::Exception(pcERR_DIV0);
+		if(std::is_integral<Tpm>::value)
+			return a/b;
+		else
+			return 1.0*a/b;
 	}
-#endif
-	basicRational friend operator+ (basicRational m,basicRational n)
+	Tp Numerator()const{return a;}
+	Tp Denominator()const{return b;}
+	Rational friend operator+ (Rational m,Rational n)
 	{
 		const Tp gcdx=pcpri::gcd(m.b,n.b);
 		m.a=m.a*(n.b/gcdx)+n.a*(m.b/gcdx);
@@ -107,7 +108,7 @@ public:
 		m.deduct();
 		return m;
 	}
-	basicRational friend operator- (basicRational m,basicRational n)
+	Rational friend operator- (Rational m,Rational n)
 	{
 		const Tp gcdx=pcpri::gcd(m.b,n.b);
 		m.a=m.a*(n.b/gcdx)-n.a*(m.b/gcdx);
@@ -115,7 +116,7 @@ public:
 		m.deduct();
 		return m;
 	}
-	basicRational friend operator* (basicRational m,basicRational n)
+	Rational friend operator* (Rational m,Rational n)
 	{
 		m.deduct(),n.deduct();
 		pcpri::swap(m.a,n.a);
@@ -123,26 +124,66 @@ public:
 		m.a*=n.a,m.b*=n.b;
 		return m;
 	}
-	basicRational friend operator/ (basicRational m,basicRational n)
+	Rational friend operator/ (Rational m,Rational n)
 	{
 		pcpri::swap(m.a,m.b);
 		return m*n;
 	}
 	/// @brief Make from number 
 	template<typename Tpm>
-	basicRational(Tpm m){make(m);}
+	Rational(Tpm m){make(m);}
 	/// @brief Make from numerator and denominator
-	basicRational(Tp m,Tp n){a=m,b=n;}
+	Rational(Tp m,Tp n){a=m,b=n;}
 	/// @brief Default to 0
-	basicRational(){a=0,b=1;}
+	Rational(){a=0,b=1;}
 	template<typename Tpm>
-	basicRational operator= (Tpm m)
+	Rational operator= (Tpm m)
 		{make(m);return *this;}
 };
 
+#define pcERR_RTN_UNKTYPE "Invalid format specifier for Rational \"%c\""
+
+#ifdef __cpp_lib_format
+template<>
+struct std::formatter<Rational<int>,char>
+{
+	char type='r';
+	int acc=pcM_DOUBLEACC;
+	constexpr auto parse(std::format_parse_context& ctx)
+	{
+		auto it=ctx.begin();
+		if(it==ctx.end()||*it=='}')
+			return it;
+		else if(*it=='r')
+			return ++it;
+		else if(*it=='.')
+		{
+			++it;acc=0;
+			while(it!=ctx.end()&&isdigit(*it))
+				acc=acc*10+(*it-'0'),++it;
+			if(*it=='f')
+			{
+				type='f';
+				return ++it;
+			}
+			return it;
+		}
+		else
+			return ctx.end();
+	}
+	auto format(const Rational<int>& r,std::format_context& ctx) const
+	{
+		if(type=='f')
+			return std::format_to(ctx.out(),"{0:.{1}f}",r.To<double>(),acc);
+		else
+			return std::format_to(ctx.out(),"{}/{}",r.Numerator(),r.Denominator());
+	}
+};
+#endif
+
 /// @brief Rational. Numerator and denominator are stored with `int`
-typedef basicRational<int> rational;
+typedef Rational<int> Fraction;
 /// @brief Rational. Numerator and denominator are stored with `long long`
-typedef basicRational<long long> long_rational;
+typedef Rational<long long> Long_Fraction;
 
 #include"../Multinclude.hpp"

@@ -38,7 +38,8 @@ string GenUUID()
     return string(uuid);
 }
 
-void ShrinkStringHead(string&a)
+/// @brief Remove leading whitespace from a string
+void ShrinkStringHead(string &a)
 {
 	int len=a.length(),i=0;
 	while(i<len&&isspace(a[i]))	i++;
@@ -93,7 +94,7 @@ bool CheckNameValid(string name)
 		else return false;
 	return hasAlp;
 }
-/// @brief If is a valid var name 
+/// @brief If is a valid tag name 
 bool CheckTagValid(string name)
 {
 	for(char i:name)

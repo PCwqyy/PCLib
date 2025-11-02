@@ -119,7 +119,7 @@ int sprinter(char* Dest,double Th)
 			Th=pcpri::abs(Th),
 			pcpri::temp[tlen++]='-';
 		int nTh=Th;
-		int dTh=(Th-nTh+0.1/pcB_DOUBLEACC)*pcB_DOUBLEACC;
+		int dTh=(Th-nTh+0.1/pcM_DOUBLEACC)*pcM_DOUBLEACC;
 		while(nTh>0)
 			pcpri::temp[tlen++]='0'+nTh%10,
 			nTh/=10;

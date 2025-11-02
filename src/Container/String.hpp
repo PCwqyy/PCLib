@@ -2,6 +2,7 @@
 #define PCL_STRING
 
 #include<cstring>
+#include<string>
 #include<format>
 #include"../Exception.hpp"
 
@@ -34,9 +35,9 @@ private:
 		delete str;
 		str=n;
 	}
-	String& copyFrom(String& f)
+	String& copyFrom(const String f)
 	{
-		int len=f.Length();
+		int len=f.Size();
 		cap=f.cap;
 		applyCap();
 		pcpri::strcpy(str,f.str);
@@ -60,6 +61,18 @@ private:
 		dirty=true;
 		return *this;
 	}
+#ifdef cpp_lib_string
+	String& copyFrom(const std::string& s)
+	{
+		int len=s.length();
+		ExtendTo(len);
+		for(int i=0;i<len;i++)
+			str[i]=char16_t(s[i]);
+		str[len]=u'\0';
+		dirty=true;
+		return *this;
+	}
+#endif
 public:
 	int Size() const
 	{
@@ -144,7 +157,25 @@ public:
 		pcpri::strcpy(ret,str);
 		return ret;
 	}
+	template<typename Tp>
+	Tp To() const
+	{
+		if constexpr(std::is_same_v<Tp,int>)
+			return std::stoi(std::format("{}",*this));
+		else if constexpr(std::is_same_v<Tp,double>)
+			return std::stod(std::format("{}",*this));
+		else if constexpr(std::is_same_v<Tp,float>)
+			return std::stof(std::format("{}",*this));
+		else
+			throw pc::Exception("Unsupported String::To<Tp>()");
+	}
 	String(){applyCap();}
+	String(const String& a)
+	{
+		cap=a.cap;
+		applyCap();
+		copyFrom(a);
+	}
 	String(String& a)
 	{
 		cap=a.cap;
@@ -172,15 +203,39 @@ public:
 		cap=int(capacity/pcSTR_SAFE_MULTIPLE);
 		applyCap();
 	}
+	String(const std::string& s)
+	{
+		cap=s.length()/pcSTR_SAFE_MULTIPLE;
+		applyCap();
+		copyFrom(s);
+	}
 	String& operator=(String& from){return copyFrom(from);}
+	String& operator=(String&& from){return copyFrom(std::move(from));}
 	String& operator=(const char* from){return copyFrom(from);}
 	String& operator=(const char16_t* from){return copyFrom(from);}
+	String& operator=(const std::string& from){return copyFrom(from);}
 	char16_t& operator[](int index){return str[index];}
 	String friend operator+(String a,String b)
 	{
 		String ans=a;
 		ans.Append(b);
 		return ans;
+	}
+	String friend operator+(String a,char16_t b)
+	{
+		String ans=a;
+		ans.Append(b);
+		return ans;
+	}
+	String& operator+=(const String& other)
+	{
+		Append(other);
+		return *this;
+	}
+	String& operator+=(char16_t c)
+	{
+		Append(c);
+		return *this;
 	}
 	int friend operator<=>(String a,String b)
 		{return a.Compare(b);}
@@ -219,6 +274,7 @@ void uft16_to_uft8(const char16_t* u16str,char* u8str)
 	u8str[idx]='\0';
 }
 
+#ifdef __cpp_lib_format
 template<>
 struct std::formatter<String,char>
 {
@@ -248,3 +304,4 @@ struct std::formatter<String,char>
 	}
 #endif
 };
+#endif
