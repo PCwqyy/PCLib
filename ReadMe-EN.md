@@ -4,7 +4,7 @@
 
 [English](ReadMe-EN.md) | [中文](ReadMe.md) 
 
-![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v19a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v20a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -98,5 +98,8 @@ Any contribution is welcome! You can take part through the methods below:
 ## 25v19a
 - Scrolled back `Command.hpp` to 25v4a
 - Modified Cmd Fight to make it be able to compiled again.
+## 25v20a
+- Optimized `PCML.hpp`
+- Fixed memo leaking issue in `Element.hpp`
 
 <!--记得改徽章的版本！-->

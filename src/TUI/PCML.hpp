@@ -1,5 +1,6 @@
 /**
  * @file PCML.hpp
+ * @author GithubCopilot
  * This file replaces the previous regex-based PCML/XML parser with a simple
  * hand-written parser that scans the source string character by character.
  * 
@@ -7,7 +8,7 @@
  *   - XML declaration: <?xml ... ?>
  *   - Opening tags:   <tag attr="value" ...>
  *   - Self-closing:  <tag attr="value" .../>
- *   - Nested elements (recursive Make)
+ *   - Nested elements (recursive Markup)
  *   - Attributes of form: name="value"
  *   - Skipping comments: <!-- ... -->
  *
@@ -44,8 +45,10 @@ void skipWhitespace(const string &s,int &pos)
 	while(pos<s.size()&&isspace(s[pos])) ++pos;
 }
 
-/// @brief parse a name token: letters/digits/'_'/'-'
-/// @return empty string if no valid name at pos
+/**
+ * @brief Parse a name token: letters/digits/'_'/'-'
+ * @return Empty string if no valid name at pos
+ */
 string parseName(const string &s,int &pos)
 {
 	int start=pos;
@@ -58,10 +61,11 @@ string parseName(const string &s,int &pos)
 	}
 	return (pos>start)?s.substr(start,pos-start) : string();
 }
-
-// parse attribute value starting at a quote character (pos points to the opening '"')
-// returns the value (without the quotes) and advances pos to the char after the closing '"'
-// if closing quote not found, consumes to end and returns what was found.
+/**
+ * @brief Parse attribute value starting at a quote character (pos points to the opening `"`)
+ * @return the value (without the quotes) and advances pos to the char after the closing `"`
+ * if closing quote not found, consumes to end and returns what was found.
+ */
 string parseQuotedValue(const string &s,int &pos)
 {
 	if(pos>=s.size()||s[pos]!='"')
@@ -290,7 +294,7 @@ std::optional<Element> Make(string &pcml)
 				break;
 			}
 			// append parsed child (keeps ownership semantics compatible with original)
-/*[BUG]*/	ans.AppendChild(child.value());
+			ans.AppendChild(child.value());
 			continue;
 		}
 
@@ -343,7 +347,7 @@ Document Parse(const string &path)
 		// try parse next top-level element
 		auto node=Make(pcml);
 		if(node.has_value()) {
-/*[BUG]*/	ans.AppendChild(node.value());
+			ans.AppendChild(node.value());
 			// continue until Make returns nullopt; skip any leading whitespace/comments is inside Make
 		} else {
 			// no element parsed at head -> drop leading whitespace and try again

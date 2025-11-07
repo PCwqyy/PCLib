@@ -64,15 +64,17 @@ protected:
 		while(!util::EmptyString(s))
 		{
 			util::ShrinkStringHead(s);
-			if(util::EmptyString(s)) break;
-			string name=util::BreakName(s);
-			if(s[0]=='#'&&ID.Val()!=name)
-				return false;
-			else if(s[0]=='.'&&!ClassList.Has(name))
-				return false;
-			else if(isalpha(s[0])&&Tag!=name)
-				return false;
-			else break;
+			string now=util::BreakSelector(s,false);
+			if(s[0]=='#') // #id
+				if(ID.Val()!=now)	return false;
+				else;
+			else if(s[0]=='.') // .class
+				if(!ClassList.Has(now))	return false;
+				else;
+			else if(isalnum(s[0])) // tag
+				if(Tag!=now)	return false;
+				else;
+			util::BreakSelector(s);
 		}
 		return true;
 	}
@@ -95,6 +97,8 @@ public:
 		Children.push_back(std::move(child));
 		return true;
 	}
+	bool AppendChild(Element& child)
+		{return AppendChild(std::make_unique<Element>(child));}
 	/**
 	 * @brief Remove a ChildNode by element or UUID
 	 * @return `true` if succeed
@@ -127,22 +131,22 @@ public:
 		vector<Element*> ans;
 		bool matched=false;
 		bool childOnly=(!util::EmptyString(s)&&s[0]=='>');
-		string thisSelect=util::BreakString(
-			s,[](char a){return a=='>' || isspace((unsigned char)a); });
+		string thisSelect=util::BreakString(// 取出第一个选择器
+			s,[](char a){return a=='>'||isspace(a);});
 		if(matchSelector(thisSelect))
 		{
 			matched=true;
 			if(util::EmptyString(s))
 				ans.push_back(this);
 		}
-		// recurse into children: if childOnly is false, search descendants for original selector
+		// 选择器以`>`开头时，仅匹配子元素
 		if(!childOnly)
 		{
 			for(auto& childPtr:Children)
 			{
 				// pass a constructed selector: thisSelect+' '+s
 				string pass=thisSelect;
-				if(!util::EmptyString(s)) pass += ' ',pass += s;
+				if(!util::EmptyString(s)) pass+=' ',pass+=s;
 				vector<Element*> tmp=childPtr->QuerySelectorAll(pass);
 				ans.insert(ans.end(),tmp.begin(),tmp.end());
 			}

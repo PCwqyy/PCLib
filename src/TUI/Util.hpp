@@ -47,8 +47,8 @@ void ShrinkStringHead(string &a)
 }
 /**
  * @brief Get a word breaking with `breaker()` from string
- * @param modify Whether delete the word form origin string
  * @param breaker Determine whether the char is a breaker
+ * @param modify Whether delete the word form origin string, default `true`
  * @return The gotten word
  */
 string BreakString(string& a,bool (*breaker)(char a),bool modify=true)
@@ -75,6 +75,13 @@ string BreakName(string& a,bool modify=true)
 		[](char a){return !isalnum(a)&&a!='_';},
 		modify);
 }
+string BreakSelector(string& a,bool modify=true)
+{
+	return BreakString(a,
+		[](char a){return !isalnum(a)&&a!='_'&&a!='-';},
+		modify);
+}
+/// @brief Check if a string is empty (contains only whitespace)
 bool EmptyString(string a)
 {
 	for(char i:a)
