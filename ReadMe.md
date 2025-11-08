@@ -4,7 +4,7 @@
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
 
-![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v20a-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/版本-25v20b-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -89,9 +89,12 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 将 `Element::QuerySelectorAll` 的返回类型改为指针指向原元素，以模仿 Web DOM 的行为 
 ## 25v19a
 - 回滚 `Command.hpp` 至 25v4a
-- 改动 Cmd Fight 使其又可以编译
+- 改动 [Cmd Fight](./demo/CmdFight/readme.md) 使其又可以编译
 ## 25v20a
 - 优化了 `PCML.hpp`
 - 修复了 `Element.hpp` 的内存泄漏
-
+## 25v20b
+- 添加部分注释
+- 优化  `Element.hpp`
+- 新增部分功能
 <!--记得改徽章的版本！-->

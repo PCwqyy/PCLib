@@ -119,15 +119,14 @@ public:
 	bool Has(string key)
 		{return m.find(key)!=m.end();}
 	/// @return Whether succeed or not
-	bool Set(string key,string val)
+	bool Set(string key,string val="")
 	{
-		if(EmptyString(key)||EmptyString(val))
-			return false;
-		if(!CheckNameValid(key))
+		if(EmptyString(key)||!CheckNameValid(key))
 			return false;
 		m[key]=val;
 		return true;
 	}
+	/// @brief Return empty string if not exist
 	string Get(string key)
 	{
 		if(!CheckNameValid(key))
@@ -141,22 +140,22 @@ public:
 	 * ```
 	 * key1="value1" key2="value2" key3="value3"...
 	 * ```
-	 * @param ansi If `true`, it will add color to string with ansi
 	 */
-	string ToString(bool ansi=false)
+	string ToString()
 	{
 		string ans;
-		if(ansi) for(auto i:m)
-			ans+=std::format(
-				" %Cf[skyblue]{}%/=%Cf[chocolate]\"{}\"%/",
-				i.first,i.second);
-		else for(auto i:m)
-			ans+=std::format(" {}=\"{}\"",i.first,i.second);
+		for(auto i:m)
+			if(i.second.empty())
+				ans+=std::format("{} ",i.first);
+			else
+				ans+=std::format("{}=\"{}\" ",i.first,i.second);
 		if(ans.empty())	return ans;
-		else	return ans.substr(1);
+		ans.erase(ans.length()-1); // remove last space
+		return ans;
 	}
-	auto operator[](string key)
-		{return m[key];}
+	auto operator[](string key) {return m[key];}
+	auto begin() const {return m.begin();}
+	auto end() const {return m.end();}
 };
 
 class AttributeTracer

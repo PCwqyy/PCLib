@@ -54,8 +54,9 @@ protected:
 	/**
 	 * @brief Check ifthe element match the single element selector 
 	 * like `#id.class1.class2` 
+	 * @todo support attribute selector `[attr=value]`
 	 */
-	bool matchSelector(string s)
+	bool matchSingleSelector(string s)
 	{
 		util::ShrinkStringHead(s);
 		if(util::EmptyString(s)) return false;
@@ -64,17 +65,17 @@ protected:
 		while(!util::EmptyString(s))
 		{
 			util::ShrinkStringHead(s);
-			string now=util::BreakSelector(s,false);
-			if(s[0]=='#') // #id
+			char ch=s[0];
+			string now=util::BreakSelector(s);
+			if(ch=='#') // #id
 				if(ID.Val()!=now)	return false;
-				else;
-			else if(s[0]=='.') // .class
+				else continue;
+			else if(ch=='.') // .class
 				if(!ClassList.Has(now))	return false;
-				else;
-			else if(isalnum(s[0])) // tag
+				else continue;
+			else if(isalnum(ch)) // tag
 				if(Tag!=now)	return false;
-				else;
-			util::BreakSelector(s);
+				else continue;
 		}
 		return true;
 	}
@@ -123,8 +124,21 @@ public:
 		return true;
 	}
 	string GetTag(){return Tag; }
+	string ToString(int tab=0)
+	{
+		string ans=std::string(tab,'\t');
+		ans+=std::format("<{} {}",Tag,Attribute.ToString());
+		if(Children.empty())	ans+="/>";
+		else
+		{
+			ans+=">\n";
+			for(auto& i:Children)
+				ans+=i->ToString(tab+1);
+			ans+=std::format("</{}>",Tag);
+		}
+		return ans;
+	}
 	/// @brief Work like what you think.
-	/// @todo `>` 选择器，匹配仅下一级子元素
 	vector<Element*> QuerySelectorAll(string s)
 	{
 		util::ShrinkStringHead(s);
@@ -133,30 +147,23 @@ public:
 		bool childOnly=(!util::EmptyString(s)&&s[0]=='>');
 		string thisSelect=util::BreakString(// 取出第一个选择器
 			s,[](char a){return a=='>'||isspace(a);});
-		if(matchSelector(thisSelect))
+		if(matchSingleSelector(thisSelect))
 		{
 			matched=true;
 			if(util::EmptyString(s))
 				ans.push_back(this);
 		}
-		// 选择器以`>`开头时，仅匹配子元素
-		if(!childOnly)
-		{
+		if(!childOnly) // 选择器以`>`开头时，仅匹配子元素
 			for(auto& childPtr:Children)
-			{
-				// pass a constructed selector: thisSelect+' '+s
+			{ // 匹配原选择器
 				string pass=thisSelect;
 				if(!util::EmptyString(s)) pass+=' ',pass+=s;
 				vector<Element*> tmp=childPtr->QuerySelectorAll(pass);
 				ans.insert(ans.end(),tmp.begin(),tmp.end());
 			}
-		}
-
-		if(!matched || util::EmptyString(s)) return ans;
-
-		// when matched, continue matching subsequent selectors against children
+		if(!matched||util::EmptyString(s)) return ans;
 		for(auto& childPtr:Children)
-		{
+		{ // 匹配新选择器
 			vector<Element*> tmp=childPtr->QuerySelectorAll(s);
 			ans.insert(ans.end(),tmp.begin(),tmp.end());
 		}
@@ -164,12 +171,10 @@ public:
 	}
 	virtual pcpri::COORD Print(short x,short y,
 		short visWidth,map<string,StyleSheet>* c=nullptr)
-	{
-		return printInit(x,y,c);
-	}
-	string GetStyle(string attr){return style[attr]; }
-	void SetStyle(string attr,string val){style.SetAttribute(attr,val); }
-	void SetStyle(StyleSheet a){style=a; }
+		{return printInit(x,y,c);}
+	string GetStyle(string attr){return style[attr];}
+	void SetStyle(string attr,string val){style.SetAttribute(attr,val);}
+	void SetStyle(StyleSheet a){style=a;}
 	Element(string tag="",string id="",string classes="")
 	{
 		UUID=util::GenUUID();
@@ -198,14 +203,12 @@ public:
 		// clone children
 		Children.clear();
 		for(const auto& ch:a.Children)
-		{
 			if(ch)
 			{
 				auto cloned=std::make_unique<Element>(*ch);
 				cloned->Parent=this;
 				Children.push_back(std::move(cloned));
 			}
-		}
 	}
 	/// @brief disabled copy-assignment to avoid accidental shallow copies
 	Element& operator=(const Element&)=delete;
