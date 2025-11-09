@@ -4,7 +4,10 @@
 
 [English](ReadMe-EN.md) | [中文](ReadMe.md) 
 
-![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus) ![version](https://img.shields.io/badge/Version-25v20b-blueviolet) [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib) [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
+![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
+![version](https://img.shields.io/badge/Version-25v20c-blueviolet)
+[![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
+[![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
 </div>
 
@@ -99,11 +102,16 @@ Any contribution is welcome! You can take part through the methods below:
 - Scrolled back `Command.hpp` to 25v4a
 - Modified [Cmd Fight](./demo/CmdFight/readme.md) to make it be able to compiled again.
 ## 25v20a
-- Optimized `PCML.hpp`
+- ~~Optimized~~ Rewrote `PCML.hpp`
 - Fixed memo leaking issue in `Element.hpp`
 ## 25v20b
 - Added some comment
 - Optimized `Element.hpp`
 - Added some new functions
+## 25v20c
+- Added some comment
+- Added some new functions
+### New Demo: [PCML](./demo/PCML/readme.md)
+Presenting how to use `PCML` and relative DOM-like operation
 
 <!--记得改徽章的版本！-->

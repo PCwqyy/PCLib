@@ -173,8 +173,48 @@ inline void AnsiPrintB(std::string fmt,Tps ...args)
 #ifdef ALWAYS_PARSE_BEFORE
 #define AnsiPrint AnsiPrintB
 #else
-/** @note if `ALWAYS_PARSE_BEFORE` is defined,
- *  this macro will redirect to `AnsiPrintB` (Parse before formatting) */
+/**
+ * @brief Print an ansi string
+ * ```
+ * %/	END_REGION
+ * %b	BOLD
+ * %d	DARKEN
+ * %g	GRAY
+ * %!	INVERT
+ * %i	ITALIC
+ * %l	LINK
+ * %s	STRIKETHROUGH
+ * %t	TWINKLE
+ * %u	UNDERLINE
+ * ```
+ * For colors: 
+ * ```
+ * %<mode><back/foreground>[<color>]
+ * <mode>:
+ * 	q	8-color
+ * 	c	256-color
+ * 	C	true-color //if Color.hpp is included
+ * 		In this mode, <color> could be:
+ * 		- RRGGBB (e.g. #20c0ff)
+ * 		- RGB (e.g. #0f6)
+ * 		- Named colors (e.g. red, dodgerblue)
+ * <back/foreground>:
+ * 	b	background
+ * 	f	foreground
+ * ```
+ * For links:
+ * ```
+ * %l[<text>](<url>)
+ * ```
+ * Examples:
+ * ```text
+ * %Cf[red]This is red text%/ and this is normal text.
+ * %bThis is bold text%/ and this is normal text.
+ * %l[Click here](https://example.com)%/ to visit example.com.
+ * ```
+ * @note if `ALWAYS_PARSE_BEFORE` is defined,
+ * this macro will redirect to `AnsiPrintB` (Parse before formatting)
+ */
 #define AnsiPrint AnsiPrintA
 #endif
 

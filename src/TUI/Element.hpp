@@ -126,15 +126,19 @@ public:
 	string GetTag(){return Tag; }
 	string ToString(int tab=0)
 	{
-		string ans=std::string(tab,'\t');
-		ans+=std::format("<{} {}",Tag,Attribute.ToString());
-		if(Children.empty())	ans+="/>";
+		string ans=std::string(tab*4,' ');
+		string attrStr=Attribute.ToString();
+		if(!attrStr.empty())
+			ans+=std::format("<{} {}",Tag,attrStr);
+		else
+			ans+=std::format("<{}",Tag);
+		if(Children.empty())	ans+="/>\n";
 		else
 		{
 			ans+=">\n";
 			for(auto& i:Children)
 				ans+=i->ToString(tab+1);
-			ans+=std::format("</{}>",Tag);
+			ans+=std::format("{}</{}>\n",std::string(tab*4,' '),Tag);
 		}
 		return ans;
 	}
@@ -168,6 +172,13 @@ public:
 			ans.insert(ans.end(),tmp.begin(),tmp.end());
 		}
 		return ans;
+	}
+	///@todo optimize for single selector
+	Element* QuerySelector(string s)
+	{
+		auto res=QuerySelectorAll(s);
+		if(res.empty())	return nullptr;
+		else return res[0];
 	}
 	virtual pcpri::COORD Print(short x,short y,
 		short visWidth,map<string,StyleSheet>* c=nullptr)
