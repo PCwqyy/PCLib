@@ -113,5 +113,8 @@ Any contribution is welcome! You can take part through the methods below:
 - Added some new functions
 ### New Demo: [PCML](./demo/PCML/readme.md)
 Presenting how to use `PCML` and relative DOM-like operation
-
+## 25v20d
+- Added some new functions
+### New Demo: [Clock](./demo/Clock/readme.md)
+Presenting how to use [`Ansi.hpp`](../../src/TUI/Ansi.hpp)
 <!--记得改徽章的版本！-->

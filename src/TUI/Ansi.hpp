@@ -7,6 +7,57 @@
 #include<deque>
 #include<regex>
 
+
+/// @brief Reset all ansi style
+inline void ResetAnsiStyle()
+	{std::print("\e[0m");return;}
+#ifndef PCL_CONSOLE
+/// @brief Move cursor to horizontal `x` and vertical `y`
+inline void CursorGoto(short x,short y)
+	{std::print("\e[{};{}H",y+1,x+1);return;}
+#endif
+/// @brief Offset the cursor horizontally by `x` and vertically by `y`
+inline void CursorOffset(short x,short y)
+{
+	char op;
+	if(x!=0)
+	{
+		if(x>0)			op='C';
+		else if(x<0)	op='D',x=-x;
+		std::print("\e[{}{}",x,op);
+	}
+	if(y!=0)
+	{
+		if(y>0)			op='B';
+		else if(y<0)	op='A',y=-y;
+		std::print("\e[{}{}",y,op);
+	}
+}
+/// @brief Clear the line where the cursor is
+inline void ClearCurrentLine()
+	{std::print("\e[2K");return;}
+/** @brief Fill the visible screen with white spaces.
+ *  The overflowed content won't be effected */
+inline void ClearWholeScreen()
+	{std::print("\e[2J");return;}
+/** @brief Save the current position of the cursor.
+ *  Later you can use `RestoreCursorPos()` to restore this position. */
+inline void SaveCurrentCursorPos()
+	{std::print("\e[2s");return;}
+/** @brief Set position of the cursor to where you use
+ *  `SaveCurrentCursorPos()`. */
+inline void RestoreCursorPos()
+	{std::print("\e[2u");return;}
+/// @brief Let the cursor invisible.
+inline void HideCursor()
+	{std::print("\e[?25l");return;}
+/// @brief Let the cursor visible.
+inline void ShowCursor()
+	{std::print("\e[?25h");return;}
+/// @brief Modify the title of the console (or terminal).
+inline void SetConsoleTitle(std::string title)
+	{std::print("\e]0;{}\a",title);return;}
+
 namespace pcpri
 {
 	int string2int(std::string a)
@@ -170,8 +221,27 @@ inline void AnsiPrintB(std::string fmt,Tps ...args)
 	return;
 }
 
+/// @brief Using `AnsiPrintA()`
+template<typename ...Tps>
+inline void AnsiPosPrintA(short x,short y,std::string ftm,Tps...Args)
+{
+	CursorGoto(x,y);
+	AnsiPrintA(ftm,Args...);
+	return;
+}
+/// @brief Using `AnsiPrintB()`
+template<typename ...Tps>
+inline void AnsiPosPrintB(short x,short y,std::string ftm,Tps...Args)
+{
+	CursorGoto(x,y);
+	AnsiPrintB(ftm,Args...);
+	return;
+}
+
+
 #ifdef ALWAYS_PARSE_BEFORE
 #define AnsiPrint AnsiPrintB
+#define AnsiPosPrint AnsiPosPrintB
 #else
 /**
  * @brief Print an ansi string
@@ -216,57 +286,12 @@ inline void AnsiPrintB(std::string fmt,Tps ...args)
  * this macro will redirect to `AnsiPrintB` (Parse before formatting)
  */
 #define AnsiPrint AnsiPrintA
+/**
+ * @note if `ALWAYS_PARSE_BEFORE` is defined,
+ * this macro will redirect to `AnsiPosPrintB` (Parse before formatting)
+ */
+#define AnsiPosPrint AnsiPosPrintA
 #endif
-
-/// @brief Reset all ansi style
-void ResetAnsiStyle()
-	{std::print("\e[0m");return;}
-#ifndef PCL_CONSOLE
-/// @brief Move cursor to horizontal `x` and vertical `y`
-void CursorGoto(short x,short y)
-	{std::print("\e[{};{}H",y+1,x+1);return;}
-#endif
-/// @brief Offset the cursor horizontally by `x` and vertically by `y`
-void CursorDelta(short x,short y)
-{
-	char op;
-	if(x!=0)
-	{
-		if(x>0)			op='C';
-		else if(x<0)	op='D',x=-x;
-		std::print("\e[{}{}",x,op);
-	}
-	if(y!=0)
-	{
-		if(y>0)			op='B';
-		else if(y<0)	op='A',y=-y;
-		std::print("\e[{}{}",y,op);
-	}
-}
-/// @brief Clear the line where the cursor is
-void ClearCurrentLine()
-	{std::print("\e[2K");return;}
-/** @brief Fill the visible screen with white spaces.
- *  The overflowed content won't be effected */
-void ClearWholeScreen()
-	{std::print("\e[2J");return;}
-/** @brief Save the current position of the cursor.
- *  Later you can use `RestoreCursorPos()` to restore this position. */
-void SaveCurrentCursorPos()
-	{std::print("\e[2s");return;}
-/** @brief Set position of the cursor to where you use
- *  `SaveCurrentCursorPos()`. */
-void RestoreCursorPos()
-	{std::print("\e[2u");return;}
-/// @brief Let the cursor invisible.
-void HideCursor()
-	{std::print("\e[?25l");return;}
-/// @brief Let the cursor visible.
-void ShowCursor()
-	{std::print("\e[?25h");return;}
-/// @brief Modify the title of the console (or terminal).
-void SetConsoleTitle(std::string title)
-	{std::print("\e]0;{}\a",title);return;}
 
 /// @brief Calculate the visable part of a ANSI formatted string.
 int AnsiVisLen(std::string s)
