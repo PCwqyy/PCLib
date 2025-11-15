@@ -1,6 +1,7 @@
 #include<ctime>
 #include<thread>
 #include<chrono>
+#include<conio.h>
 #include"../../src/TUI/Color.hpp"
 #include"../../src/TUI/Ansi.hpp"
 const std::string digits[][7]={
@@ -15,14 +16,27 @@ const std::string digits[][7]={
 	{" ### ","#   #","#   #"," ### ","#   #","#   #"," ### "},
 	{" ### ","#   #","#   #"," ### ","    #","    #","    #"},
 };
+Color DigitCol("dodgerblue");
 void PrintDigit(int x,int y,int d)
 {
+	SetBackgroundColor(DigitCol);
 	for(int i=0;i<7;i++)
 		for(int j=0;j<5;j++)
-			if(digits[d][i][j]=='#')
-				AnsiPosPrint(x+j*2,y+i,"%Cb[dodgerblue]  %/");
-			else
+			if(digits[d][i][j]!=' ')
 				AnsiPosPrint(x+j*2,y+i,"  ");
+	ResetAnsiStyle();
+	for(int i=0;i<7;i++)
+		for(int j=0;j<5;j++)
+			if(digits[d][i][j]==' ')
+				AnsiPosPrint(x+j*2,y+i,"  ");
+}
+void PrintNowColor()
+{
+	auto [r,g,b]=DigitCol.toRGB();
+	auto [h,s,l]=DigitCol.toHSL();
+	SetForegroundColor(DigitCol);
+	AnsiPosPrint(15,10,"RGB: {:3} {:3} {:3} HSL: {:3} {:3} {:3}        ",r,g,b,h,s,l);
+	ResetAnsiStyle();
 }
 int main()
 {
@@ -33,9 +47,28 @@ int main()
 	tm* local;
 	string buf;
 	int x,y;
+	char ch;
+	bool cleared=false;
+	PrintNowColor();
 	while(true)
 	{
 		std::this_thread::sleep_for(std::chrono::microseconds(30));
+		CursorGoto(0,1);
+		cleared=false;
+		while(kbhit())
+		{
+			if(!cleared)
+				ClearCurrentLine(),
+				cleared=true;
+			ch=getch();
+			if(ch==-32)
+			{
+				ch=getch();
+				if(ch==75)	DigitCol.HueRotate(-3);
+				if(ch==77)	DigitCol.HueRotate(3);
+				PrintNowColor();
+			}
+		}
 		nowtime=time(nullptr);
 		if(nowtime==lasttime)	continue;
 		local=localtime(&nowtime);
@@ -52,7 +85,6 @@ int main()
 			else
 				PrintDigit(x,y,buf[i]-'0'),
 				x+=11;
-		std::this_thread::sleep_for(std::chrono::milliseconds(800));
 	}
 	return 0;
 }

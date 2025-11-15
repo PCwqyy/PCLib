@@ -4,118 +4,15 @@
 #include<map>
 #include<cstdio>
 #include<string>
+#include<tuple>
 using std::string;
 using std::map;
-
-/// @brief The Color class.
-struct Color
-{
-	int R,G,B;
-	Color():
-		R(0),G(0),B(0){}
-	Color(int col,bool digit3=false)
-	{
-		if(col==-1)	R=-1;
-		else if(digit3)
-		{
-			R=(col&0xF00)>>8;
-			G=(col&0x0F0)>>4;
-			B=(col&0x00F);
-			R=(R<<4)+R;
-			G=(G<<4)+G;
-			B=(B<<4)+B;
-		}
-		else
-		{
-			R=(col&0xFF0000)>>16;
-			G=(col&0x00FF00)>>8;
-			B=(col&0x0000FF);
-		}
-	}
-	int toInt(){return B|(G<<8)|(R<<16);}
-	bool DontModify(){return R==-1;}
-};
-
-#undef RGB
-#undef HSL
-
-/**
- * @brief Make `Color` with RGB.
- * @param R Red
- * @param G Green
- * @param B Blue
- */
-Color RGB(int R,int G,int B)
-{
-	Color ret;
-	ret.R=R,ret.G=G,ret.B=B;
-	return ret;
-}
-/**
- * @brief Make `Color` with HSL.
- * @param H Hue
- * @param S Saturation
- * @param L Lightness
- */
-Color HSL(int H,int S,int L)
-{
-	double r,g,b;
-	double h=H/360.0;
-	double s=S/100.0;
-	double l=L/100.0;
-	auto hue2rgb=[](double p,double q,double t)
-	{
-		if(t<0)	t++;
-		if(t>1)	t--;
-		if(t<1.0/6)	return p+(q-p)*6*t;
-		if(t<1.0/2)	return q;
-		if(t<2.0/3)	return p+(q-p)*(2.0/3-t)*6;
-		return p;
-	};
-	if(s==0)	r=g=b=l;
-	else
-	{
-		double q=l<0.5?l*(1+s):l+s-l*s;
-		double p=2*l-q;
-		r=hue2rgb(p,q,h+1.0/3);
-		g=hue2rgb(p,q,h);
-		b=hue2rgb(p,q,h-1.0/3);
-	}
-	Color ret;
-	ret.R=int(r*255);
-	ret.G=int(g*255);
-	ret.B=int(b*255);
-	return ret;
-}
-
-/**
- * @brief Calculate the average color the two color.
- * @param index Position of the middle color.
- * ```
- * Col1 0 ---------+--------- 1 Col2
- * ```
- */
-Color Gradient(Color Col1,Color Col2,double index=0.5)
-{
-	Color ret;
-	ret.R=int(Col1.R*index+Col2.R*(1-index));
-	ret.G=int(Col1.G*index+Col2.G*(1-index));
-	ret.B=int(Col1.B*index+Col2.B*(1-index));
-	return ret;
-}
-
-/** @brief Get highlight version of a color.
- *  The bigger `index` is, the whiter the result is. */
-Color HighLightColor(Color col,double index=0.5)
-	{return Gradient(col,0xFFFFFF,index);}
-/// @brief Invert the color.
-Color InvertColor(Color col)
-	{return RGB(255-col.R,255-col.G,255-col.B);}
+using std::tuple;
 
 /** @brief All the HTML named color.
  *  @note See https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
 */
-const map<string,Color> NamedColor=
+const map<string,int> NamedColor=
 {// cSpell: disable
 	{"aliceblue",0xF0F8FF},
 	{"antiquewhite",0xFAEBD7},
@@ -267,41 +164,199 @@ namespace pcpri
 			res+=isupper(i)?i-'A'+'a':i;
 		return res;
 	}
+	int getColorByName(string n)
+	{
+		n=pcpri::toLowerCase(n);
+		auto f=NamedColor.find(n);
+		if(f!=NamedColor.end())
+			return f->second;
+		return -1;
+	}
+	string breakString(string& a,bool (*breaker)(char a),bool modify=true)
+	{
+		string ans;
+		int i=0,len=a.length();
+		while(i<len&&breaker(a[i]))	i++;
+		for(;i<len;i++)
+			if(breaker(a[i]))	break;
+			else	ans+=a[i];
+		if(!modify)	return ans;
+		a=a.substr(i);
+		return ans;
+	}
+	double hue2rgb(double p,double q,double t)
+	{
+		if(t<0)	t++;
+		if(t>1)	t--;
+		if(t<1.0/6)	return p+(q-p)*6*t;
+		if(t<1.0/2)	return q;
+		if(t<2.0/3)	return p+(q-p)*(2.0/3-t)*6;
+		return p;
+	};
 };
-/// @brief Get named color. Case insensitive. 
-Color GetColorByName(string n)
+
+/// @brief The Color class.
+class Color
 {
-	n=pcpri::toLowerCase(n);
-	auto f=NamedColor.find(n);
-	if(f!=NamedColor.end())
-		return f->second;
-	return Color(-1);
-}
+public:
+	int R,G,B;
+private:
+	void makeWithInt(int col,bool digit3=false)
+	{
+		if(col==-1)	R=-1;
+		else if(digit3)
+		{
+			R=(col&0xF00)>>8;
+			G=(col&0x0F0)>>4;
+			B=(col&0x00F);
+			R=(R<<4)+R;
+			G=(G<<4)+G;
+			B=(B<<4)+B;
+		}
+		else
+		{
+			R=(col&0xFF0000)>>16;
+			G=(col&0x00FF00)>>8;
+			B=(col&0x0000FF);
+		}
+	}
+	void makeWithHSL(int H,int S,int L)
+	{
+		double r,g,b;
+		double h=H/360.0;
+		double s=S/100.0;
+		double l=L/100.0;
+		if(s==0)	r=g=b=l;
+		else
+		{
+			double q=l<0.5?l*(1+s):l+s-l*s;
+			double p=2*l-q;
+			r=pcpri::hue2rgb(p,q,h+1.0/3);
+			g=pcpri::hue2rgb(p,q,h);
+			b=pcpri::hue2rgb(p,q,h-1.0/3);
+		}
+		R=int(r*255);
+		G=int(g*255);
+		B=int(b*255);
+	}
+public:
+	Color():
+		R(0),G(0),B(0){}
+	/// @brief Make with integer (in hex).
+	Color(int col,bool digit3=false)
+		{makeWithInt(col,digit3);}
+	/// @brief Make with RGB.
+	Color(int r,int g,int b):
+		R(r),G(g),B(b){}
+	/**
+	 * @brief Convert a string to color.
+	 * The string could be:
+	 * ```
+	 * #RGB
+	 * #RRGGBB
+	 * <named-color>
+	 * rgb(R G B)
+	 * hsl(H S L)
+	 * ```
+	 */
+	Color(std::string str)
+	{
+		if(str[0]=='#')
+		{
+			int len=str.length();
+			if(len!=4&&len!=7)	R=-1;
+			int col;
+			sscanf(str.c_str()+1,"%x",&col);
+			if(len==4)
+				makeWithInt(col,true);
+			makeWithInt(col);
+		}
+		else
+		{
+			string str=pcpri::breakString(str,[](char a){return a=='(';});
+			if(str=="rgb"||str=="RGB")
+			{
+				int r,g,b;
+				sscanf(str.c_str()+1,"%d %d %d",&r,&g,&b);
+				R=r,G=g,B=b;
+				return;
+			}
+			else if(str=="hsl"||str=="HSL")
+			{
+				int h,s,l;
+				sscanf(str.c_str()+1,"%d %d %d",&h,&s,&l);
+				makeWithHSL(h,s,l);
+				return;
+			}
+			else
+				makeWithInt(pcpri::getColorByName(str));
+		}
+		makeWithInt(pcpri::getColorByName(str));
+	}
+	int toHex(){return B|(G<<8)|(R<<16);}
+	tuple<int,int,int> toRGB(){return std::make_tuple(R,G,B);}
+	tuple<int,int,int> toHSL()
+	{
+		double r=R/255.0;
+		double g=G/255.0;
+		double b=B/255.0;
+		double maxv=std::max(r,std::max(g,b));
+		double minv=std::min(r,std::min(g,b));
+		double h,s,l;
+		l=(maxv+minv)/2;
+		if(maxv==minv)
+			h=s=0;
+		else
+		{
+			double d=maxv-minv;
+			s=l>0.5?d/(2-maxv-minv):d/(maxv+minv);
+			if(maxv==r)
+				h=(g-b)/d+(g<b?6:0);
+			else if(maxv==g)
+				h=(b-r)/d+2;
+			else if(maxv==b)
+				h=(r-g)/d+4;
+			h/=6;
+		}
+		return std::make_tuple(int(h*360),int(s*100),int(l*100));
+	}
+	void HueRotate(int degree)
+	{
+		auto [h,s,l]=toHSL();
+		h=(h+degree)%360;
+		makeWithHSL(h,s,l);
+	}
+	void RGBOffset(int r,int g,int b)
+	{
+		R+=r;R%=256;
+		G+=g;G%=256;
+		B+=b;B%=256;
+	}
+	bool DontModify(){return R==-1;}
+};
 
 /**
- * @brief Convert a string to color.
- * Accepts 3-digit hex, 6-digit hex and named color.
- * @example
- * ```cpp
- * StrintToColor("#333");
- * StrintToColor("#123456");
- * StrintToColor("red");
+ * @brief Calculate the average color the two color.
+ * @param index Position of the middle color.
+ * ```
+ * Col1 0 ---------+--------- 1 Col2
  * ```
  */
-Color StringToColor(string a)
+Color Gradient(Color Col1,Color Col2,double index=0.5)
 {
-	if(a[0]=='#')
-	{
-		int len=a.length();
-		if(len!=4&&len!=7)
-			return Color(-1);
-		int col;
-		sscanf(a.c_str()+1,"%x",&col);
-		if(len==4)
-			return Color(col,true);
-		return Color(col);
-	}
-	return GetColorByName(a);
+	Color ret;
+	ret.R=int(Col1.R*index+Col2.R*(1-index));
+	ret.G=int(Col1.G*index+Col2.G*(1-index));
+	ret.B=int(Col1.B*index+Col2.B*(1-index));
+	return ret;
 }
+
+/** @brief Get highlight version of a color.
+ *  The bigger `index` is, the whiter the result is. */
+Color HighLightColor(Color col,double index=0.5)
+	{return Gradient(col,0xFFFFFF,index);}
+/// @brief Invert the color.
+Color InvertColor(Color col)
+	{return Color(255-col.R,255-col.G,255-col.B);}
 
 #include"../Multinclude.hpp"

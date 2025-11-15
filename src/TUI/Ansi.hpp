@@ -57,7 +57,15 @@ inline void ShowCursor()
 /// @brief Modify the title of the console (or terminal).
 inline void SetConsoleTitle(std::string title)
 	{std::print("\e]0;{}\a",title);return;}
-
+/// @brief Set the foreground color.
+#ifdef PCL_COLOR
+#include"Color.hpp"
+inline void SetForegroundColor(Color col)
+	{std::print("\e[38;2;{};{};{}m",col.R,col.G,col.B);return;}
+/// @brief Set the background color.
+inline void SetBackgroundColor(Color col)
+	{std::print("\e[48;2;{};{};{}m",col.R,col.G,col.B);return;}
+#endif
 namespace pcpri
 {
 	int string2int(std::string a)
@@ -160,7 +168,7 @@ namespace pcpri
 			if(input[++i]!='[')	break;	i++;
 			for(;i<len&&input[i]!=']';i++)
 				text+=input[i];
-			col=StringToColor(text);
+			col=Color(text);
 			if(col.DontModify())
 				break;
 			res+=std::format("\e[{};2;{};{};{}{}",

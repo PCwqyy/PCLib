@@ -34,9 +34,9 @@ namespace stylepri{
 const regex MatchAttr(R"(([^:\s]+?):\s*([^;]+?);)");
 struct Border
 {
-	string c[6];
-	Border(string lefttop,string righttop,string leftbottom,
-		string rightbottom,string vertical,string horizontal)
+	char16_t c[6];
+	Border(char16_t lefttop,char16_t righttop,char16_t leftbottom,
+		char16_t rightbottom,char16_t vertical,char16_t horizontal)
 	{
 		c[0]=lefttop,c[1]=righttop,c[2]=leftbottom,c[3]=rightbottom;
 		c[4]=vertical,c[5]=horizontal;
@@ -44,36 +44,36 @@ struct Border
 };
 map<string,Border> NamedBorders=
 {
-	{"ascii",Border("+","+","+","+","-","|")},
-	{"solid",Border("┌","┐","└","┘","─","│")},
-	{"round",Border("╭","╮","╰","╯","─","│")},
-	{"double",Border("╔","╗","╚","╝","═","║")},
-	{"thick",Border("┏","┓","┗","┛","━","┃")},
-	{"dotdot",Border("·","·","·","·","·",":")},
-	{"block",Border(" "," "," "," "," "," ")},
-	{"cube",Border("■","■","■","■","■","■")},
-	{"none",Border("","","","","","")}
+	{"ascii",Border(u'+',u'+',u'+',u'+',u'-',u'|')},
+	{"solid",Border(u'┌',u'┐',u'└',u'┘',u'─',u'│')},
+	{"round",Border(u'╭',u'╮',u'╰',u'╯',u'─',u'│')},
+	{"double",Border(u'╔',u'╗',u'╚',u'╝',u'═',u'║')},
+	{"thick",Border(u'┏',u'┓',u'┗',u'┛',u'━',u'┃')},
+	{"dotdot",Border(u'·',u'·',u'·',u'·',u'·',u':')},
+	{"block",Border(u' ',u' ',u' ',u' ',u' ',u' ')},
+	{"cube",Border(u'■',u'■',u'■',u'■',u'■',u'■')},
+	{"none",Border(u'\0',u'\0',u'\0',u'\0',u'\0',u'\0')}
 };
 struct Bar
 {
-	string t,f,l,r;
-	Bar(string finished,string unfinished,
-		string leftbracket,string rightbracket):
+	char16_t t,f,l,r;
+	Bar(char16_t finished,char16_t unfinished,
+		char16_t leftbracket,char16_t rightbracket):
 		t(finished),f(unfinished),l(leftbracket),r(rightbracket){}
 };
 map<string,Bar> NamedBars=
 {
-	{"arrow",Bar(">","-",">","<")},
-	{"block",Bar(" "," ","|","|")},
-	{"dotdot",Bar("*","·","[","]")},
-	{"cube",Bar("■","□","[","]")},
-	{"dashed",Bar("━","┈",">","<")},
-	{"double",Bar("═","─",">","<")},
-	{"hash",Bar("#",".","[","]")},
-	{"line",Bar("━","─",">","<")},
-	{"o",Bar("O","o","[","]")},
-	{"vertical",Bar("|","|","[","]")},
-	{"wave",Bar("~","-","+","+")}
+	{"arrow",Bar(u'>',u'-',u'>',u'<')},
+	{"block",Bar(u' ',u' ',u'|',u'|')},
+	{"dotdot",Bar(u'*',u'·',u'[',u']')},
+	{"cube",Bar(u'■',u'□',u'[',u']')},
+	{"dashed",Bar(u'━',u'┈',u'>',u'<')},
+	{"double",Bar(u'═',u'─',u'>',u'<')},
+	{"hash",Bar(u'#',u'.',u'[',u']')},
+	{"line",Bar(u'━',u'─',u'>',u'<')},
+	{"o",Bar(u'O',u'o',u'[',u']')},
+	{"vertical",Bar(u'|',u'|',u'[',u']')},
+	{"wave",Bar(u'~',u'-',u'+',u'+')}
 };
 
 

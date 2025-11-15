@@ -2,6 +2,7 @@
 #define PCL_TUI_OS
 
 #include<print>
+#include"../Container/String.hpp"
 
 #ifdef _WIN32
 
@@ -10,7 +11,7 @@
 #include<wingdi.h>
 #include<wincon.h>
 
-bool InitTerminal()
+void InitTerminal()
 {
 	HANDLE hInput=GetStdHandle(STD_INPUT_HANDLE);
 	HANDLE hOutput=GetStdHandle(STD_OUTPUT_HANDLE);
@@ -22,6 +23,14 @@ bool InitTerminal()
 	dwMode|=ENABLE_PROCESSED_OUTPUT|ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	SetConsoleMode(hOutput,dwMode);
 	std::print("\e[?1003h\e[?1015h\e[?1006h");
+}
+void inline OutputUnicode(char16_t c)
+	{WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),&c,1,NULL,NULL);}
+void inline OutputUnicode(String s)
+{
+	int len=s.Length();
+	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),s.CStr(),len,NULL,NULL);
+	return;
 }
 
 /// @brief Get how big the term is 
