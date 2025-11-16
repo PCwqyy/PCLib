@@ -28,7 +28,7 @@ void inline OutputUnicode(char16_t c)
 	{WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),&c,1,NULL,NULL);}
 void inline OutputUnicode(String s)
 {
-	int len=s.Length();
+	int len=s.Length()+1;
 	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),s.CStr(),len,NULL,NULL);
 	return;
 }

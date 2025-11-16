@@ -5,7 +5,7 @@
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
 
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-25v20d-blueviolet)
+![version](https://img.shields.io/badge/版本-25v21a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -105,5 +105,11 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 新增部分功能
 ### 新 Demo： [PCML](./demo/PCML/readme.md)
 演示如何使用 PCML 及 `Element.hpp` 中的类DOM操作
+## 25v20d
+- 新增部分功能
+### 新 Demo： [Clock](./demo/Clock/readme.md)
+演示如何使用 [`Ansi.hpp`](./src/TUI/Ansi.hpp)
+## 25v21a
+- 写 `Buffer.hpp`
 
 <!--记得改徽章的版本！-->

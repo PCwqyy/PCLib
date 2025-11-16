@@ -110,6 +110,8 @@ bool CheckTagValid(string name)
 	return true;
 }
 
+struct Coord{short x,y;};
+
 /// @brief Container of `Attribute`
 class AttributeMap
 {

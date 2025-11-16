@@ -57,7 +57,7 @@ protected:
 		return t;
 	}
 public:
-	pcpri::COORD Print(short x,short y,
+	util::Coord Print(short x,short y,
 		short visWidth=-1,map<string,StyleSheet>* c=nullptr)
 	{
 		printInit(x,y,c);

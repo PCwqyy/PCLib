@@ -11,11 +11,7 @@ using std::regex;
 using std::set;
 
 #include"Ansi.hpp"
-
-namespace pcpri
-{
-	struct COORD{short x,y;};
-};
+#include"Util.hpp"
 
 #ifndef PCL_COLOR
 bool ValidNamedColor(string a)
@@ -121,7 +117,7 @@ bool ValidStyle(string att,string val)
 		return true;
 	if(it->second.has("<COLOR>"))
 #ifdef PCL_COLOR
-		return !StringToColor(val).DontModify();
+		return !Color(val).DontModify();
 #else
 		return ValidNamedColor(val);
 #endif

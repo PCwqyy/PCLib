@@ -32,10 +32,10 @@ private:
 		int len=Length();
 		if(str!=nullptr)
 			pcpri::strcpy(n,str);
-		delete str;
+		delete[] str;
 		str=n;
 	}
-	String& copyFrom(const String f)
+	String& copyFrom(const String& f)
 	{
 		int len=f.Size();
 		cap=f.cap;
@@ -155,6 +155,7 @@ public:
 	{
 		char16_t* ret=new char16_t[Size()+5];
 		pcpri::strcpy(ret,str);
+		ret[Size()]=u'\0';
 		return ret;
 	}
 	template<typename Tp>

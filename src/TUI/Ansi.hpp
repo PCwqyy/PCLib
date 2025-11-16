@@ -61,10 +61,16 @@ inline void SetConsoleTitle(std::string title)
 #ifdef PCL_COLOR
 #include"Color.hpp"
 inline void SetForegroundColor(Color col)
-	{std::print("\e[38;2;{};{};{}m",col.R,col.G,col.B);return;}
+{
+	if(col.DontModify())	return;
+	std::print("\e[38;2;{};{};{}m",col.R,col.G,col.B);
+}
 /// @brief Set the background color.
 inline void SetBackgroundColor(Color col)
-	{std::print("\e[48;2;{};{};{}m",col.R,col.G,col.B);return;}
+{
+	if(col.DontModify())	return;
+	std::print("\e[48;2;{};{};{}m",col.R,col.G,col.B);
+}
 #endif
 namespace pcpri
 {

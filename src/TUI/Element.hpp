@@ -43,7 +43,7 @@ protected:
 			style=style+a->second;
 		}
 	}
-	pcpri::COORD printInit(short x,short y,
+	util::Coord printInit(short x,short y,
 		map<string,StyleSheet>* c=nullptr)
 	{
 		left=x,top=y;
@@ -180,7 +180,7 @@ public:
 		if(res.empty())	return nullptr;
 		else return res[0];
 	}
-	virtual pcpri::COORD Print(short x,short y,
+	virtual util::Coord Print(short x,short y,
 		short visWidth,map<string,StyleSheet>* c=nullptr)
 		{return printInit(x,y,c);}
 	string GetStyle(string attr){return style[attr];}

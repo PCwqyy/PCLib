@@ -293,9 +293,9 @@ public:
 		}
 		makeWithInt(pcpri::getColorByName(str));
 	}
-	int toHex(){return B|(G<<8)|(R<<16);}
-	tuple<int,int,int> toRGB(){return std::make_tuple(R,G,B);}
-	tuple<int,int,int> toHSL()
+	int toHex()const{return B|(G<<8)|(R<<16);}
+	tuple<int,int,int> toRGB()const{return std::make_tuple(R,G,B);}
+	tuple<int,int,int> toHSL()const
 	{
 		double r=R/255.0;
 		double g=G/255.0;
@@ -333,6 +333,18 @@ public:
 		B+=b;B%=256;
 	}
 	bool DontModify(){return R==-1;}
+	int operator<=>(const Color& other)const
+	{
+		int val1=toHex();
+		int val2=other.toHex();
+		if(val1<val2)	return -1;
+		if(val1>val2)	return 1;
+		return 0;
+	}
+	bool operator==(const Color& other)const
+		{return operator<=>(other)==0;}
+	bool operator!=(const Color& other)const
+		{return operator<=>(other)!=0;}
 };
 
 /**
