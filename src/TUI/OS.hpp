@@ -46,6 +46,7 @@ int GetTerminalWidth()
 #elif defined(__linux__)||defined(__APPLE__)
 
 #include<sys/ioctl.h>
+#include<fcntl.h>
 #include<unistd.h>
 
 /// @brief Get how big the term is 
@@ -56,5 +57,9 @@ int GetTerminalWidth()
 		return w.ws_col;
 	return 80;
 }
+void inline InitTerminal()
+	{std::print("\e[?1003h\e[?1015h\e[?1006h");}
+void inline OutputUnicode(String s)
+	{std::print("{}",s);}
 
 #endif

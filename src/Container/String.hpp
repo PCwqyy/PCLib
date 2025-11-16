@@ -255,21 +255,42 @@ public:
 
 void uft16_to_uft8(const char16_t* u16str,char* u8str)
 {
-	int len=0;
-	for(;u16str[len]!=u'\0';len++);
+	typedef unsigned int uint;
+	typedef unsigned short ushort;
+	if(!u16str||!u8str)	return;
+	const ushort* s=reinterpret_cast<const ushort*>(u16str);
 	int idx=0;
-	for(int i=0;i<len;i++)
+	int i=0;
+	while(s[i]!=0)
 	{
-		char16_t c=u16str[i];
-		if(c<=0x7F)
-			u8str[idx++]=char(c);
-		else if(c<=0x7FF)
-			u8str[idx++]=char(0xC0|(c>>6)),
-			u8str[idx++]=char(0x80|(c&0x3F));
+		uint code;
+		ushort w1=s[i++];
+		if(w1>=0xD800&&w1<=0xDBFF) // high surrogate
+		{
+			ushort w2=s[i];
+			if(w2>=0xDC00&&w2<=0xDFFF) // valid low surrogate
+				code=0x10000u+((-0xD800u+w1)<<10)+(-0xDC00u+w2),i++;
+			else // invalid sequence -> replacement char
+				code=0xFFFDu;
+		}
+		else if(w1>=0xDC00&&w1<=0xDFFF) // unexpected low surrogate
+			code=0xFFFDu;
 		else
-			u8str[idx++]=char(0xE0|(c>>12)),
-			u8str[idx++]=char(0x80|((c>>6)&0x3F)),
-			u8str[idx++]=char(0x80|(c&0x3F));
+			code=w1;
+		if(code<=0x7F)
+			u8str[idx++]=char(code);
+		else if(code<=0x7FF)
+			u8str[idx++]=char(0xC0|(code>>6)),
+			u8str[idx++]=char(0x80|(code&0x3F));
+		else if(code<=0xFFFF)
+			u8str[idx++]=char(0xE0|(code>>12)),
+			u8str[idx++]=char(0x80|((code>>6)&0x3F)),
+			u8str[idx++]=char(0x80|(code&0x3F));
+		else
+			u8str[idx++]=char(0xF0|(code>>18)),
+			u8str[idx++]=char(0x80|((code>>12)&0x3F)),
+			u8str[idx++]=char(0x80|((code>>6)&0x3F)),
+			u8str[idx++]=char(0x80|(code&0x3F));
 	}
 	u8str[idx]='\0';
 }
