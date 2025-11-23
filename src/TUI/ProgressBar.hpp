@@ -57,7 +57,7 @@ protected:
 		return t;
 	}
 public:
-	util::Coord Print(short x,short y,
+	Coord Print(short x,short y,
 		short visWidth=-1,map<string,StyleSheet>* c=nullptr)
 	{
 		printInit(x,y,c);

@@ -147,7 +147,7 @@ protected:
 		AnsiPrint("{}",t);
 	}
 public:
-	util::Coord Print(short x,short y,
+	Coord Print(short x,short y,
 		short visWid=-1,map<string,StyleSheet>* c=nullptr)
 	{
 		printInit(x,y,c);

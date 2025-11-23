@@ -11,11 +11,9 @@
 /// @brief Reset all ansi style
 inline void ResetAnsiStyle()
 	{std::print("\e[0m");return;}
-#ifndef PCL_CONSOLE
 /// @brief Move cursor to horizontal `x` and vertical `y`
 inline void CursorGoto(short x,short y)
 	{std::print("\e[{};{}H",y+1,x+1);return;}
-#endif
 /// @brief Offset the cursor horizontally by `x` and vertically by `y`
 inline void CursorOffset(short x,short y)
 {

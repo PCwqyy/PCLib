@@ -5,7 +5,8 @@
 [English](ReadMe-EN.md) | [中文](ReadMe.md) 
 
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-25v21a-blueviolet)
+![version](https://img.shields.io/badge/Version-25v21b-blueviolet)
+<!-- 快照 blueviolet，正式版 green -->
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -118,6 +119,9 @@ Presenting how to use `PCML` and relative DOM-like operation
 ### New Demo: [Clock](./demo/Clock/readme.md)
 Presenting how to use [`Ansi.hpp`](../../src/TUI/Ansi.hpp)
 ## 25v21a
-- Wrote `Buffer.hpp`
+- Wrote [`Buffer.hpp`](./src/TUI/Buffer.hpp)
+## 25v21b
+- Seperated [`Unicode.hpp`](./src/Utility/Unicode.hpp)
+- Optimized `Buffer.hpp`
 
 <!--记得改徽章的版本！-->

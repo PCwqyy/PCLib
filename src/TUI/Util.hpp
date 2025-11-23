@@ -12,6 +12,51 @@ using std::map;
 
 #include"../Exception.hpp"
 
+/// @brief Coordinate struct
+struct Coord
+{
+	short x,y;
+	Coord Offset(short dx,short dy)
+	{
+		x+=dx,y+=dy;
+		return *this;
+	}
+	Coord Set(short nx,short ny)
+	{
+		x=nx,y=ny;
+		return *this;
+	}
+	Coord operator+(const Coord& a)
+		{return {short(x+a.x),short(y+a.y)};}
+	Coord operator-(const Coord& a)
+		{return {short(x-a.x),short(y-a.y)};}
+	bool operator==(const Coord& a) const
+		{return x==a.x&&y==a.y;}
+	bool operator!=(const Coord& a) const
+		{return x!=a.x||y!=a.y;}
+};
+
+/// @brief Move cursor to horizontal `x` and vertical `y`
+inline void CursorGoto(Coord pos)
+	{std::print("\e[{};{}H",pos.y+1,pos.x+1);return;}
+/// @brief Offset the cursor horizontally by `x` and vertically by `y`
+inline void CursorOffset(Coord delta)
+{
+	char op;
+	if(delta.x!=0)
+	{
+		if(delta.x>0)			op='C';
+		else if(delta.x<0)	op='D',delta.x=-delta.x;
+		std::print("\e[{}{}",delta.x,op);
+	}
+	if(delta.y!=0)
+	{
+		if(delta.y>0)			op='B';
+		else if(delta.y<0)	op='A',delta.y=-delta.y;
+		std::print("\e[{}{}",delta.y,op);
+	}
+}
+
 /// @brief Utilitys for TUI
 namespace util
 {
@@ -109,8 +154,6 @@ bool CheckTagValid(string name)
 			return false;
 	return true;
 }
-
-struct Coord{short x,y;};
 
 /// @brief Container of `Attribute`
 class AttributeMap

@@ -293,6 +293,8 @@ public:
 		}
 		makeWithInt(pcpri::getColorByName(str));
 	}
+	Color(const char* str)
+		{*this=Color(string(str));}
 	int toHex()const{return B|(G<<8)|(R<<16);}
 	tuple<int,int,int> toRGB()const{return std::make_tuple(R,G,B);}
 	tuple<int,int,int> toHSL()const

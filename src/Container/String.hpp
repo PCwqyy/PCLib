@@ -5,6 +5,7 @@
 #include<string>
 #include<format>
 #include"../Exception.hpp"
+#include"../Utility/Unicode.hpp"
 
 #ifdef _WIN32
 #include<stringapiset.h>
@@ -29,7 +30,6 @@ private:
 	void applyCap()
 	{
 		char16_t* n=new char16_t[cap+5];
-		int len=Length();
 		if(str!=nullptr)
 			pcpri::strcpy(n,str);
 		delete[] str;
@@ -177,18 +177,6 @@ public:
 		applyCap();
 		copyFrom(a);
 	}
-	String(String& a)
-	{
-		cap=a.cap;
-		applyCap();
-		copyFrom(a);
-	}
-	String(String&& a)
-	{
-		cap=a.cap;
-		applyCap();
-		copyFrom(a);
-	}
 	String(const char* cstr)
 	{
 		applyCap();
@@ -254,47 +242,9 @@ public:
 		{return a.Compare(b)!=0;} 
 };
 
-void uft16_to_uft8(const char16_t* u16str,char* u8str)
-{
-	typedef unsigned int uint;
-	typedef unsigned short ushort;
-	if(!u16str||!u8str)	return;
-	const ushort* s=reinterpret_cast<const ushort*>(u16str);
-	int idx=0;
-	int i=0;
-	while(s[i]!=0)
-	{
-		uint code;
-		ushort w1=s[i++];
-		if(w1>=0xD800&&w1<=0xDBFF) // high surrogate
-		{
-			ushort w2=s[i];
-			if(w2>=0xDC00&&w2<=0xDFFF) // valid low surrogate
-				code=0x10000u+((-0xD800u+w1)<<10)+(-0xDC00u+w2),i++;
-			else // invalid sequence -> replacement char
-				code=0xFFFDu;
-		}
-		else if(w1>=0xDC00&&w1<=0xDFFF) // unexpected low surrogate
-			code=0xFFFDu;
-		else
-			code=w1;
-		if(code<=0x7F)
-			u8str[idx++]=char(code);
-		else if(code<=0x7FF)
-			u8str[idx++]=char(0xC0|(code>>6)),
-			u8str[idx++]=char(0x80|(code&0x3F));
-		else if(code<=0xFFFF)
-			u8str[idx++]=char(0xE0|(code>>12)),
-			u8str[idx++]=char(0x80|((code>>6)&0x3F)),
-			u8str[idx++]=char(0x80|(code&0x3F));
-		else
-			u8str[idx++]=char(0xF0|(code>>18)),
-			u8str[idx++]=char(0x80|((code>>12)&0x3F)),
-			u8str[idx++]=char(0x80|((code>>6)&0x3F)),
-			u8str[idx++]=char(0x80|(code&0x3F));
-	}
-	u8str[idx]='\0';
-}
+#ifndef CP_GBK
+#define CP_GBK 936
+#endif
 
 #ifdef __cpp_lib_format
 template<>
@@ -308,7 +258,7 @@ struct std::formatter<String,char>
 	auto format(const String& s,std::format_context& ctx) const
 	{
 		char* gbkstr=new char[3*s.Size()+5];
-		WideCharToMultiByte(936,0,reinterpret_cast<wchar_t*>(s.CStr()),
+		WideCharToMultiByte(CP_GBK,0,reinterpret_cast<wchar_t*>(s.CStr()),
 			-1,gbkstr,3*s.Size()+5,nullptr,nullptr);
 		auto result=std::format_to(ctx.out(),"{}",gbkstr);
 		delete[] gbkstr;
@@ -319,7 +269,7 @@ struct std::formatter<String,char>
 	auto format(const String& s,std::format_context& ctx) const
 	{
 		char* u8str=new char[3*s.Size()+5];
-		uft16_to_uft8(s.CStr(),u8str);
+		pcuni::uft16_to_uft8(s.CStr(),u8str);
 		auto result=std::format_to(ctx.out(),"{}",u8str);
 		delete[] u8str;
 		return result;
