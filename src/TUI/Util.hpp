@@ -123,7 +123,8 @@ string BreakName(string& a,bool modify=true)
 string BreakSelector(string& a,bool modify=true)
 {
 	return BreakString(a,
-		[](char a){return !isalnum(a)&&a!='_'&&a!='-';},
+		[](char a){return !isalnum(a)&&a!='_'&&
+			a!='-'&&a!='=';},
 		modify);
 }
 /// @brief Check if a string is empty (contains only whitespace)
@@ -212,6 +213,7 @@ protected:
 	virtual void push(){tar->Set(key,val);}
 public:
 	string operator=(string a){val=a;push();return a;}
+	/// @brief Get the value of the traced attribute
 	string Val()
 	{
 		if(tar==nullptr)
@@ -219,6 +221,7 @@ public:
 		pull();
 		return val;
 	}
+	/// @brief Bind the attribute tracer to a key and attribute map
 	void Bind(string k,AttributeMap* a)
 	{
 		tar=a;key=k;

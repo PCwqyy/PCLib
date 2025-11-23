@@ -10,14 +10,14 @@
 using std::vector;
 using std::set;
 
-#include"StyleSheet.hpp"
+#include"Buffer.hpp"
 #include"Util.hpp"
+#include"StyleSheet.hpp"
 
 /// @brief Element node
 class Element
 {
 protected:
-	util::AttributeTracer ID;
 	string Tag;
 	Element* Parent;
 	// store children as owning unique_ptrs -> stable addresses, no accidental slicing
@@ -29,6 +29,7 @@ protected:
 		return std::find_if(Children.begin(),Children.end(),
 			[&](const std::unique_ptr<Element>& p){return p&&p->UUID==uuid;});
 	}
+	Buffer canvas;
 	StyleSheet style,eleStyle;
 	short left,top,height,width;
 	map<string,StyleSheet>* StyleMap;
@@ -53,15 +54,14 @@ protected:
 	}
 	/**
 	 * @brief Check ifthe element match the single element selector 
-	 * like `#id.class1.class2` 
-	 * @todo support attribute selector `[attr=value]`
+	 * like `#id.class1.class2[attr=value]`
 	 */
 	bool matchSingleSelector(string s)
 	{
 		util::ShrinkStringHead(s);
 		if(util::EmptyString(s)) return false;
 		if(s[0]=='*') return true;
-		// parse tokens: `#id`, `.class`, `tag`
+		// parse tokens: `#id`, `.class`, `tag`, `[attr=value]`
 		while(!util::EmptyString(s))
 		{
 			util::ShrinkStringHead(s);
@@ -73,6 +73,13 @@ protected:
 			else if(ch=='.') // .class
 				if(!ClassList.Has(now))	return false;
 				else continue;
+			else if(ch=='[') // [attr=value]
+			{
+				string attr=util::BreakName(now);
+				string val=now.substr(1);
+				if(Attribute.Get(attr)!=val)	return false;
+				else continue;
+			}
 			else if(isalnum(ch)) // tag
 				if(Tag!=now)	return false;
 				else continue;
@@ -80,6 +87,7 @@ protected:
 		return true;
 	}
 public:
+	util::AttributeTracer ID;
 	util::ClassSet ClassList;
 	util::AttributeMap Attribute;
 	/**
@@ -198,7 +206,7 @@ public:
 		SetID(id);
 		ClassList=classes;
 	}
-	/// @brief deep-copy: clone children to keep ownership consistent
+	/// @brief Deep-copy: clone children to keep ownership consistent
 	Element(const Element& a)
 	{
 		UUID=a.UUID;

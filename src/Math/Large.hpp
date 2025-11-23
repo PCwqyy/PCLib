@@ -24,6 +24,12 @@ namespace pcpri
 		if(islower(c))	return c-'a'+10;
 		return -1;
 	}
+	int itoc(int v)
+	{
+		if(v>=0&&v<=9)	return '0'+v;
+		if(v>=10&&v<=35)	return 'A'+v-10;
+		return -1;
+	}
 }
 
 /**
@@ -47,7 +53,7 @@ public:
 	bool GetLast(){return bin[0];}
 public:
 	/// @brief Convert to string (`char*`)
-	void ToString(char* buff,int base=10) const
+	void ToString(char* buff,int radix=10) const
 	{
 		if(!Bool())
 		{
@@ -57,8 +63,8 @@ public:
 		int now=0;
 		Large n=this->Abs(),res;
 		while(n>0)
-		std::tie(n,res)=divideOp(n,base),
-		buff[now++]=res.Convert<int>()+'0';
+		std::tie(n,res)=divideOp(n,radix),
+		buff[now++]=pcpri::itoc(res.Convert<int>());
 		if(sign)	buff[now++]='-';
 		buff[now]='\0';
 		strcpy(buff,strrev(buff));
@@ -130,15 +136,15 @@ public:
 		return;
 	}
 	/// @brief Set value to number string
-	void SetVal(const char* a,int base=10)
+	void SetVal(const char* a,int radix=10)
 	{
 		bin=0;int i=0;
 		if(a[0]=='-')	i=1;
 		for(;a[i];i++)
 		{
-			if(a[i]!=' '&&pcpri::ctoi(a[i])>=base)
+			if(a[i]!=' '&&pcpri::ctoi(a[i])>=radix)
 				throw pc::Exception(pcLG_ERR_SYNTAX,a);
-			*this=*this*base+pcpri::ctoi(a[i]);
+			*this=*this*radix+pcpri::ctoi(a[i]);
 		}
 		if(a[0]=='-')	sign=true;
 		return;
@@ -482,6 +488,46 @@ int ssprintpc(char* Dest,Large<Length> Th)
 	strcpy(Dest,pcpri::temp);
 	return tlen;
 }
+#endif
+
+#ifdef __cpp_lib_format
+
+template<int Length>
+struct std::formatter<Large<Length>,char>
+{
+	int radix=10;
+	constexpr auto parse(format_parse_context& ctx)
+	{
+		auto it=ctx.begin();
+		auto end=ctx.end();
+		if(it==end||*it=='}')
+			return it;
+		if(*it=='b'||*it=='o'||*it=='x'||*it=='d')
+		{
+			switch(*it)
+			{
+				case 'b':	radix=2;	break;
+				case 'o':	radix=8;	break;
+				case 'd':	radix=10;	break;
+				case 'x':	radix=16;	break;
+			}
+			return ++it;
+		}
+		radix=0;
+		for(;it!=end&&*it!='}';++it)
+			if(*it>='0'&&*it<='9')
+				radix=radix*10+(*it-'0');
+			else	break;
+		return it;
+	}
+	auto format(const Large<Length>& s,std::format_context& ctx) const
+	{
+		char buff[Length+1];
+		s.ToString(buff,radix);
+		return std::format_to(ctx.out(),"{}",buff);
+	}
+};
+
 #endif
 
 #include"../Multinclude.hpp"

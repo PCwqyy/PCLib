@@ -16,6 +16,7 @@ private:
 	bool surrogate;
 public:
 	Color fore,back;
+	inline void Reset(){Set(u'\0',-1,-1);}
 	void Set(char16_t c,Color f=-1,Color b=-1)
 		{high=c;fore=f,back=b;surrogate=false;}
 	void Set(char16_t h,char16_t l,Color f=-1,Color b=-1)
@@ -38,6 +39,9 @@ public:
 	inline int width()
 		{return pcuni::charWidthInConsole(high);}
 };
+
+#define pcTUI_BUF_DEFAULT_WIDTH 20
+#define pcTUI_BUF_DEFAULT_HEIGHT 5
 
 class Buffer
 {
@@ -84,6 +88,18 @@ public:
 	}
 	inline void Print(Coord pos,String text)
 		{Print(pos,-1,-1,text);}
+	void PrintTo(Buffer& Target,Coord pos)
+	{
+		Coord npos=pos;
+		for(int i=0;i<size.y;i++)
+			for(int j=0;j<size.x;j++)
+			{
+				npos.Set(pos.x+j,pos.y+i);
+				if(get(npos).isEmpty())
+					Target.get(npos).Reset();
+				Target.get(npos)=canvas[i][j];
+			}
+	}
 	void Render(Coord pos)
 	{
 		Color nowFore=-1,nowBack=-1;
@@ -116,4 +132,5 @@ public:
 	}
 	Buffer(short w,short h):size({w,h})
 		{resize(w,h);}
+	Buffer():size({pcTUI_BUF_DEFAULT_WIDTH,pcTUI_BUF_DEFAULT_HEIGHT}){}
 };

@@ -144,8 +144,8 @@ public:
 #define pcERR_RTN_UNKTYPE "Invalid format specifier for Rational \"%c\""
 
 #ifdef __cpp_lib_format
-template<>
-struct std::formatter<Rational<int>,char>
+template<typename Tp>
+struct std::formatter<Rational<Tp>,char>
 {
 	char type='r';
 	int acc=pcM_DOUBLEACC;
@@ -171,7 +171,7 @@ struct std::formatter<Rational<int>,char>
 		else
 			return ctx.end();
 	}
-	auto format(const Rational<int>& r,std::format_context& ctx) const
+	auto format(const Rational<Tp>& r,std::format_context& ctx) const
 	{
 		if(type=='f')
 			return std::format_to(ctx.out(),"{0:.{1}f}",r.To<double>(),acc);
