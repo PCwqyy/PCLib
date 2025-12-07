@@ -176,11 +176,11 @@ public:
 		else return res->second;
 	}
 	string operator[] (string k){return GetAttribute(k);}
-	friend StyleSheet operator+ (StyleSheet a,StyleSheet b)
+	StyleSheet operator<< (StyleSheet other)
 	{
-		for(auto i:b.s)
-			a.SetAttribute(i.first,i.second);
-		return a;
+		for(auto i:other.s)
+			SetAttribute(i.first,i.second);
+		return *this;
 	}
 
 	string GetTextAnsi()

@@ -13,25 +13,29 @@ class Pixel
 {
 private:
 	char16_t high,low;
-	bool surrogate;
+	bool surrogate=false;
 public:
 	Color fore,back;
-	inline void Reset(){Set(u'\0',-1,-1);}
+	inline void Reset(){Set(u' ',-1,-1);}
 	void Set(char16_t c,Color f=-1,Color b=-1)
 		{high=c;fore=f,back=b;surrogate=false;}
-	void Set(char16_t h,char16_t l,Color f=-1,Color b=-1)
+	void SetSurrogate(char16_t h,char16_t l,Color f=-1,Color b=-1)
 		{high=h,low=l;fore=f,back=b;surrogate=true;}
 	Pixel(char16_t c,Color f=-1,Color b=-1)
 		{Set(c,f,b);}
 	Pixel(char16_t h,char16_t l,Color f=-1,Color b=-1)
-		{Set(h,l,f,b);}
-	Pixel(){Set(u'\0',-1,-1);}
+		{SetSurrogate(h,l,f,b);}
+	Pixel(Color back)
+		{Set(u' ',-1,back);}
+	Pixel(){Set(u' ',-1,-1);}
 	inline bool isSurrogate(){return surrogate;}
+	/// @brief Check if the pixel is occupied by a wide character in front of this
 	inline bool isEmpty(){return high==u'\0';}
 	void putchar(bool color=true)
 	{
-		SetForegroundColor(fore);
-		SetBackgroundColor(back);
+		if(color)
+			SetForegroundColor(fore),
+			SetBackgroundColor(back);
 		String s;s.Append(high);
 		if(surrogate)	s.Append(low);
 		OutputUnicode(s);
@@ -42,52 +46,95 @@ public:
 
 #define pcTUI_BUF_DEFAULT_WIDTH 20
 #define pcTUI_BUF_DEFAULT_HEIGHT 5
+#define pcTUI_BUF_EXTEND_MULTIPLE 1.5
 
 class Buffer
 {
 private:
-	vector<vector<Pixel>> canvas;
 	Coord size;
+	Color BackgroundColor;
+	vector<vector<Pixel>> canvas;
 	void resize(short w,short h)
 	{
 		for(auto i:canvas)
 			i.resize(w);
 		canvas.resize(h,vector<Pixel>(w));
 	}
-	Pixel& get(Coord pos){return canvas[pos.y][pos.x];}
-	inline void cursorIncrease(Coord& cur)
+	Pixel& get(Coord pos)
+	{
+		if(pos.x<0||pos.y<0)
+			throw pc::Exception("Invalid buffer position access");
+		if(pos.y>=size.y||pos.x>=size.x)
+			resize(std::max(pos.x,size.x)*pcTUI_BUF_EXTEND_MULTIPLE,
+				std::max(pos.y,size.y)*pcTUI_BUF_EXTEND_MULTIPLE);
+		return canvas[pos.y][pos.x];
+	}
+	/**
+	 * @brief Increase cursor position by one, with line break
+	 * @param cur Current cursor position
+	 * @param p View start position
+	 * @param s View size
+	 */
+	inline void cursorIncrease(Coord& cur,Coord p,Coord s)
 	{
 		cur.x++;
-		if(cur.x>=size.x)	cur.x=0,cur.y++;
-		if(cur.y>=size.y)	cur={0,0};
+		if(cur.x>p.x+s.x)	cur.x=p.x,cur.y++;
+		if(cur.y>p.y+s.y)	cur=p;
+	}
+	inline void cursorIncrease(Coord& cur)
+		{cursorIncrease(cur,{0,0},size);}
+	/**
+	 * @brief Move cursor to the beginning of next line
+	 * @param cur Current cursor position
+	 * @param p View start position
+	 * @param s View size
+	 */
+	inline void cursorBreakLine(Coord& cur,Coord p,Coord s)
+	{
+		cur.x=p.x,cur.y++;
+		if(cur.y>p.y+s.y)	cur=p;
 	}
 	inline void cursorBreakLine(Coord& cur)
-	{
-		cur.x=0,cur.y++;
-		if(cur.y>=size.y)	cur={0,0};
-	}
+		{cursorBreakLine(cur,{0,0},size);}
 public:
-	void Print(Coord pos,Color fore,Color back,String text)
+	void SetBackgroundColor(Color col)
+		{BackgroundColor=col;}
+	void Clear()
 	{
-		int len=text.Size();
+		for(int i=0;i<size.y;i++)
+			for(int j=0;j<size.x;j++)
+				canvas[i][j].Set(u' ',-1,BackgroundColor);
+	}
+	/**
+	 * @brief Print text at position with colors
+	 * @param pos Start position
+	 * @param vpos View start position
+	 * @param vsize View size
+	 */
+	void Print(Coord pos,Color fore,Color back,String text,Coord vpos,Coord vsize)
+	{
+		int len=text.Size(),w;
 		for(int i=0;i<len;)
 		{
+			w=pcuni::charWidthInConsole(text[i]);
+			if(pos.x+w>vpos.x+vsize.x)
+				cursorBreakLine(pos,vpos,vsize);
 			if(pcuni::isHighSurrogate(text[i]))
-				get(pos).Set(text[i],text[i+1],fore,back),
-				cursorIncrease(pos),cursorIncrease(pos),
-				i+=pcUNI_SURROGATE_WIDTH;
+				get(pos).SetSurrogate(text[i],text[i+1],fore,back),
+				i+=2;
 			else
-			{
-				int w=pcuni::charWidthInConsole(text[i]);
-				if(pos.x+w>size.x)	cursorBreakLine(pos);
-				get(pos).Set(text[i],fore,back);
-				while(w--)	cursorIncrease(pos);
+				get(pos).Set(text[i],fore,back),
 				i++;
-			}
+			w--,cursorIncrease(pos,vpos,vsize);
+			while(w--)	// 被宽字符占用的空格为 u'\0'
+				get(pos).Set(u'\0',-1,BackgroundColor),
+				cursorIncrease(pos,vpos,vsize);
 		}
 	}
+	inline void Print(Coord pos,Color fore,Color back,String text)
+		{Print(pos,fore,back,text,{0,0},size);}
 	inline void Print(Coord pos,String text)
-		{Print(pos,-1,-1,text);}
+		{Print(pos,-1,-1,text,{0,0},size);}
 	void PrintTo(Buffer& Target,Coord pos)
 	{
 		Coord npos=pos;
@@ -95,15 +142,21 @@ public:
 			for(int j=0;j<size.x;j++)
 			{
 				npos.Set(pos.x+j,pos.y+i);
-				if(get(npos).isEmpty())
-					Target.get(npos).Reset();
 				Target.get(npos)=canvas[i][j];
 			}
 	}
 	void Render(Coord pos)
 	{
+		// CursorGoto(pos);
+		// ResetAnsiStyle();
+		// SetBackgroundColor(BackgroundColor);
+		// for(int i=0;i<size.y;i++)
+		// 	OutputUnicode(String(u' ',size.x)),
+		// 	CursorGoto(pos+Coord(0,i+1));
+		// CursorGoto(pos);
+		ResetAnsiStyle();
 		Color nowFore=-1,nowBack=-1;
-		Pixel &p=get(pos);
+		Pixel p;
 		Coord spos=pos,npos=pos;
 		int n;
 		for(int i=0;i<size.y;i++)
@@ -111,17 +164,18 @@ public:
 			for(int j=0;j<size.x;j++)
 			{
 				p=canvas[i][j];
-				if(p.isEmpty())	continue;
+				if(p.isEmpty())
+					continue;
 				spos.Set(pos.x+j,pos.y+i);
 				if(npos!=spos)
 					CursorGoto(spos),
 					npos=spos;
 				if(p.fore!=nowFore)	
 					nowFore=p.fore,
-					SetForegroundColor(nowFore);
+					SetForegroundColor(p.fore);
 				if(p.back!=nowBack)	
 					nowBack=p.back,
-					SetBackgroundColor(nowBack);
+					SetBackgroundColor(p.back);
 				p.putchar(false);
 				n=p.width();
 				while(n--)
@@ -130,7 +184,13 @@ public:
 			ResetAnsiStyle();
 		}
 	}
-	Buffer(short w,short h):size({w,h})
-		{resize(w,h);}
-	Buffer():size({pcTUI_BUF_DEFAULT_WIDTH,pcTUI_BUF_DEFAULT_HEIGHT}){}
+	Buffer(short w,short h,Color back=-1):
+		size({w,h}),BackgroundColor(back),
+		canvas(h,vector<Pixel>(w,Pixel(back)))
+		{resize(w,h);Clear();}
+	Buffer():
+		size({pcTUI_BUF_DEFAULT_WIDTH,pcTUI_BUF_DEFAULT_HEIGHT}),
+		BackgroundColor(-1),
+		canvas(size.y,vector<Pixel>(size.x,Pixel(BackgroundColor)))
+		{resize(size.x,size.y);Clear();}
 };

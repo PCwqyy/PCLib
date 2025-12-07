@@ -85,7 +85,7 @@ const range wide[]=
 
 /**
  * @brief Get display width for a single UTF-16 code unit in a monospace console:
- *  - 0 for NUL,control codes and combining marks
+ *  - 0 for NUL, control codes and combining marks
  *  - 2 for East Asian wide/fullwidth characters, surrogates
  *  - 1 otherwise
  */
@@ -97,7 +97,8 @@ int charWidthInConsole(char16_t ch)
 	if(u<0x20)			return 0;
 	if(u>=0x7f&&u<0xa0)	return 0;
 	// Surrogates
-	if(u>=0xD800&&u<=0xDFFF)	return pcUNI_SURROGATE_WIDTH;
+	if(u>=0xD800&&u<=0xDFFF)
+		return pcUNI_SURROGATE_WIDTH;
 	// Combining marks
 	if(biSearch(u,combining,sizeof(combining)/sizeof(range)))
 		return 0;

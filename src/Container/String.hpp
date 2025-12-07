@@ -19,12 +19,12 @@ namespace pcpri{
 	}
 };
 
-#define pcSTR_EMPTY_CAPACITY 512
+#define pcSTR_EMPTY_CAPACITY 32
 #define pcSTR_SAFE_MULTIPLE 0.8
 class String
 {
 private:
-	char16_t* str=NULL;
+	char16_t* str=nullptr;
 	int cap=pcSTR_EMPTY_CAPACITY,lenCache=0;
 	bool dirty=false;
 	void applyCap()
@@ -174,7 +174,6 @@ public:
 	String(const String& a)
 	{
 		cap=a.cap;
-		applyCap();
 		copyFrom(a);
 	}
 	String(const char* cstr)
@@ -187,6 +186,16 @@ public:
 		applyCap();
 		copyFrom(cstr);
 	}
+	String(char16_t c,int cnt)
+	{
+		cap=cnt+1;
+		applyCap();
+		for(int i=0;i<cnt;i++)
+			str[i]=c;
+		str[cnt]=u'\0';
+		lenCache=cnt;
+		dirty=false;
+	}
 	String(int capacity)
 	{
 		cap=int(capacity/pcSTR_SAFE_MULTIPLE);
@@ -195,7 +204,6 @@ public:
 	String(const std::string& s)
 	{
 		cap=s.length()/pcSTR_SAFE_MULTIPLE;
-		applyCap();
 		copyFrom(s);
 	}
 	String& operator=(String& from){return copyFrom(from);}

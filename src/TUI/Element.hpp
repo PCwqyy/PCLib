@@ -30,28 +30,7 @@ protected:
 			[&](const std::unique_ptr<Element>& p){return p&&p->UUID==uuid;});
 	}
 	Buffer canvas;
-	StyleSheet style,eleStyle;
-	short left,top,height,width;
-	map<string,StyleSheet>* StyleMap;
-	void applyStyleByClass()
-	{
-		style=eleStyle;
-		if(StyleMap==nullptr) return;
-		for(string i:ClassList)
-		{
-			auto a=StyleMap->find(i);
-			if(a==StyleMap->end()) continue;
-			style=style+a->second;
-		}
-	}
-	Coord printInit(short x,short y,
-		map<string,StyleSheet>* c=nullptr)
-	{
-		left=x,top=y;
-		if(c!=nullptr) StyleMap=c;
-		applyStyleByClass();
-		return{left,top };
-	}
+	StyleSheet style,inlineStyle;
 	/**
 	 * @brief Check ifthe element match the single element selector 
 	 * like `#id.class1.class2[attr=value]`
@@ -188,18 +167,25 @@ public:
 		if(res.empty())	return nullptr;
 		else return res[0];
 	}
-	virtual Coord Print(short x,short y,
-		short visWidth,map<string,StyleSheet>* c=nullptr)
-		{return printInit(x,y,c);}
-	string GetStyle(string attr){return style[attr];}
-	void SetStyle(string attr,string val){style.SetAttribute(attr,val);}
-	void SetStyle(StyleSheet a){style=a;}
+	/// @brief Render to buffer at (x,y)
+	virtual void Print()
+	{
+		/* just print element name for debug use */
+		string text=std::format("{}",ToString());
+		canvas.Print({0,0},inlineStyle["color"],
+			inlineStyle["background-color"],text);
+	}
+	string GetStyle(string attr){return inlineStyle[attr];}
+	void SetStyle(string attr,string val)
+	{
+		inlineStyle.SetAttribute(attr,val);
+	}
+	void SetStyle(StyleSheet a){inlineStyle=a;}
 	Element(string tag="",string id="",string classes="")
 	{
 		UUID=util::GenUUID();
 		Parent=nullptr;
-		height=0,width=0,left=0,top=0;
-		StyleMap=nullptr;
+		style=inlineStyle;//debug
 		Tag=tag;
 		ID.Bind("id",&Attribute);
 		ClassList.Bind("class",&Attribute);
@@ -211,11 +197,9 @@ public:
 	{
 		UUID=a.UUID;
 		Parent=nullptr; // copy should not keep same parent pointer
-		StyleMap=a.StyleMap;
 		Tag=a.Tag;
 		style=a.style;
-		eleStyle=a.eleStyle;
-		left=a.left; top=a.top; width=a.width; height=a.height;
+		inlineStyle=a.inlineStyle;
 		Attribute=a.Attribute;
 		ID.Bind("id",&Attribute);
 		ClassList.Bind("class",&Attribute);

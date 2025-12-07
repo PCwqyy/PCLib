@@ -91,7 +91,7 @@ string parseQuotedValue(const string &s,int &pos)
  * of the form `name="value"` into Element::Attribute.
  * @param content The inside of a tag (between '<' and '>' or '/>'):
  *  e.g. 'person id="1" class="a b"'
- * @return an Element whose Tag and Attribute are set; eleStyle/style are left as-is.
+ * @return an Element whose Tag and Attribute are set; inlineStyle/style are left as-is.
  */
 Element parseTag(const string &content)
 {

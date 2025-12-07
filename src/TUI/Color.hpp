@@ -14,6 +14,7 @@ using std::tuple;
 */
 const map<string,int> NamedColor=
 {// cSpell: disable
+	{"transparent",-1},
 	{"aliceblue",0xF0F8FF},
 	{"antiquewhite",0xFAEBD7},
 	{"aqua",0x00FFFF},
