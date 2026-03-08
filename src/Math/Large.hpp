@@ -456,6 +456,7 @@ public:
 	Large operator/=(Tp a){*this=*this/a;return *this;}
 	template<typename Tp>
 	Large operator%=(Tp a){*this=*this%a;return *this;}
+	operator bool(){return bin.size()!=0;}
 };
 
 #ifdef _GLIBCXX_IOSTREAM

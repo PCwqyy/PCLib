@@ -42,7 +42,7 @@ class LinkList
 			LinkList*a=Get(i+1);
 			a->front->next=a->next;
 			a->next->front=a->front;
-			delete this;
+			delete a;
 			return;
 		}
 		int Find(Tp finder)
@@ -328,13 +328,15 @@ class Vector
 		~Vector(){delete []data;}
 		void Insert(Tp m)
 		{
-			Tp* newone;
-			if(nowlen+1>=maxlen*3>>2)
-				newone=extent();
-			for(int i=0;i<nowlen;i++)
-				newone[i]=data[i];
-			delete []data;
-			data=newone;
+			// If capacity needs to grow, allocate new buffer and copy; otherwise append in-place
+			if(nowlen+1>= (maxlen*3>>2))
+			{
+				Tp* newone = extent();
+				for(int i=0;i<nowlen;i++)
+					newone[i]=data[i];
+				delete []data;
+				data=newone;
+			}
 			data[nowlen++]=m;
 			return;
 		}

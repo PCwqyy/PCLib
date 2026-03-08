@@ -27,9 +27,11 @@ private:
 	char16_t* str=nullptr;
 	int cap=pcSTR_EMPTY_CAPACITY,lenCache=0;
 	bool dirty=false;
-	void applyCap()
+	void applyCap(int s=-1)
 	{
+		if(s!=-1)	cap=s;
 		char16_t* n=new char16_t[cap+5];
+		n[0]=u'\0';
 		if(str!=nullptr)
 			pcpri::strcpy(n,str);
 		delete[] str;
@@ -57,11 +59,12 @@ private:
 	{
 		int len=strlen(cstr);
 		ExtendTo(len);
-		pcpri::strcpy(str,reinterpret_cast<const char16_t*>(cstr));
+		for(int i=0;i<len;i++)
+			str[i]=char16_t((unsigned char)cstr[i]);
+		str[len]=u'\0';
 		dirty=true;
 		return *this;
 	}
-#ifdef cpp_lib_string
 	String& copyFrom(const std::string& s)
 	{
 		int len=s.length();
@@ -72,7 +75,6 @@ private:
 		dirty=true;
 		return *this;
 	}
-#endif
 public:
 	int Size() const
 	{
@@ -103,7 +105,7 @@ public:
 	void ExtendTo(int len)
 	{
 		int tar=int(len/pcSTR_SAFE_MULTIPLE);
-		if(tar<=cap)	return;
+		if(tar<=cap&&str!=nullptr)	return;
 		cap=tar;
 		applyCap();
 	}
@@ -173,7 +175,7 @@ public:
 	String(){applyCap();}
 	String(const String& a)
 	{
-		cap=a.cap;
+		applyCap(a.cap);
 		copyFrom(a);
 	}
 	String(const char* cstr)
@@ -188,8 +190,7 @@ public:
 	}
 	String(char16_t c,int cnt)
 	{
-		cap=cnt+1;
-		applyCap();
+		applyCap(cnt+1);
 		for(int i=0;i<cnt;i++)
 			str[i]=c;
 		str[cnt]=u'\0';
@@ -198,12 +199,11 @@ public:
 	}
 	String(int capacity)
 	{
-		cap=int(capacity/pcSTR_SAFE_MULTIPLE);
-		applyCap();
+		applyCap(capacity/pcSTR_SAFE_MULTIPLE);
 	}
 	String(const std::string& s)
 	{
-		cap=s.length()/pcSTR_SAFE_MULTIPLE;
+		applyCap(s.length()/pcSTR_SAFE_MULTIPLE);
 		copyFrom(s);
 	}
 	String& operator=(String& from){return copyFrom(from);}
@@ -248,6 +248,8 @@ public:
 		{return a.Compare(b)!=1;}
 	bool friend operator!=(String a,String b)
 		{return a.Compare(b)!=0;} 
+	operator bool()
+		{return str[0]!=u'\0';}
 };
 
 #ifndef CP_GBK

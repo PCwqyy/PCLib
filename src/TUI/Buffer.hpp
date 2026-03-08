@@ -31,6 +31,7 @@ public:
 	inline bool isSurrogate(){return surrogate;}
 	/// @brief Check if the pixel is occupied by a wide character in front of this
 	inline bool isEmpty(){return high==u'\0';}
+	inline bool isSpace(){return high==u' ';}
 	void putchar(bool color=true)
 	{
 		if(color)
@@ -42,6 +43,13 @@ public:
 	}
 	inline int width()
 		{return pcuni::charWidthInConsole(high);}
+	Pixel GiveBackColor(Color f,Color b)
+	{
+		if(isSurrogate())
+			return Pixel(high,low,fore|f,back|b);
+		else
+			return Pixel(high,fore|f,back|b);
+	}
 };
 
 #define pcTUI_BUF_DEFAULT_WIDTH 20
@@ -56,9 +64,11 @@ private:
 	vector<vector<Pixel>> canvas;
 	void resize(short w,short h)
 	{
-		for(auto i:canvas)
-			i.resize(w);
+		int len=canvas.size();
+		for(int i=0;i<len;i++)
+			canvas[i].resize(w);
 		canvas.resize(h,vector<Pixel>(w));
+		size.Set(w,h);
 	}
 	Pixel& get(Coord pos)
 	{
@@ -97,7 +107,7 @@ private:
 	inline void cursorBreakLine(Coord& cur)
 		{cursorBreakLine(cur,{0,0},size);}
 public:
-	void SetBackgroundColor(Color col)
+	void SetBkgColor(Color col)
 		{BackgroundColor=col;}
 	void Clear()
 	{
@@ -105,13 +115,34 @@ public:
 			for(int j=0;j<size.x;j++)
 				canvas[i][j].Set(u' ',-1,BackgroundColor);
 	}
+	void SetWidth(short w)
+	{
+		if(w<=size.x)	return;
+		resize(w,size.y);
+	}
+	void ShinkToFit()
+	{
+		short maxw=0,i,j;
+		for(i=0;i<size.y;i++)
+		{
+			for(j=size.x-1;j>=0;j--)
+				if(!canvas[i][j].isSpace())
+				{
+					maxw=std::max(maxw,short(j+1));
+					break;
+				}
+			if(j<0)	break;
+		}
+		resize(maxw,i);
+	}
+	Coord Size(){return size;}
 	/**
 	 * @brief Print text at position with colors
 	 * @param pos Start position
 	 * @param vpos View start position
 	 * @param vsize View size
 	 */
-	void Print(Coord pos,Color fore,Color back,String text,Coord vpos,Coord vsize)
+	Coord Render(Coord pos,Color fore,Color back,String text,Coord vpos,Coord vsize)
 	{
 		int len=text.Size(),w;
 		for(int i=0;i<len;)
@@ -120,40 +151,36 @@ public:
 			if(pos.x+w>vpos.x+vsize.x)
 				cursorBreakLine(pos,vpos,vsize);
 			if(pcuni::isHighSurrogate(text[i]))
-				get(pos).SetSurrogate(text[i],text[i+1],fore,back),
-				i+=2;
+				if(i+1<len)
+					get(pos).SetSurrogate(text[i],text[i+1],fore,back),i+=2;
+				else
+					// truncated surrogate pair: treat high surrogate as replacement
+					get(pos).Set(text[i],fore,back),i++;
 			else
-				get(pos).Set(text[i],fore,back),
-				i++;
+				get(pos).Set(text[i],fore,back),i++;
 			w--,cursorIncrease(pos,vpos,vsize);
-			while(w--)	// 被宽字符占用的空格为 u'\0'
+			while(0<w--)	// 被宽字符占用的空格为 u'\0'
 				get(pos).Set(u'\0',-1,BackgroundColor),
 				cursorIncrease(pos,vpos,vsize);
 		}
+		return pos;
 	}
-	inline void Print(Coord pos,Color fore,Color back,String text)
-		{Print(pos,fore,back,text,{0,0},size);}
-	inline void Print(Coord pos,String text)
-		{Print(pos,-1,-1,text,{0,0},size);}
-	void PrintTo(Buffer& Target,Coord pos)
+	inline Coord Render(Coord pos,Color fore,Color back,String text)
+		{return Render(pos,fore,back,text,{0,0},size);}
+	inline Coord Render(Coord pos,String text)
+		{return Render(pos,-1,-1,text,{0,0},size);}
+	void RenderTo(Buffer& Target,Coord pos)
 	{
 		Coord npos=pos;
 		for(int i=0;i<size.y;i++)
 			for(int j=0;j<size.x;j++)
 			{
 				npos.Set(pos.x+j,pos.y+i);
-				Target.get(npos)=canvas[i][j];
+				Target.get(npos)=canvas[i][j].GiveBackColor(-1,BackgroundColor);
 			}
 	}
-	void Render(Coord pos)
+	void Print(Coord pos)
 	{
-		// CursorGoto(pos);
-		// ResetAnsiStyle();
-		// SetBackgroundColor(BackgroundColor);
-		// for(int i=0;i<size.y;i++)
-		// 	OutputUnicode(String(u' ',size.x)),
-		// 	CursorGoto(pos+Coord(0,i+1));
-		// CursorGoto(pos);
 		ResetAnsiStyle();
 		Color nowFore=-1,nowBack=-1;
 		Pixel p;
@@ -164,18 +191,14 @@ public:
 			for(int j=0;j<size.x;j++)
 			{
 				p=canvas[i][j];
-				if(p.isEmpty())
-					continue;
+				if(p.isEmpty())	continue;
 				spos.Set(pos.x+j,pos.y+i);
 				if(npos!=spos)
-					CursorGoto(spos),
-					npos=spos;
+					CursorGoto(spos),npos=spos;
 				if(p.fore!=nowFore)	
-					nowFore=p.fore,
-					SetForegroundColor(p.fore);
+					nowFore=p.fore,SetForegroundColor(p.fore);
 				if(p.back!=nowBack)	
-					nowBack=p.back,
-					SetBackgroundColor(p.back);
+					nowBack=p.back,SetBackgroundColor(p.back);
 				p.putchar(false);
 				n=p.width();
 				while(n--)

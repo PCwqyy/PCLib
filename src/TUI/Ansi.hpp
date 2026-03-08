@@ -60,13 +60,13 @@ inline void SetConsoleTitle(std::string title)
 #include"Color.hpp"
 inline void SetForegroundColor(Color col)
 {
-	if(col.DontModify())	return;
+	if(col.Transparent())	return;
 	std::print("\e[38;2;{};{};{}m",col.R,col.G,col.B);
 }
 /// @brief Set the background color.
 inline void SetBackgroundColor(Color col)
 {
-	if(col.DontModify())	return;
+	if(col.Transparent())	return;
 	std::print("\e[48;2;{};{};{}m",col.R,col.G,col.B);
 }
 #endif
@@ -173,7 +173,7 @@ namespace pcpri
 			for(;i<len&&input[i]!=']';i++)
 				text+=input[i];
 			col=Color(text);
-			if(col.DontModify())
+			if(col.Transparent())
 				break;
 			res+=std::format("\e[{};2;{};{};{}{}",
 				temp1,col.R,col.G,col.B,close?"m\a":"m");

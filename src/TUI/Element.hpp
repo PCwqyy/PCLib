@@ -29,7 +29,7 @@ protected:
 		return std::find_if(Children.begin(),Children.end(),
 			[&](const std::unique_ptr<Element>& p){return p&&p->UUID==uuid;});
 	}
-	Buffer canvas;
+	Buffer view;
 	StyleSheet style,inlineStyle;
 	/**
 	 * @brief Check ifthe element match the single element selector 
@@ -85,7 +85,7 @@ public:
 		Children.push_back(std::move(child));
 		return true;
 	}
-	bool AppendChild(Element& child)
+	bool AppendChild(const Element& child)
 		{return AppendChild(std::make_unique<Element>(child));}
 	/**
 	 * @brief Remove a ChildNode by element or UUID
@@ -111,7 +111,7 @@ public:
 		return true;
 	}
 	string GetTag(){return Tag; }
-	string ToString(int tab=0)
+	string OuterPCML(int tab=0)
 	{
 		string ans=std::string(tab*4,' ');
 		string attrStr=Attribute.ToString();
@@ -124,9 +124,18 @@ public:
 		{
 			ans+=">\n";
 			for(auto& i:Children)
-				ans+=i->ToString(tab+1);
+				ans+=i->OuterPCML(tab+1);
 			ans+=std::format("{}</{}>\n",std::string(tab*4,' '),Tag);
 		}
+		return ans;
+	}
+	string ToString()
+	{
+		string ans=std::format("<{}",Tag);
+		string attrStr=Attribute.ToString();
+		if(!attrStr.empty())
+			ans+=' '+attrStr;
+		ans+='>';
 		return ans;
 	}
 	/// @brief Work like what you think.
@@ -168,12 +177,27 @@ public:
 		else return res[0];
 	}
 	/// @brief Render to buffer at (x,y)
-	virtual void Print()
+	virtual Coord Render()
 	{
 		/* just print element name for debug use */
+		Color bkg=RandomColor(50,30);
+		view.SetBkgColor(bkg);
 		string text=std::format("{}",ToString());
-		canvas.Print({0,0},inlineStyle["color"],
-			inlineStyle["background-color"],text);
+		Coord cur={0,0};
+		cur=view.Render(cur,-1,bkg,text);
+		cur.Set(1,cur.y+1);
+		short lineHeight=0;
+		for(auto& childPtr:Children)
+		{
+			Coord childSize=childPtr->Render();
+			lineHeight=std::max(lineHeight,childSize.y);
+			if(cur.x+childSize.x>60)// line break for debug
+				cur.Set(1,cur.y+lineHeight),lineHeight=0;
+			childPtr->view.RenderTo(view,cur);
+			cur.Offset(childSize.x,0);
+		}
+		view.ShinkToFit();
+		return view.Size();
 	}
 	string GetStyle(string attr){return inlineStyle[attr];}
 	void SetStyle(string attr,string val)
@@ -215,5 +239,10 @@ public:
 	}
 	/// @brief disabled copy-assignment to avoid accidental shallow copies
 	Element& operator=(const Element&)=delete;
-	virtual ~Element(){}
+	virtual ~Element()
+	{
+		for(auto& childPtr:Children)
+			childPtr->Parent=nullptr,
+			childPtr.reset();
+	}
 };

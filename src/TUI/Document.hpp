@@ -1,3 +1,6 @@
+#pragma once
+#define PCL_TUI_DOCUMENT
+
 #include<string>
 #include<cctype>
 #include<vector>
@@ -15,13 +18,11 @@ class Document:public Element
 	short x=0,y=0,width=GetTerminalWidth();
 	map<string,StyleSheet> styles;
 public:
-	Document():Element()
-		{}
-	Document(Element a):Element(a)
-		{canvas=screen.ViewAt({0,0},width);}
-	void Render()
+	Document():Element(){}
+	Document(Element a):Element(a){}
+	void Print()
 	{
-		Print();
-		screen.Render({x,y});
+		Render();
+		view.Print({x,y});
 	}
 };

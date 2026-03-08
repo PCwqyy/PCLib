@@ -44,10 +44,10 @@ int sscanner(const char* Src,basicRational<Tp>& Th)
 void SetColorIOEx(Color fore,Color back)
 {
 	lkOutputOpt.lock();
-	if(!back.DontModify())
+	if(!back.Transparent())
 		printf("\033[48;2;%d;%d;%dm",
 			back.R,back.G,back.B);
-	if(!fore.DontModify())
+	if(!fore.Transparent())
 		printf("\033[38;2;%d;%d;%dm",
 			fore.R,fore.G,fore.B);
 	lkOutputOpt.unlock();

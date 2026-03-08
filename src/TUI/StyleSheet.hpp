@@ -117,7 +117,7 @@ bool ValidStyle(string att,string val)
 		return true;
 	if(it->second.has("<COLOR>"))
 #ifdef PCL_COLOR
-		return !Color(val).DontModify();
+		return !Color(val).Transparent();
 #else
 		return ValidNamedColor(val);
 #endif

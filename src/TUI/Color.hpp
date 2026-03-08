@@ -335,7 +335,7 @@ public:
 		G+=g;G%=256;
 		B+=b;B%=256;
 	}
-	bool DontModify(){return R==-1;}
+	bool Transparent(){return R==-1;}
 	int operator<=>(const Color& other)const
 	{
 		int val1=toHex();
@@ -348,6 +348,16 @@ public:
 		{return operator<=>(other)==0;}
 	bool operator!=(const Color& other)const
 		{return operator<=>(other)!=0;}
+	/// @brief if a is transparent, return b
+	friend Color operator|(Color a,Color b)
+	{
+		if(a.Transparent())	return b;
+		return a;
+	}
+	static Color RGB(int r,int g,int b)
+		{return Color(r,g,b);}
+	static Color HSL(int h,int s,int l)
+		{Color a;a.makeWithHSL(h,s,l);return a;}
 };
 
 /**
@@ -373,5 +383,7 @@ Color HighLightColor(Color col,double index=0.5)
 /// @brief Invert the color.
 Color InvertColor(Color col)
 	{return Color(255-col.R,255-col.G,255-col.B);}
+Color RandomColor(int s,int l)
+	{return Color::HSL(rand()%360,s,l);}
 
 #include"../Multinclude.hpp"

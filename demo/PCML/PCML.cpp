@@ -44,7 +44,7 @@ Commands<> com=
 			if(ans==nullptr)
 				AnsiPrintB("%Cf[red]No such element:%/ {}\n",msg);
 			else
-				AnsiPrintB("%Cf[lemonchiffon]{}%/\n",ans->ToString());
+				AnsiPrintB("%Cf[lemonchiffon]{}%/\n",ans->OuterPCML());
 		}},
 		{"version",0,[](const char* msg){
 			AnsiPrintB("PCL version: %Cf[skyblue]25v20c%/\n");

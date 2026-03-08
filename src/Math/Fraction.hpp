@@ -129,6 +129,7 @@ public:
 		pcpri::swap(m.a,m.b);
 		return m*n;
 	}
+	opeartor bool(){return a!=0;}
 	/// @brief Make from number 
 	template<typename Tpm>
 	Rational(Tpm m){make(m);}
