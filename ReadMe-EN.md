@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-25v22b-blueviolet)
+![version](https://img.shields.io/badge/Version-26v1a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -131,5 +131,8 @@ Presenting how to use [`Ansi.hpp`](../../src/TUI/Ansi.hpp)
 ## 25v22b
 ### New Demo： [Large](./demo/PCML/readme.md)
 Demonstrating how to use `Large` class
+## 26v1a
+- Significantly revised [`Exception.hpp`](./src/Exception.hpp)  
+Now supports streaming, mandatory handling, type inheritance, and more.
 
 <!--记得改徽章的版本！-->

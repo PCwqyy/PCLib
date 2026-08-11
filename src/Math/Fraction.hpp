@@ -81,7 +81,7 @@ private:
 				break;
 			b*=10,b+=m[now++]-'0';
 		}
-		if(b==0)	throw pc::Exception(pcERR_DIV0);
+		if(b==0)	throw pc::Exception(pcXPT_DIVIDE_BY_ZERO,pcERR_DIV0);
 		return;
 	}
 public:
@@ -92,7 +92,7 @@ public:
 	template<typename Tpm>
 	Tpm To(int acc=6)const
 	{
-		if(b==0)	throw pc::Exception(pcERR_DIV0);
+		if(b==0)	throw pc::Exception(pcXPT_DIVIDE_BY_ZERO,pcERR_DIV0);
 		if(std::is_integral<Tpm>::value)
 			return a/b;
 		else

@@ -2,10 +2,12 @@
 #define PCL_TUI_STYLESHEET
 
 #include<string>
+#include<vector>
 #include<regex>
 #include<map>
 #include<set>
 using std::string;
+using std::vector;
 using std::map;
 using std::regex;
 using std::set;
@@ -13,129 +15,57 @@ using std::set;
 #include"Ansi.hpp"
 #include"Util.hpp"
 
-#ifndef PCL_COLOR
-bool ValidNamedColor(string a)
-{
-	int col;
-	sscanf(a.c_str(),"%d",&col);
-	return col>=0&&col<=255;
-}
-#define COLOR_MODE pcANSI_COLOR_256
-#else
-#define COLOR_MODE pcANSI_COLOR_TRUE
-#endif
+namespace PCSS{
 
-namespace stylepri{
+enum class LengthUnit{px,ch,vw,vh};
+const vector<string> LengthUnitName={"px","ch","vw","vh"};
+enum class AngleUnit{deg,rad};
+const vector<string> AngleUnitName={"deg","rad"};
+
+namespace Value{
+
+	struct Length{
+		short number;
+		LengthUnit unit;
+		bool parse(string a)
+		{
+			if(!sscanf(util::BreakNumber(a).c_str(),"%d",&number))
+				return false;
+			std::optional res=util::StringToEnum<LengthUnit>(util::ToLowercase(a),LengthUnitName);
+			unit=res.value_or(LengthUnit::px);
+			return res.has_value();
+		}
+	};
+}
+
+// const map<string,> PCSSValue={
+// 	{"<number>",}}
+// };
 
 const regex MatchAttr(R"(([^:\s]+?):\s*([^;]+?);)");
-struct Border
+
+struct AttrInfo
 {
-	char16_t c[6];
-	Border(char16_t lefttop,char16_t righttop,char16_t leftbottom,
-		char16_t rightbottom,char16_t vertical,char16_t horizontal)
+	std::set<string> Valids;
+	string Default;
+	bool has(string q)const{return Valids.find(q)!=Valids.end();}
+	bool match(string q)const
 	{
-		c[0]=lefttop,c[1]=righttop,c[2]=leftbottom,c[3]=rightbottom;
-		c[4]=vertical,c[5]=horizontal;
-	}
-};
-map<string,Border> NamedBorders=
-{
-	{"ascii",Border(u'+',u'+',u'+',u'+',u'-',u'|')},
-	{"solid",Border(u'┌',u'┐',u'└',u'┘',u'─',u'│')},
-	{"round",Border(u'╭',u'╮',u'╰',u'╯',u'─',u'│')},
-	{"double",Border(u'╔',u'╗',u'╚',u'╝',u'═',u'║')},
-	{"thick",Border(u'┏',u'┓',u'┗',u'┛',u'━',u'┃')},
-	{"dotdot",Border(u'·',u'·',u'·',u'·',u'·',u':')},
-	{"block",Border(u' ',u' ',u' ',u' ',u' ',u' ')},
-	{"cube",Border(u'■',u'■',u'■',u'■',u'■',u'■')},
-	{"none",Border(u'\0',u'\0',u'\0',u'\0',u'\0',u'\0')}
-};
-struct Bar
-{
-	char16_t t,f,l,r;
-	Bar(char16_t finished,char16_t unfinished,
-		char16_t leftbracket,char16_t rightbracket):
-		t(finished),f(unfinished),l(leftbracket),r(rightbracket){}
-};
-map<string,Bar> NamedBars=
-{
-	{"arrow",Bar(u'>',u'-',u'>',u'<')},
-	{"block",Bar(u' ',u' ',u'|',u'|')},
-	{"dotdot",Bar(u'*',u'·',u'[',u']')},
-	{"cube",Bar(u'■',u'□',u'[',u']')},
-	{"dashed",Bar(u'━',u'┈',u'>',u'<')},
-	{"double",Bar(u'═',u'─',u'>',u'<')},
-	{"hash",Bar(u'#',u'.',u'[',u']')},
-	{"line",Bar(u'━',u'─',u'>',u'<')},
-	{"o",Bar(u'O',u'o',u'[',u']')},
-	{"vertical",Bar(u'|',u'|',u'[',u']')},
-	{"wave",Bar(u'~',u'-',u'+',u'+')}
-};
-
-
-struct StyleVals
-{
-	std::set<string> vals;string def;
-	bool has(string q)const{return vals.find(q)!=vals.end();}
-};
-// attribute, string value
-const map<string,StyleVals> NamedStyle=
-{
-	{"width",{{"<LENGTH>"},"max"}},
-	{"height",{{"<LENGTH>"},"fit"}},
-#ifdef PCL_COLOR
-	{"color",{{"<COLOR>"},"lightgray"}},
-	{"title-color",{{"<COLOR>"},"lightgray"}},
-	{"background-color",{{"<COLOR>"},"black"}},
-	{"border-color",{{"<COLOR>"},"lightgray"}},
-#else
-	{"color",{{"<COLOR>"},"7"}},
-	{"title-color",{{"<COLOR>"},"7"}},
-	{"background-color",{{"<COLOR>"},"0"}},
-	{"border-color",{{"<COLOR>"},"7"}},
-#endif
-	{"text-align",{{"left","right","center"},"left"}},
-	{"title-align",{{"left","right","center"},"left"}},
-	{"overflow",{{"cut","ellipsis"},"ellipsis"}},
-	{"title",{{"hidden","visible"},"visible"}},
-	{"title-space",{{"true","false"},"true"}},
-	{"border",{{"<BORDER>"},"solid"}},
-	{"bar",{{"<BAR>"},"line"}},
-	{"bar-bracket",{{"true","false"},"false"}},
-	// 0:advance, 1:tot, 2:percent, 3:speed, 4:estimate, 5:title
-	{"bar-format",{{"<STRING>"}," {0:.1f}/{1:.1f}"}},
-	{"bar-lazy",{{"<NUMBER>"},"200"}},
-};
-bool ValidStyle(string att,string val)
-{
-	auto it=NamedStyle.find(att);
-	if(it==NamedStyle.end())
+		//TODO
 		return false;
-	if(val=="unset")
-		return true;
-	if(it->second.has("<STRING>"))
-		return true;
-	if(it->second.has("<COLOR>"))
-#ifdef PCL_COLOR
-		return !Color(val).Transparent();
-#else
-		return ValidNamedColor(val);
-#endif
-	if(it->second.has("<BORDER>"))
-		return NamedBorders.find(val)!=NamedBorders.end();
-	if(it->second.has("<BAR>"))
-		return NamedBars.find(val)!=NamedBars.end();
-	if(it->second.has("<LENGTH>")||it->second.has("<NUMBER>"))
-	{
-		if(val=="fit"&&val=="max")
-			return true;
-		int a;
-		return sscanf(val.c_str(),"%d",&a)==1;
 	}
-	return it->second.has(val);
-}
+};
 
-}// namespace stylepri
+const map<string,AttrInfo> Attributes=
+{\
+	{"width",{{"<length>"},"max"}},
+	{"height",{{"<length>"},"fit"}},
+	{"color",{{"<color>"},"lightgray"}},
+	{"background-color",{{"<color>"},"black"}},
+	{"border-color",{{"<color>"},"lightgray"}},
+};
+
+}// namespace PCSS
 
 class StyleSheet
 {
@@ -144,7 +74,7 @@ private:
 	void parse(string t)
 	{
 		std::smatch res;
-		auto begin=std::sregex_iterator(t.begin(),t.end(),stylepri::MatchAttr);
+		auto begin=std::sregex_iterator(t.begin(),t.end(),PCSS::MatchAttr);
 		auto end=std::sregex_iterator();
 		string k,v;
 		for(auto it=begin;it!=end;it++)
@@ -158,8 +88,8 @@ public:
 	StyleSheet(const char* s){parse(string(s));}
 	bool SetAttribute(string attr,string val)
 	{
-		if(!stylepri::ValidStyle(attr,val))
-			return false;
+		// if(!PCSS::ValidStyle(attr,val))
+		// 	return false;
 		s[attr]=val;
 		return true;
 	}
@@ -168,10 +98,10 @@ public:
 		auto res=s.find(attr);
 		if(res==s.end()||res->second=="unset")
 		{
-			auto res2=stylepri::NamedStyle.find(attr);
-			if(res2==stylepri::NamedStyle.end())
+			auto res2=PCSS::Attributes.find(attr);
+			if(res2==PCSS::Attributes.end())
 				throw "Invalid attribute!";
-			return res2->second.def;
+			return res2->second.Default;
 		}
 		else return res->second;
 	}
@@ -183,58 +113,5 @@ public:
 		return *this;
 	}
 
-	string GetTextAnsi()
-	{
-		ResetAnsiStyle();
-		string res;
-		res+=std::format("{}{}f[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,GetAttribute("color"));
-		res+=std::format("{}{}b[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,GetAttribute("background-color"));
-		return res;
-	}
-	string GetBarStyle(bool fini)
-	{
-		ResetAnsiStyle();
-		string v=GetAttribute(fini?"color":"background-color");
-		char fb=(GetAttribute("bar")=="block")?pcANSI_COLOR_BACK:pcANSI_COLOR_FORE;
-		return AnsiParse(std::format("{}{}{}[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,fb,v));
-	}
-	string GetBorderStyle()
-	{
-		ResetAnsiStyle();
-		string v=GetAttribute("border-color");
-		return AnsiParse(std::format("{}{}{}[{}]",
-			pcANSI_MARKER_CHAR,COLOR_MODE,
-			(GetAttribute("border")=="block")
-				?pcANSI_COLOR_BACK
-				:pcANSI_COLOR_FORE
-			,v));
-	}
-	string GetTitleStyle()
-	{
-		ResetAnsiStyle();
-		string v=GetAttribute("title-color");
-		return AnsiParse(std::format("{}{}f[{}]",pcANSI_MARKER_CHAR,COLOR_MODE,v));
-	}
-	void GetSize(short& width,short& height)
-	{
-		string att=GetAttribute("width");
-		int a=-1,b=-1;
-		if(att=="max")	a=-1;
-		else if(sscanf(att.c_str(),"%d",&a)!=1)	a=-1;
-		att=GetAttribute("height");
-		if(att=="fit")	b=-1;
-		else if(sscanf(att.c_str(),"%d",&b)!=1)	b=-1;
-		width=a,height=b;
-	}
-	int GetLazy()
-	{
-		int a=25;
-		sscanf(GetAttribute("bar-lazy").c_str(),"%d",&a);
-		return a;
-	}
-	stylepri::Border GetBorder()
-		{return stylepri::NamedBorders.find(GetAttribute("border"))->second;}
-	stylepri::Bar GetBar()
-		{return stylepri::NamedBars.find(GetAttribute("bar"))->second;}
 };
 

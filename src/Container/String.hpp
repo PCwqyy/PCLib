@@ -170,7 +170,7 @@ public:
 		else if constexpr(std::is_same_v<Tp,float>)
 			return std::stof(std::format("{}",*this));
 		else
-			throw pc::Exception("Unsupported String::To<Tp>()");
+			throw pc::Exception(pcXPT_INVALID_ARGUMENT,"Unsupported String::To<Tp>()");
 	}
 	String(){applyCap();}
 	String(const String& a)

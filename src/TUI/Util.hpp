@@ -92,7 +92,7 @@ void ShrinkStringHead(string &a)
 }
 /**
  * @brief Get a word breaking with `breaker()` from string
- * @param breaker Determine whether the char is a breaker
+ * @param breaker Decide whether the char is a breaker
  * @param modify Whether delete the word form origin string, default `true`
  * @return The gotten word
  */
@@ -108,19 +108,25 @@ string BreakString(string& a,bool (*breaker)(char a),bool modify=true)
 	a=a.substr(i);
 	return ans;
 }
-string BreakWord(string& a,bool modify=true)
+inline string BreakWord(string& a,bool modify=true)
 {
 	return BreakString(a,
 		[](char a){return bool(isspace(a));},
 		modify);
 }
-string BreakName(string& a,bool modify=true)
+inline string BreakName(string& a,bool modify=true)
 {
 	return BreakString(a,
 		[](char a){return !isalnum(a)&&a!='_';},
 		modify);
 }
-string BreakSelector(string& a,bool modify=true)
+inline string BreakNumber(string& a,bool modify=true)
+{
+	return BreakString(a,
+		[](char a){return !isdigit(a);},
+		modify);
+}
+inline string BreakSelector(string& a,bool modify=true)
 {
 	return BreakString(a,
 		[](char a){return !isalnum(a)&&a!='_'&&
@@ -128,16 +134,34 @@ string BreakSelector(string& a,bool modify=true)
 		modify);
 }
 /// @brief Check if a string is empty (contains only whitespace)
-bool EmptyString(string a)
+inline bool EmptyString(string a)
 {
 	for(char i:a)
 		if(!isspace(i))
 			return false;
 	return true;
 }
+string ToLowercase(string a)
+{
+	for(char &i:a)
+		i=tolower(i);
+	return a;
+}
+string ToUppercase(string a)
+{
+	for(char &i:a)
+		i=toupper(i);
+	return a;
+}
+string Capitalize(string a)
+{
+	if(a.length()>0)
+		a[0]=toupper(a[0]);
+	return a;
+}
 
 /// @brief If is a valid var name 
-bool CheckNameValid(string name)
+inline bool CheckNameValid(string name)
 {
 	bool hasAlp=false;
 	for(char i:name)
@@ -148,12 +172,39 @@ bool CheckNameValid(string name)
 	return hasAlp;
 }
 /// @brief If is a valid tag name 
-bool CheckTagValid(string name)
+inline bool CheckTagValid(string name)
 {
 	for(char i:name)
 		if(!isalpha(i))
 			return false;
 	return true;
+}
+
+/**
+ * @brief Map a string to an enum value
+ * @tparam Tp int or enum
+ * @param str string to match
+ * @param size size of map
+ * @param map map should be same order as enum declaration
+ * @return corresponding enum value
+ */
+template<typename Tp=int>
+std::optional<Tp> StringToEnum(string str,int size,const string* map)
+{
+	for(int i=0;i<size;i++)
+		if(str==map[i])
+			return std::optional<Tp>(static_cast<Tp>(i));
+	return std::nullopt;
+}
+template<typename Tp=int>
+std::optional<Tp> StringToEnum(string str,const vector<string>& map)
+{
+	int i=0;
+	for(string s:map)
+		if(str==s)
+			return std::optional<Tp>(static_cast<Tp>(i));
+		else	i++;
+	return std::nullopt;
 }
 
 /// @brief Container of `Attribute`
@@ -217,7 +268,7 @@ public:
 	string Val()
 	{
 		if(tar==nullptr)
-			throw pc::Exception("AttributeTracer not bound!");
+			throw pc::Exception(pcXPT_INIT,"AttributeTracer not bound!");
 		pull();
 		return val;
 	}

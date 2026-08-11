@@ -317,7 +317,7 @@ std::optional<Element> Make(string &pcml)
 Document Parse(const string &path)
 {
 	FILE *flPCML=fopen(path.c_str(),"r");
-	if(!flPCML) throw pc::Exception("Failed to open PCML file: %s",path);
+	if(!flPCML) throw pc::Exception(pcXPT_FILE,"Failed to open PCML file: %s",path);
 	string pcml;
 	int ch;
 	while((ch=fgetc(flPCML))!=EOF) pcml.push_back((char)ch);
@@ -327,9 +327,9 @@ Document Parse(const string &path)
 	int pos=0;
 	skipWhitespace(pcml,pos);
 	int declStart=pcml.find("<?xml",pos);
-	if(declStart==string::npos) throw pc::Exception(pcML_ERR_XML);
+	if(declStart==string::npos) throw pc::Exception(pcXPT_PARSING,pcML_ERR_XML);
 	int declEnd=pcml.find("?>",declStart + 5);
-	if(declEnd==string::npos) throw pc::Exception(pcML_ERR_XML);
+	if(declEnd==string::npos) throw pc::Exception(pcXPT_PARSING,pcML_ERR_XML);
 
 	// extract declaration inner content (between '<?xml' and '?>')
 	string declInner=pcml.substr(declStart + 5,declEnd-(declStart + 5));

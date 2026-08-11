@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-25v22b-blueviolet)
+![version](https://img.shields.io/badge/版本-26v1a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -130,5 +130,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 ## 25v22b
 ### 新 Demo： [Large](./demo/Large/readme.md)
 演示如何使用 `Large` 类
+## 26v1a
+- 大幅修改了 [`Exception.hpp`](./src/Exception.hpp)  
+现支持流式处理、强制处理、类型继承等功能
 
 <!--记得改徽章的版本！-->

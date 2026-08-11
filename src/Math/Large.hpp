@@ -143,7 +143,7 @@ public:
 		for(;a[i];i++)
 		{
 			if(a[i]!=' '&&pcpri::ctoi(a[i])>=radix)
-				throw pc::Exception(pcLG_ERR_SYNTAX,a);
+				throw pc::Exception(pcXPT_INVALID_ARGUMENT,pcLG_ERR_SYNTAX,a);
 			*this=*this*radix+pcpri::ctoi(a[i]);
 		}
 		if(a[0]=='-')	sign=true;
@@ -177,7 +177,7 @@ public:
 	auto operator[](size_t a)
 	{
 		if(a>=Length||a<0)
-			throw pc::Exception(pcLG_ERR_OF,Length,a);
+			throw pc::Exception(pcXPT_OUT_OF_RANGE,pcLG_ERR_OF,Length,a);
 		return bin[a];
 	}
 	//Operator!
@@ -393,7 +393,7 @@ protected:
 		bool neg=dividend.sign!=divisor.sign;
 		dividend.sign=false,divisor.sign=false;
 		if(divisor==0)
-			throw pc::Exception(pcLG_ERR_DIV0);
+			throw pc::Exception(pcXPT_DIVIDE_BY_ZERO,pcLG_ERR_DIV0);
 		if(dividend==0)
 			return std::make_tuple(0,0);
 		Large result=0;

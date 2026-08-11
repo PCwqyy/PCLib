@@ -73,7 +73,7 @@ private:
 	Pixel& get(Coord pos)
 	{
 		if(pos.x<0||pos.y<0)
-			throw pc::Exception("Invalid buffer position access");
+			throw pc::Exception(pcXPT_OUT_OF_RANGE,"Invalid buffer position access");
 		if(pos.y>=size.y||pos.x>=size.x)
 			resize(std::max(pos.x,size.x)*pcTUI_BUF_EXTEND_MULTIPLE,
 				std::max(pos.y,size.y)*pcTUI_BUF_EXTEND_MULTIPLE);

@@ -199,17 +199,16 @@ public:
 		view.ShinkToFit();
 		return view.Size();
 	}
-	string GetStyle(string attr){return inlineStyle[attr];}
-	void SetStyle(string attr,string val)
-	{
-		inlineStyle.SetAttribute(attr,val);
-	}
-	void SetStyle(StyleSheet a){inlineStyle=a;}
+	// string GetStyle(string attr){return inlineStyle[attr];}
+	// void SetStyle(string attr,string val)
+	// {
+	// 	inlineStyle.SetAttribute(attr,val);
+	// }
+	// void SetStyle(StyleSheet a){inlineStyle=a;}
 	Element(string tag="",string id="",string classes="")
 	{
 		UUID=util::GenUUID();
 		Parent=nullptr;
-		style=inlineStyle;//debug
 		Tag=tag;
 		ID.Bind("id",&Attribute);
 		ClassList.Bind("class",&Attribute);
@@ -222,7 +221,6 @@ public:
 		UUID=a.UUID;
 		Parent=nullptr; // copy should not keep same parent pointer
 		Tag=a.Tag;
-		style=a.style;
 		inlineStyle=a.inlineStyle;
 		Attribute=a.Attribute;
 		ID.Bind("id",&Attribute);
