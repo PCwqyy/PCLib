@@ -4,7 +4,7 @@
 
 Sorted in time order
 
-- [CmdFight](CmdFight/readme.md)
-- [PCML](PCML/readme.md)
-- [Clock](Clock/readme.md)
-- [Large](Large/readme.md)
+- [CmdFight](CmdFight/)
+- [PCML](PCML/)
+- [Clock](Clock/)
+- [Large](Large/)
