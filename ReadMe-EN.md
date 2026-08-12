@@ -60,6 +60,24 @@ Any contribution is welcome! You can take part through the methods below:
 2. Submit pull requests to fix issues
 3. Improve documents
 
+## Version Numbering
+So, how the hell did version numbering work?
+
+- For **release versions**:
+  - Use the format `1.X.Y`
+  - `X` = major version number
+  - `Y` = minor version number; if `Y` is 0, it is omitted
+  - Example: `1.2` `1.1.7`
+
+- For **snapshot versions**:
+  - Use the format `YYvZZX` ~~inspired by Mojang's scheme~~
+  - `YY` = year (two digits)
+  - `ZZ` = major snapshot number within the year
+  - `X` = minor snapshot number within the major snapshot
+    - Assigned alphabetically (a, b, c, ...)
+    - If the snapshot is broken or non‑runnable, mark it with `q`, `qq`, `q3`, `q4`, ... (such snapshots usually do not include a README)
+  - Examples: `24v3a`, `25v15e`, `26v1q`, `24v5qq`, `24v5q5`
+
 # PClib 1.2.1 (Not released)
 - DOM structure for TUI lib. (This is not a small change)
 - Auto syncing data container `SyncedData`
