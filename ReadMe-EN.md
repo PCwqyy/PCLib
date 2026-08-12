@@ -41,7 +41,7 @@ Example:
 ```
 
 ## Demonstrantions
-See [here](./demo/readme.md).
+See [here](./demo/).
 
 ## Contact
 The author is a Chinese high school student who is not so good at English, so please forgive him when you find that he made some stupid mistakes (commonly misspellings).
@@ -60,10 +60,6 @@ Any contribution is welcome! You can take part through the methods below:
 2. Submit pull requests to fix issues
 3. Improve documents
 
-## Demonstrations
-
-- [Cmd Fight](./demo/CmdFight/readme.md)
-
 # PClib 1.2.1 (Not released)
 - DOM structure for TUI lib. (This is not a small change)
 - Auto syncing data container `SyncedData`
@@ -71,66 +67,6 @@ Any contribution is welcome! You can take part through the methods below:
 # Change Log
 [History](ChangeLogHistory-EN.md)
 
-## 25v15a
-- Added some comment (Doc actually)
-- Optimized `Large`, and it temporarily becomes unsigned...
-## 25v15b
-- Make `Large` sign again ~~(MLSA)~~
-## 25v15c
-- Added class `pc::Exception`, which will be used in exception management.
-- Refined throws in `Large`
-## 25v15d
-- Comments and spellings.
-## 25v16a
-- Began to write DOM tree
-## 25v16b
-- Began to write PCML parser
-- Considering rename the TUI part to *钼 Molybdenum*?
-## 25v16c
-- PCML element parser finished, but haven't debugged yet.
-## 25v16d
-- Finished tag, class and id selector, offspring selector of `Element::QuerySelectorAll()`, and here is still child selector left to do.
-- Fixed the issue that `pc::File::String()` will always return a additional `\377` wrongly.
-## 25v16e
-- Fixed lethal logical mistake in `PCML::Make`
-- Finished `Element::QuerySelectorAll()`
-## 25v17a
-- Add a new container `SyncedData`, which is used to create a data group that will automatically synchronize the data to each other. That means if you modified a variable in group, the other variables will also changed.
-## 25v17b
-- Change `SyncedData` into double-ended-tree. Now it can be destructed safely.
-## 25v18a
-- Added a copy function for `SyncedData`, which is now safe to copy
-- Change `Element::ID`, `Element::ClassList` to mappings of `Element::Attribute` instead of isolated variables to match the behavior of the Web DOM
-- Changed the return type of `Element::QuerySelectorAll` to pointer to the original element to mimic the behavior of the Web DOM
-## 25v19a
-- Scrolled back `Command.hpp` to 25v4a
-- Modified [Cmd Fight](./demo/CmdFight/readme.md) to make it be able to compiled again.
-## 25v20a
-- ~~Optimized~~ Rewrote `PCML.hpp`
-- Fixed memo leaking issue in `Element.hpp`
-## 25v20b
-- Added some comment
-- Optimized `Element.hpp`
-- Added some new functions
-## 25v20c
-- Added some comment
-- Added some new functions
-### New Demo: [PCML](./demo/PCML/readme.md)
-Presenting how to use `PCML` and relative DOM-like operation
-## 25v20d
-- Added some new functions
-### New Demo: [Clock](./demo/Clock/readme.md)
-Presenting how to use [`Ansi.hpp`](../../src/TUI/Ansi.hpp)
-## 25v21a
-- Wrote [`Buffer.hpp`](./src/TUI/Buffer.hpp)
-## 25v21b
-- Seperated [`Unicode.hpp`](./src/Utility/Unicode.hpp)
-- Optimized `Buffer.hpp`
-## 25v22a
-- Minor fixes
-## 25v22b
-### New Demo： [Large](./demo/PCML/readme.md)
-Demonstrating how to use `Large` class
 ## 26v1a
 - Significantly revised [`Exception.hpp`](./src/Exception.hpp)  
 Now supports streaming, mandatory handling, type inheritance, and more.

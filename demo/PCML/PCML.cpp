@@ -1,5 +1,5 @@
 #include<iostream>
-#include"../../src/TUI/Color.hpp"
+#include"../../src/Container/Color.hpp"
 #include"../../src/TUI/Element.hpp"
 #include"../../src/TUI/PCML.hpp"
 #include"../../src/Utility/File.hpp"
@@ -25,8 +25,8 @@ Commands<> com=
 		}},
 		{"attr",0,[](const char* msg){// attr <key> [value] <selector>
 			string m=msg;
-			string key=util::BreakWord(m);
-			string val=util::BreakWord(m);
+			string key=su::ExtractWord(m);
+			string val=su::ExtractWord(m);
 			if(val=="[empty]") val="";
 			auto ans=doc->QuerySelectorAll(m);
 			for(auto it:ans)
@@ -34,7 +34,7 @@ Commands<> com=
 		}},
 		{"add",0,[](const char* msg){// add <tag> <selector>
 			string m=msg;
-			string tag=util::BreakWord(m);
+			string tag=su::ExtractWord(m);
 			auto ans=doc->QuerySelector(m);
 			Element e(tag);
 			if(ans)	ans->AppendChild(e);

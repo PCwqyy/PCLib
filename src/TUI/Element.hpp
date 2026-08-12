@@ -10,9 +10,22 @@
 using std::vector;
 using std::set;
 
+#include"../Utility/StrUtils.hpp"
 #include"Buffer.hpp"
 #include"Util.hpp"
 #include"StyleSheet.hpp"
+#include"Attribute.hpp"
+
+namespace su{
+	/// @brief Selector contains alphabets, numbers, and symbols(`_-=`).
+	inline string ExtractSelector(string& a,bool modify=true)
+	{
+		return ExtractToken(a,
+			[](char a){return !isalnum(a)&&a!='_'&&
+				a!='-'&&a!='=';},
+			modify);
+	}
+}
 
 /// @brief Element node
 class Element
@@ -37,15 +50,15 @@ protected:
 	 */
 	bool matchSingleSelector(string s)
 	{
-		util::ShrinkStringHead(s);
-		if(util::EmptyString(s)) return false;
+		su::TrimHead(s);
+		if(su::isEmpty(s)) return false;
 		if(s[0]=='*') return true;
 		// parse tokens: `#id`, `.class`, `tag`, `[attr=value]`
-		while(!util::EmptyString(s))
+		while(!su::isEmpty(s))
 		{
-			util::ShrinkStringHead(s);
+			su::TrimHead(s);
 			char ch=s[0];
-			string now=util::BreakSelector(s);
+			string now=su::ExtractSelector(s);
 			if(ch=='#') // #id
 				if(ID.Val()!=now)	return false;
 				else continue;
@@ -54,7 +67,7 @@ protected:
 				else continue;
 			else if(ch=='[') // [attr=value]
 			{
-				string attr=util::BreakName(now);
+				string attr=su::ExtractName(now);
 				string val=now.substr(1);
 				if(Attribute.Get(attr)!=val)	return false;
 				else continue;
@@ -66,9 +79,9 @@ protected:
 		return true;
 	}
 public:
-	util::AttributeTracer ID;
-	util::ClassSet ClassList;
-	util::AttributeMap Attribute;
+	AttributeTracer ID;
+	ClassListTp ClassList;
+	AttributeMap Attribute;
 	/**
 	 * @brief Append a node as a child
 	 * @return `true` if succeed
@@ -141,27 +154,27 @@ public:
 	/// @brief Work like what you think.
 	vector<Element*> QuerySelectorAll(string s)
 	{
-		util::ShrinkStringHead(s);
+		su::TrimHead(s);
 		vector<Element*> ans;
 		bool matched=false;
-		bool childOnly=(!util::EmptyString(s)&&s[0]=='>');
-		string thisSelect=util::BreakString(// 取出第一个选择器
+		bool childOnly=(!su::isEmpty(s)&&s[0]=='>');
+		string thisSelect=su::ExtractToken(// 取出第一个选择器
 			s,[](char a){return a=='>'||isspace(a);});
 		if(matchSingleSelector(thisSelect))
 		{
 			matched=true;
-			if(util::EmptyString(s))
+			if(su::isEmpty(s))
 				ans.push_back(this);
 		}
 		if(!childOnly) // 选择器以`>`开头时，仅匹配子元素
 			for(auto& childPtr:Children)
 			{ // 匹配原选择器
 				string pass=thisSelect;
-				if(!util::EmptyString(s)) pass+=' ',pass+=s;
+				if(!su::isEmpty(s)) pass+=' ',pass+=s;
 				vector<Element*> tmp=childPtr->QuerySelectorAll(pass);
 				ans.insert(ans.end(),tmp.begin(),tmp.end());
 			}
-		if(!matched||util::EmptyString(s)) return ans;
+		if(!matched||su::isEmpty(s)) return ans;
 		for(auto& childPtr:Children)
 		{ // 匹配新选择器
 			vector<Element*> tmp=childPtr->QuerySelectorAll(s);
