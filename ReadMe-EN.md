@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-26v1a-blueviolet)
+![version](https://img.shields.io/badge/Version-26v2a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -37,7 +37,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 Example:
 
 ```cpp
-#include"/path/to/PCLib/TUI/TUI.hpp"
+#include"/path/to/PCLib/Utility/Ansi.hpp"
 ```
 
 ## Demonstrantions
@@ -46,7 +46,7 @@ See [here](./demo/).
 ## Contact
 The author is a Chinese high school student who is not so good at English, so please forgive him when you find that he made some stupid mistakes (commonly misspellings).
 
-~~Maybe native speakers will think my tone is too formal. If so, I feel pretty sorry about this. Our high school in China just teaches English like this.~~
+~~Maybe I sound too formal to native speakers. If so, I apologize - it's just how we were taught English in Chinese high schools.~~
 
 Email: w123567910@outlook.com  
 Blogs: [www.cnblogs.com/PCwqyy](https://www.cnblogs.com/PCwqyy)
@@ -88,5 +88,13 @@ So, how the hell did version numbering work?
 ## 26v1a
 - Significantly revised [`Exception.hpp`](./src/Exception.hpp)  
 Now supports streaming, mandatory handling, type inheritance, and more.
+## 26v2a
+- Split the TUI header files
+- Extracted [`StrUtils.hpp`](./src/Utility/StrUtils.hpp)  
+- Improved error handling in [`Color.hpp`](./src/Container/Color.hpp)  
+- Modified [`Exception.hpp`](./src/Exception.hpp)  
+  Now supports type inheritance, allowing multiple types to be caught simultaneously
+### New Demo: [Color](./demo/Color/)
+- Demonstrates how to use the `Color` class
 
 <!--记得改徽章的版本！-->

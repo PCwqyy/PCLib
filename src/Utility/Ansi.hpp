@@ -57,7 +57,7 @@ inline void SetConsoleTitle(std::string title)
 	{std::print("\e]0;{}\a",title);return;}
 /// @brief Set the foreground color.
 #ifdef PCL_COLOR
-#include"Color.hpp"
+#include"../Container/Color.hpp"
 inline void SetForegroundColor(Color col)
 {
 	if(col.Transparent())	return;
@@ -279,6 +279,8 @@ inline void AnsiPosPrintB(short x,short y,std::string ftm,Tps...Args)
  * 		In this mode, <color> could be:
  * 		- RRGGBB (e.g. #20c0ff)
  * 		- RGB (e.g. #0f6)
+ * 		- rgb(r,g,b)
+ * 		- hsl(h,s,l)
  * 		- Named colors (e.g. red, dodgerblue)
  * <back/foreground>:
  * 	b	background

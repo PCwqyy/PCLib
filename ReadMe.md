@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-26v1a-blueviolet)
+![version](https://img.shields.io/badge/版本-26v2a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -37,7 +37,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 示例:
 
 ```cpp
-#include"/path/to/PCLib/TUI/TUI.hpp"
+#include"/path/to/PCLib/Utility/Ansi.hpp"
 ```
 
 ## 演示
@@ -88,5 +88,10 @@ git clone https://gitee.com/pcwqyy/PClib.git
 ## 26v2a
 - 拆分 TUI 头文件
 - 拆出 [`StrUtils.hpp`](./src/Utility/StrUtils.hpp)  
+- 完善 [`Color.hpp`](./src/Container/Color.hpp) 的错误处理机制
+- 修改了 [`Exception.hpp`](./src/Exception.hpp)  
+现支持类型继承功能支持拥有多个类型同时捕获
+### 新 Demo: [Color](./demo/Color/)
+- 演示如何使用 `Color` 类
 
 <!--记得改徽章的版本！-->

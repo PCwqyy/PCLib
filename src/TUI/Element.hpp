@@ -50,13 +50,13 @@ protected:
 	 */
 	bool matchSingleSelector(string s)
 	{
-		su::TrimHead(s);
+		s=su::Trim(s);
 		if(su::isEmpty(s)) return false;
 		if(s[0]=='*') return true;
 		// parse tokens: `#id`, `.class`, `tag`, `[attr=value]`
 		while(!su::isEmpty(s))
 		{
-			su::TrimHead(s);
+			s=su::Trim(s);
 			char ch=s[0];
 			string now=su::ExtractSelector(s);
 			if(ch=='#') // #id
@@ -154,7 +154,7 @@ public:
 	/// @brief Work like what you think.
 	vector<Element*> QuerySelectorAll(string s)
 	{
-		su::TrimHead(s);
+		s=su::Trim(s);
 		vector<Element*> ans;
 		bool matched=false;
 		bool childOnly=(!su::isEmpty(s)&&s[0]=='>');

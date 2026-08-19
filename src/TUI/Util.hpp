@@ -86,6 +86,7 @@ string GenUUID()
 /// @brief If is a valid var name 
 inline bool CheckNameValid(string name)
 {
+	if(isdigit(name[0]))	return false;
 	bool hasAlp=false;
 	for(char i:name)
 		if(isalpha(i)||i=='_')

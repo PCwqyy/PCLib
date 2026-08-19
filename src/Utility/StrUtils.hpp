@@ -2,6 +2,9 @@
 #define PCL_STRUTILS
 
 #include<string>
+#include<vector>
+#include<set>
+#include<functional>
 using std::string;
 
 /**
@@ -9,15 +12,24 @@ using std::string;
  * @note Added by PClib!
  */
 namespace su{
-	/// @brief Remove leading whitespace from a string
-	void TrimHead(string &a)
+	/// @brief Remove leading and trailing whitespace from a string
+	string Trim(string a)
 	{
-		int len=a.length(),i=0;
-		while(i<len&&isspace(a[i]))	i++;
-		a=a.substr(i);
+		int j=a.length(),i=0;
+		while(i<j&&isspace(a[i]))	i++;
+		while(j>i&&isspace(a[j-1]))	j--;
+		return a.substr(i,j-i);
+	}
+	/// @brief Remove leading and trailing whitespace from a string
+	string Trim(string a,bool (*isSpace)(char a))
+	{
+		int j=a.length(),i=0;
+		while(i<j&&isSpace(a[i]))	i++;
+		while(j>i&&isSpace(a[j-1]))	j--;
+		return a.substr(i,j-i);
 	}
 	/**
-	 * @brief Get a word breaking with `isDelimiter()` from string
+	 * @brief Get a word breaking with delimiter from string
 	 * @param isDelimiter Decide whether the char is a delimiter
 	 * @param modify Whether delete the word form origin string, default `true`
 	 * @return The gotten word
@@ -71,6 +83,37 @@ namespace su{
 				return false;
 		return true;
 	}
+
+	/**
+	 * @brief Split string with delimiters
+	 * @param isDelimiter Decide whether the char is a delimiter
+	 */
+	std::vector<string> Split(std::string_view str,std::function<bool(char)> isDelimiter)
+	{
+		std::vector<string> ans;
+		string one;
+		for(char i:str)
+			if(isDelimiter(i))
+				if(!one.empty())
+					ans.push_back(one),
+					one="";
+				else;
+			else
+				one.push_back(i);
+		if(!one.empty())
+			ans.push_back(one);
+		return ans;
+	}
+	/// @brief Split string with delimiters
+	std::vector<std::string> Split(std::string_view str, std::string_view delimiters)
+	{
+		return Split(str,[delimiters](char a){
+			return delimiters.contains(a);
+		});
+	}
+	/// @brief Split string with space
+	std::vector<std::string> Split(std::string_view str)
+		{return Split(str,[](char a){return bool(isspace(a));});}
 	string ToLowercase(string a)
 	{
 		for(char &i:a)
