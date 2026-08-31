@@ -4,192 +4,227 @@
 #include<cstdio>
 #include<ctime>
 #include<string>
-
-#ifdef __cpp_lib_format
 #include<format>
-#endif
+#include<filesystem>
+#include<fstream>
+#include<functional>
+#include<array>
+#include<cstddef>
+using std::string;
+using std::string_view;
 
-#define pcFL_MAX_PATH_LEN 1024
+#include"../Exception.hpp"
+#include"StrUtils.hpp"
+#include"EnumLookup.hpp"
 
-#define INSERTWRITE "r+"
-#define OVERWRITE "w+"
-#define ADDWRITE "a+"
-#define READONLY "r"
-#define OVERWRITEONLY "w"
-#define ADDWRITEONLY "a"
+namespace fs=std::filesystem;
 
-namespace pcpri
-{
-	char LogStartFormat[1010]=
-		"New log started in %04d/%02d/%02d %02d:%02d:%02d\n";
-	char LogFormat[1010]=
-		"[%04d/%02d/%02d %02d:%02d:%02d][%s]";
-}
+namespace pc{
+namespace File{
 
-namespace pc
-{
+const pc::Exceptioner xptFile("File");
 
-/// @brief File operation class
+enum class Mode{
+	Insert,Overwrite,Attach,Binary,
+	ReadOnly,OverwriteOnly,AttachOnly
+};
+EnumLookup<Mode,std::ios::openmode> ModeLookup{
+	Mode::Insert,		std::ios::in|std::ios::out,
+	Mode::Overwrite,	std::ios::in|std::ios::out|std::ios::trunc,
+	Mode::Attach,		std::ios::in|std::ios::out|std::ios::app,
+	Mode::Binary,		std::ios::in|std::ios::out|std::ios::binary,
+	Mode::ReadOnly,		std::ios::in,
+	Mode::OverwriteOnly,std::ios::out|std::ios::trunc,
+	Mode::AttachOnly,	std::ios::out|std::ios::app
+};
+
 class File
 {
 protected:
-	FILE* pointer;
-	char FilePath[pcFL_MAX_PATH_LEN];
+	std::fstream stream;
+	fs::path path;
+	std::ios::openmode openmode;
+	/// @brief guard unexpected read
+	void tryRead(){
+		if(!HasMode(std::ios::in))
+			xptFile.Throw(pcXPT_ACCESS_DENIED,
+				"Reading file '{}' which was opened in unreadable mode",
+				path.string()
+			);
+	}
+	/// @brief guard unexpected write
+	void tryWrite(){
+		if(!HasMode(std::ios::out))
+			xptFile.Throw(pcXPT_ACCESS_DENIED,
+				"Writing to file '{}' which was opened in readonly mode",
+				path.string()
+			);
+	}
 public:
+	/// @brief Open a file
+	virtual void Open(Mode mode,fs::path filePath)
+	{
+		std::ios::openmode openmode=ModeLookup(mode);
+		if(openmode&std::ios::in&&!fs::exists(filePath))
+			xptFile.Throw(pcXPT_FILE_NOT_FOUND,
+				"No such a file '{}'",filePath.string());
+		stream.open(filePath,openmode);
+		if(!stream.is_open())
+			xptFile.Throw(pcXPT_FILE,
+				"Fail to open file '{}' (errno: {})",
+				filePath.string(),std::to_string(errno)
+			);
+	}
+	/// @brief Close the file
+	void Close(){
+		if(!IsOpen())	return;
+		stream.flush();
+		stream.close();
+	}
+	/// @brief Default constructor with no file opened
 	File(){}
-	/** @param Mode Mode in `fopen`.
-	 * Here are some macros you can use:
-	 * ```
-	 * INSERTWRITE
-	 * OVERWRITE
-	 * ADDWRITE
-	 * READONLY
-	 * OVERWRITEONLY
-	 * ADDWRITEONLY
-	 * ```
+	/// @brief Open a file with specified mode and path
+	File(Mode mode,fs::path filePath){
+		Open(mode,filePath);
+	}
+	/**
+	 * @brief Open a file with specified mode and path
+	 * @param fmt The format of the path, can be used with `std::format`
+	 * @param args The arguments for the format
 	 */
-	File(const char* Mode,const char* Path)
-		{pointer=fopen(Path,Mode);}
-	~File(){fclose(pointer);}
-	/** @param Mode Mode in `fopen`.
-	 * Here are some macros you can use:
-	 * ```
-	 * INSERTWRITE
-	 * OVERWRITE
-	 * ADDWRITE
-	 * READONLY
-	 * OVERWRITEONLY
-	 * ADDWRITEONLY
-	 * ```
-	 * @param Path Path to file. Formats in sprintf are acceptable.
-	 */
-	template<typename... Tps>
-	void open(const char* Mode,const char* Path,Tps... args)
-	{
-		if(pointer!=NULL)
-			fflush(pointer),
-			fclose(pointer);
-		sprintf(FilePath,Path,args...);
-		pointer=fopen(FilePath,Mode);
-		return;
+	template<typename ...Tps>
+	File(Mode mode,string_view fmt,Tps...args){
+		fs::path filePath;
+		string str;
+		try{
+			str=std::vformat(fmt,std::make_format_args(args...));
+			filePath=str;
+		}catch(...){
+			xptFile.Throw(pcXPT_INVALID_ARGUMENT,
+				"Invalid file path '{}'",str);
+		}
+		Open(mode,filePath);
 	}
-	/// @brief Check if no file is opened
-	bool null(){return pointer==NULL;}
-	/// @brief Check if the cursor is at the end of file 
-	bool Eof(){return feof(pointer);}
-	/// @brief Print to file 
-	template<typename... Tps>
-	int printf(const char* format,Tps... args)
-	{
-		int ret=fprintf(pointer,format,args...);
-		fflush(pointer);
-		return ret;
-	}
-	/// @brief Scan from file 
-	template<typename... Tps>
-	int scanf(const char* format,Tps... args)
-	{
-		int ret=fscanf(pointer,format,args...);
-		fflush(pointer);
-		return ret;
-	}
+	~File(){Close();}
+	/// @brief Check if the file is opened 
+	bool IsOpen(){return stream.is_open();}
+	/// @brief Check if reached end of file 
+	bool Eof(){return stream.eof();}
+	/// @brief Sync with native device
+	void Flush(){stream.flush();}
+	/// @brief check if the file opened in this mode
+	bool HasMode(std::ios::openmode m){return m&openmode;}
+};
+
+/// @brief Text file operation class
+class Text: public File
+{
+public:
+	using File::File;
 	/// @brief get a character from file 
-	char getchar(){return fgetc(pointer);}
-	/**
-	 * @brief Get a word the splitted by space
-	 * @param dest [OUT] Destination to store the word
-	 */
-	void getword(char* dest)
-	{
-		while(true)
-		{
-			dest[0]=File::getchar();
-			if(Eof()||dest[0]!=' '||dest[0]=='\n')
-				break;
-		}
-		int i=1;
-		while(true)
-		{
-			dest[i]=File::getchar();
-			if(Eof()||dest[i]==' '||dest[i]=='\n')
-				break;
-			i++;
-		}
-		dest[i]='\0';
-		return;
+	char GetChar(){
+		tryRead();
+		return stream.get();
+	}
+	/// @brief ignore chars in the stream
+	void Ignore(su::CharType shouldIgnore){
+		tryRead();
+		if(Eof())	return;
+		while(shouldIgnore(stream.peek()))
+			stream.get();
+	}
+	/// @brief ignore chars in the stream
+	inline void Ignore(std::string_view chars){
+		Ignore(su::Delimiters::List(chars));
 	}
 	/**
-	 * @brief Get a line
-	 * @param dest [OUT] Destination to store the line
+	 * @brief Get a token breaking with delimiter from file
+	 * @param isDelimiter Decide whether the char is a delimiter
+	 * @return the gotten token
+	 * @note More `isDelimiter` decleration are in `su::Delimiters`
 	 */
-	void getline(char* dest)
+	string GetToken(su::CharType isDelimiter)
 	{
-		int i=0;
-		while(true)
-		{
-			dest[i]=File::getchar();
-			if(Eof()||dest[i]=='\n')
-				break;
-			i++;
+		tryRead();
+		string ans;
+		Ignore(isDelimiter);
+		while(true){
+			if(Eof())	break;
+			char in=stream.get();
+			if(isDelimiter(in))	break;
+			else	ans+=in;
 		}
-		dest[i]='\0';
-		return;
+		return ans;
+	}
+	/// @brief Get a line
+	inline string GetWord(){
+		return GetToken(su::Delimiters::Word);
+	}
+	/// @brief Get a line
+	inline string GetLine(){
+		return GetToken(su::Delimiters::Line);
 	}
 	/// @brief Put char to file
-	int putchar(char ch)
-	{
-		int ret=fputc(ch,pointer);
-		fflush(pointer);
-		return ret;
+	void PutChar(char ch){
+		tryWrite();
+		stream.put(ch);
 	}
-#ifdef __cpp_lib_format
 	/// @brief Print to file with `std::format`
 	template<typename ...Tps>
-	void print(std::string fmt,Tps ...args)
+	void Print(std::string fmt,Tps ...args)
 	{
 		std::string res=std::vformat(fmt,std::make_format_args(args...));
-		fwrite(res.c_str(),sizeof(char),res.length(),pointer);
+		stream<<res;
 		return;
 	}
-#endif
-	/// @brief Flush the file stream
-	void flush(){fflush(pointer);return;}
-	/// @brief cursor offset by `offset` 
-	int CursorOffset(int offset)
-		{return fseek(pointer,offset,SEEK_CUR);}
-	/**
-	 * @brief Seek the cursor
-	 * @param origin The base position of the offset
-	 * ```
-	 * SEEK_SET	begin of the file
-	 * SEEK_CUR	where the cursor current is
-	 * SEEK_END	end of file
-	 * ```
-	 */
-	int CursorSeek(int x,int origin=SEEK_SET)
-		{return fseek(pointer,x,origin);}
-	/// @brief Get current cursor position
-	long long GetCursorPos()
-	{
-		long long ret;
-		fgetpos(pointer,&ret);
-		return ret;
+private:
+	/// @brief Basic seek function
+	inline void seekReadBase(int offset,std::ios_base::seekdir mode){
+		tryRead();
+		stream.seekg(offset,mode);
 	}
-	/// @brief Set currert cursor position
-	int SetCursorPos(long long x)
-		{return fsetpos(pointer,&x);}
-	std::string String()
+	inline void seekWriteBase(int offset,std::ios_base::seekdir mode){
+		tryWrite();
+		stream.seekp(offset,mode);
+	}
+public:
+	/// @brief read cursor offset by `x`
+	inline void SeekReadCur(int x)
+		{seekReadBase(x,std::ios_base::cur);}
+	/// @brief read cursor goto position `x`
+	inline void SeekReadHome(int x)
+		{seekReadBase(std::abs(x),std::ios_base::cur);}
+	/// @brief read cursor goto `x` count from end
+	inline void SeekReadEnd(int x)
+		{seekReadBase(-std::abs(x),std::ios_base::end);}
+	/// @brief write cursor offset by `x`
+	inline void SeekWriteCur(int x)
+		{seekWriteBase(x,std::ios_base::cur);}
+	/// @brief write cursor goto position `x`
+	inline void SeekWriteHome(int x)
+		{seekWriteBase(std::abs(x),std::ios_base::cur);}
+	/// @brief write cursor goto `x` count from end
+	inline void SeekWriteEnd(int x)
+		{seekWriteBase(-std::abs(x),std::ios_base::end);}
+	/// @brief Get current read cursor position
+	inline int GetReadPos(){return stream.tellg();}
+	/// @brief Get current read cursor position
+	inline int GetWritePos(){return stream.tellp();}
+	/// @brief Get file content as string 
+	std::string ReadAll()
 	{
+		tryRead();
 		std::string ans;
 		char ch;
-		while(true)
-		{
-			ch=getchar();
+		while(true){
+			ch=stream.get();
 			if(Eof())	break;
 			ans+=ch;
 		}
 		return ans;
 	}
+	/// @brief Write string to file
+	void WriteAll(std::string str){stream<<str;}
 };
 
 /**
@@ -197,74 +232,168 @@ public:
  * @note The format can be modified in `pcpri::LogStartFormat`
  * and `pcpri::LogFormat`
  */
-class Log: public File
+class Log: protected Text
 {
 protected:
 	time_t Ti;tm* T;
-	int Se,Mi,Ho,Da,Mo,Ye;
-	void TimeLoc()
+	int Se,Mi,Ho,Da,Mo,Ye,We;
+	void timeLoc()
 	{
 		Ti=time(0);
 		T=localtime(&Ti);
 		Se=T->tm_sec,
 		Mi=T->tm_min,
 		Ho=T->tm_hour,
+		We=T->tm_wday,
 		Da=T->tm_mday,
 		Mo=T->tm_mon+1,
 		Ye=T->tm_year+1900;
 		return;
 	}
 public:
-	/**
-	 * @brief Whether the time stamp contains year, month and day
-	 * @note `true`	contains
-	 * @note `false`	excludes
+	enum class Levels{Trace,Debug,Info,Warning,Error,Fatal};
+protected:
+	inline static const EnumLookup<Levels,std::string> LevelLookup{
+		Levels::Trace,	"Trace",
+		Levels::Debug,	"Debug",
+		Levels::Info,	"Info",
+		Levels::Warning,	"Warning",
+		Levels::Error,	"Error",
+		Levels::Fatal,	"Fatal"
+	};
+	Levels level=Levels::Info;
+public:
+	/** @note index of the args are:
+	 * ```
+	 * 0 Year    | 1 Month  | 2 Day
+	 * 3 Hour    | 4 Minute | 5 Second
+	 * 6 WeekDay
+	 * ```
 	 */
-	bool LongTime=true;
-	Log(){pointer=NULL;}
-	/// @param l Whether the time stamp contains year, month and day
-	Log(bool l){LongTime=l;}
-	Log(const char* Mode,const char* Path)
+	string HeadFormat="New log started in {0:04}/{1:02}/{2:02} {3:02}:{4:02}:{5:02}";
+	/** @note index of the args are:
+	 * ```
+	 * 0 Year    | 1 Month  | 2 Day
+	 * 3 Hour    | 4 Minute | 5 Second
+	 * 6 WeekDay | 7 Type
+	 * ```
+	 */
+	string LineFormat="{0:04}/{1:02}/{2:02} {3:02}:{4:02}:{5:02}[{7}]";
+	using Text::Text;
+	/// @brief Open a log
+	void Open(Mode mode,fs::path filePath)
 	{
-		if(Mode[0]=='r')
-			throw("Can't read a log!");
-		pointer=fopen(Path,Mode);
-		TimeLoc();
-		fprintf(pointer,pcpri::LogStartFormat,Ye,Mo,Da,Ho,Mi,Se);
-		fflush(pointer);
+		if(mode!=Mode::OverwriteOnly&&mode!=Mode::AttachOnly)
+			xptFile.Throw(pcXPT_INVALID_ARGUMENT,
+				"Log file can only be opened in attach only or overwrite only mode");
+		File::Open(mode,filePath);
+		timeLoc();
+		string head=std::vformat(HeadFormat,std::make_format_args(Ye,Mo,Da,Ho,Mi,Se));
+		stream<<head;
+		Flush();
 	}
-	~Log(){fclose(pointer);}
-	template<typename... Tps>
-	void open(const char* Mode,const char* Path,Tps ...args)
-	{
-		if(Mode[0]=='r')
-			throw("Can't read a log!");
-		if(pointer!=NULL)
-			fflush(pointer),
-			fclose(pointer);
-		sprintf(FilePath,Path,args...);
-		pointer=fopen(FilePath,Mode);
-		TimeLoc();
-		fprintf(pointer,pcpri::LogStartFormat,Ye,Mo,Da,Ho,Mi,Se);
-		fflush(pointer);
-		return;
-	}
+	void Close(){File::Close();}
+	bool IsOpen(){return File::IsOpen();}
+	void Flush(){File::Flush();}
+	~Log(){Close();}
 	/// @brief Log line print
 	template<typename...types>
-	void lprintf(const char* LogType,const char* format,types... args)
+	void PrintLn(Levels logLevel,string format,types... args){
+		if(logLevel<level)	return;
+		timeLoc();
+		Text::Print(LineFormat,Ye,Mo,Da,Ho,Mi,Se,We,LevelLookup(logLevel));
+		Text::Print(format,...args);
+		Text::PutChar('\n');
+	}
+	template<typename...types>
+	inline void Trace(string format,types... args)
+		{PrintLn(Levels::Trace,format,...args);}
+	template<typename...types>
+	inline void Debug(string format,types... args)
+		{PrintLn(Levels::Debug,format,...args);}
+	template<typename...types>
+	inline void Info(string format,types... args)
+		{PrintLn(Levels::Info,format,...args);}
+	template<typename...types>
+	inline void Warning(string format,types... args)
+		{PrintLn(Levels::Warning,format,...args);}
+	template<typename...types>
+	inline void Error(string format,types... args)
+		{PrintLn(Levels::Error,format,...args);}
+	template<typename...types>
+	inline void Fatal(string format,types... args)
+		{PrintLn(Levels::Fatal,format,...args);}
+	void SetLevel(Levels logLevel){level=logLevel;}
+	Levels GetLevel(){return level;}
+	string GetLevelString(){return LevelLookup(level);}
+};
+
+class Binary: public File
+{
+public:
+	using File::File;
+	typedef std::vector<std::byte> Bytes;
+	void Open(const Mode mode,fs::path filePath){
+		if(mode!=Mode::Binary)
+			xptFile.Throw(pcXPT_INVALID_ARGUMENT,
+				"the mode of bin file must be Mode::Binary");
+		File::Open(mode,filePath);
+	}
+	void Open(fs::path filePath){
+		Open(Mode::Binary,filePath);
+	}
+	/**
+	 * @brief Directly dump the memory of the data in to file.
+	 * @warning The structure of data must be trivially copyable,
+	 * or undefined actions will occured
+	 */
+	template<typename Tp>
+	void Dump(const Tp& data){
+		tryWrite();
+		stream.write(reinterpret_cast<char*>(&data),sizeof(data));
+	}
+	/// @brief Write bytes
+	void Write(Bytes bytes){
+		tryWrite();
+		stream.write(reinterpret_cast<char*>(bytes.data()),bytes.size());
+	}
+	/// @brief Call serializer and write bytes
+	template<typename Tp>
+	void Write(Tp data,std::function<Bytes(Tp)> serializer){
+		static_assert(std::is_trivially_copyable_v<Tp>,
+        	"Tp must be trivially copyable for Dump");
+		Write(serializer(data));
+	}
+	/// @brief Directly load memory from file
+	template<typename Tp>
+	Tp Load()
 	{
-		TimeLoc();
-		if(LongTime)
-			fprintf(pointer,pcpri::LogFormat,Ye,Mo,Da,Ho,Mi,Se,LogType);
-		else
-			fprintf(pointer,pcpri::LogFormat,Ho,Mi,Se,LogType);
-		fprintf(pointer,format,args...);
-		fputc('\n',pointer);
-		fflush(pointer);
-		return;
+		static_assert(std::is_trivially_copyable_v<Tp>,
+        	"Tp must be trivially copyable for Load");
+		tryRead();
+		Tp data;
+		stream.read(reinterpret_cast<char*>(&data),sizeof(data));
+		if(stream.gcount()!=sizeof(data))
+			xptFile.Throw(pcXPT_FILE,
+				"Fail to load bin from file {}",path);
+		return data;
+	}
+	Bytes Read(unsigned int count)
+	{
+		tryRead();
+		Bytes bytes;
+		bytes.resize(count);
+		stream.read(reinterpret_cast<char*>(bytes.data()),count);
+		if(stream.gcount()!=count)
+			xptFile.Throw(pcXPT_FILE,
+				"Fail to read bin from file {}",path);
+		return bytes;
+	}
+	template<typename Tp>
+	Tp Read(std::function<Tp(std::fstream&)> deserializer){
+		return deserializer(stream);
 	}
 };
 
-};//namespace
-
-#include"../Multinclude.hpp"
+};//namespace File
+};//namespace pc

@@ -19,7 +19,7 @@ vector<regex> Rules[100];
 map<string,int> NameMap;
 int NowPlayer,Port,LimitRule=10,LimitPlayer=16;
 bool GameStart=false,EscapeFlag=false;
-pc::File flProfile;
+pc::TextFile flProfile;
 ClientSocket client;
 ServerSocket server;
 #define PLAYER_UNKOWN 0
@@ -98,7 +98,7 @@ bool MatchRule(int id,const char* tar)
 }
 void ReadMustNotMatches()
 {
-	pc::File flRead(READONLY,"./Words.txt");
+	pc::TextFile flRead(READONLY,"./Words.txt");
 	while(true)
 	{
 		flRead.getline(InStr);

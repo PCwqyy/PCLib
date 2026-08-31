@@ -187,4 +187,3 @@ typedef Rational<int> Fraction;
 /// @brief Rational. Numerator and denominator are stored with `long long`
 typedef Rational<long long> Long_Fraction;
 
-#include"../Multinclude.hpp"

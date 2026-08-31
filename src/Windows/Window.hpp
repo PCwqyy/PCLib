@@ -1,3 +1,5 @@
+/// @warning Unfinished! Do not use!!
+
 #pragma once
 #define PCL_WINDOWS
 
@@ -131,4 +133,3 @@ void PCDrawText(HWND hwnd,int X,int Y,HFONT Font,int col,LPCWSTR Text)
 
 }//extern
 
-#include"../Multinclude.hpp"

@@ -105,7 +105,8 @@ public:
 	}
 };
 
-#define pcXPT_ASSERTION_FAILED pc::ExceptionType("AssertionFailed")
+#define pcXPT_ASSERTION pc::ExceptionType("AssertionFailed")
+#define pcXPT_ACCESS_DENIED pc::ExceptionType("AccessDenied")
 #define pcXPT_TIMEOUT pc::ExceptionType("Timeout")
 #define pcXPT_BUSY pc::ExceptionType("BusyError")
 #define pcXPT_BAD_ALLOC pc::ExceptionType("BadAlloc")
@@ -126,6 +127,7 @@ public:
 #define pcXPT_OUT_OF_RANGE pc::ExceptionType("OutOfRange")
 #define pcXPT_OVERFLOW pc::ExceptionType("OverflowError")
 #define pcXPT_PARSING pc::ExceptionType("ParsingError")
+#define pcXPT_PERMISSION pc::ExceptionType("PermissionError")
 #define pcXPT_SYSTEM pc::ExceptionType("SystemError")
 #define pcXPT_RANGE pc::ExceptionType("RangeError")
 #define pcXPT_RUNTIME pc::ExceptionType("RuntimeError")
@@ -229,7 +231,7 @@ protected:
 public:
 	/**
 	 * @brief Default constructor with type=`pcXPT_DEFAULT_TYPE`, 
-	 * content=pcXPT_DEFAULT_CONTENT
+	 * content=`pcXPT_DEFAULT_CONTENT`
 	 */
 	explicit Exception():
 		std::runtime_error(pcXPT_DEFAULT_CONTENT),
@@ -284,6 +286,18 @@ public:
 		fflush(stderr);
 		std::terminate();
 	}
+};
+
+/// @brief To throw a specific type of `pc::Exception`
+class Exceptioner
+{
+	ExceptionType type;
+public:
+	Exceptioner(ExceptionType tp):type(tp){}
+	/// @brief Directly throw the exception
+	template<typename ...Tps>
+	inline void Throw(ExceptionTypes tps,std::string fmt,Tps ...args) const
+		{throw Exception(type+tps,fmt,...args);}
 };
 
 

@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-26v2a-blueviolet)
+![version](https://img.shields.io/badge/版本-26v3a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -93,5 +93,11 @@ git clone https://gitee.com/pcwqyy/PClib.git
 现支持类型继承功能支持拥有多个类型同时捕获
 ### 新 Demo: [Color](./demo/Color/)
 - 演示如何使用 `Color` 类
+## 26v3a
+- 移除了 `Multinclude.hpp`
+- 重构了 [`File.hpp`](./src/Utility/File.hpp)
+- 完善了常量查询类 [`EnumLookup`](./src/Utility/EnumLookup.hpp)
+
+目前 [`File.hpp`](./src/Utility/File.hpp) 未测试，TUI 因 [`EnumLookup`](./src/Utility/EnumLookup.hpp) 改动二暂时损坏，将在下一个快照修复
 
 <!--记得改徽章的版本！-->
