@@ -75,9 +75,18 @@ git clone https://gitee.com/pcwqyy/PClib.git
 	- 如果本次快照是损坏的、不可运行的，则用 `q`, `qq`, `q3`, `q4` ...标记，这类快照一般没有自述文件
   - 举例：`24v3a` `25v15e` `26v1q` `24v5qq` `24v5q5`
 
-# PClib 1.2.1（未发布）
-- TUI 库的 DOM 结构（这并不是一个小改动）
+# PClib 1.2.1 快照阶段
 - 自动同步数据容器 `SyncedData`
+- 标签化错误处理 `pc::Exception`
+- 多种文件类型支持 `pc::File`
+
+### 正在开发……
+|功能|计划实现版本|子库|
+|-|-|-|
+|反射序列化器|1.2.2|Experimental|
+|反射 Json 解析器|1.2.2|Experimental|
+|重构 TUI 库为 DOM 结构|1.3|TUI|
+
 
 # 更新日志
 [历史](ChangeLogHistory.md)

@@ -78,9 +78,17 @@ So, how the hell did version numbering work?
     - If the snapshot is broken or non‑runnable, mark it with `q`, `qq`, `q3`, `q4`, ... (such snapshots usually do not include a README)
   - Examples: `24v3a`, `25v15e`, `26v1q`, `24v5qq`, `24v5q5`
 
-# PClib 1.2.1 (Not released)
-- DOM structure for TUI lib. (This is not a small change)
-- Auto syncing data container `SyncedData`
+# PClib 1.2.1 Snapshot phase
+- Auto-synchronized data container `SyncedData`
+- Tagged error handling `pc::Exception`
+- Multiple file type support `pc::File`
+
+### In development...
+| Feature | Planned Version | Sublibrary |
+|-|-|-|
+| Reflection-based serializer | 1.2.2 | Experimental |
+| Reflection-based JSON parser | 1.2.2 | Experimental |
+| Refactor TUI library into a DOM structure | 1.3 | TUI |
 
 # Change Log
 [History](ChangeLogHistory-EN.md)
