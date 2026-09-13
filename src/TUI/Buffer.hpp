@@ -2,8 +2,7 @@
 #define PC_TUI_BUFFER
 
 #include<vector>
-#include"../Container/String.hpp"
-#include"Color.hpp"
+#include"../Container/Color.hpp"
 #include"../Utility/Ansi.hpp"
 #include"OS.hpp"
 #include"Util.hpp"
@@ -42,7 +41,7 @@ public:
 		OutputUnicode(s);
 	}
 	inline int width()
-		{return pcuni::charWidthInConsole(high);}
+		{return pc::uni::charWidthInConsole(high);}
 	Pixel GiveBackColor(Color f,Color b)
 	{
 		if(isSurrogate())
@@ -147,10 +146,10 @@ public:
 		int len=text.Size(),w;
 		for(int i=0;i<len;)
 		{
-			w=pcuni::charWidthInConsole(text[i]);
+			w=pc::uni::charWidthInConsole(text[i]);
 			if(pos.x+w>vpos.x+vsize.x)
 				cursorBreakLine(pos,vpos,vsize);
-			if(pcuni::isHighSurrogate(text[i]))
+			if(pc::uni::isHighSurrogate(text[i]))
 				if(i+1<len)
 					get(pos).SetSurrogate(text[i],text[i+1],fore,back),i+=2;
 				else

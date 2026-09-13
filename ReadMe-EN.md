@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-26v3a-blueviolet)
+![version](https://img.shields.io/badge/Version-26v4a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -15,15 +15,15 @@
 This is a personal C++ lib, and some features are only available on Windows.
 
 ## Features
-- Text user interface
-- Packaged containers
+- Text User Interface
+- Color computation
 - IO & file operations
-- Ansi escaping
-- Some algorithms
-- Math support
-- Color calculation
-- (Windows) Web socket
-- (Windows) Console extension
+- ANSI escape
+- Unicode handling
+- _Math support_
+- Container classes
+- (Windows) Web sockets
+- (Windows) Console extensions
 - And more...
 
 ## Install
@@ -103,5 +103,11 @@ Now supports streaming, mandatory handling, type inheritance, and more.
 - Improved the constant lookup class [`EnumLookup`](./src/Utility/EnumLookup.hpp)
 
 Currently, [`File.hpp`](./src/Utility/File.hpp) is untested. The TUI is temporarily broken due to changes in [`EnumLookup`](./src/Utility/EnumLookup.hpp) and will be fixed in the next snapshot.
+
+## 26v4a
+Well, I'm going to put off fixing the TUI library...
+### Renamed `Unicode.hpp` → `Unicodes.hpp`
+- Refactored [`Unicodes.hpp`](./src/Utility/Unicodes.hpp): added conversions between UTF-8, UTF-16, and UTF-32, compatibility with `std::format`, and resolved cross-platform output issues
+- Planning to write [`Meta.hpp`](./src/Experimental/Meta.hpp), which will use the C++26 reflection library
 
 <!--记得改徽章的版本！-->

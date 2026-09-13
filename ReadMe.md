@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-26v3a-blueviolet)
+![version](https://img.shields.io/badge/版本-26v4a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -16,12 +16,12 @@
 
 ## 功能
 - 文本用户界面（TUI）
-- 容器类
+- 颜色计算
 - IO & 文件操作
 - Ansi 转义
-- 一些算法
-- 数学支持
-- 颜色计算
+- Unicode 处理
+- _数学支持_
+- 容器类
 - （Windows） Web 套接字（socket）
 - （Windows） 控制台扩展
 - 还有更多...
@@ -98,6 +98,11 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 重构了 [`File.hpp`](./src/Utility/File.hpp)
 - 完善了常量查询类 [`EnumLookup`](./src/Utility/EnumLookup.hpp)
 
-目前 [`File.hpp`](./src/Utility/File.hpp) 未测试，TUI 因 [`EnumLookup`](./src/Utility/EnumLookup.hpp) 改动二暂时损坏，将在下一个快照修复
+目前 [`File.hpp`](./src/Utility/File.hpp) 未测试，TUI 因 [`EnumLookup`](./src/Utility/EnumLookup.hpp) 改动二暂时损坏，~~将在下一个快照修复~~
+## 26v4a
+好吧我要拖一下 TUI 库的修复工作了……
+### 重命名 `Unicode.hpp` → `Unicodes.hpp`
+- 重构了 [`Unicodes.hpp`](./src/Utility/Unicodes.hpp)：加入了 UTF8、16、32的互相转换与 `std::format` 兼容，并解决了跨平台输出问题
+- 准备写 [`Meta.hpp`](./src/Experimental/Meta.hpp)， 将使用C++26反射库
 
 <!--记得改徽章的版本！-->

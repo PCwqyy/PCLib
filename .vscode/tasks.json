@@ -20,9 +20,8 @@
 			"command": "g++",
 			"args": [
 				"-xc++",
-				"-std=c++23",
+				"-std=c++26",
 				"-finput-charset=UTF-8",
-				"-fexec-charset=GBK",
 				"-I","${workspaceFolder}",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",

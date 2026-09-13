@@ -2,7 +2,7 @@
 #define PCL_TUI_OS
 
 #include<print>
-#include"../Container/String.hpp"
+// #include"../Container/String.hpp"
 
 #ifdef _WIN32
 
@@ -24,14 +24,21 @@ void InitTerminal()
 	SetConsoleMode(hOutput,dwMode);
 	std::print("\e[?1003h\e[?1015h\e[?1006h");
 }
-void inline OutputUnicode(char16_t c)
-	{WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),&c,1,NULL,NULL);}
-void inline OutputUnicode(String s)
-{
-	int len=s.Length()+1;
-	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),s.CStr(),len,NULL,NULL);
-	return;
+inline void OutputUnicode(char16_t c){
+	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),&c,1,NULL,NULL);
 }
+inline void OutputUnicode(std::string s){
+	std::u16string r;
+	for(char c:s)
+		r.push_back(char16_t(c));
+	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),r.c_str(),s.length()+1,NULL,NULL);
+}
+// void inline OutputUnicode(String s)
+// {
+// 	int len=s.Length()+1;
+// 	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE),s.CStr(),len,NULL,NULL);
+// 	return;
+// }
 
 /// @brief Get how big the term is 
 int GetTerminalWidth()
