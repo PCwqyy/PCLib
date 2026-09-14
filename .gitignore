@@ -2,6 +2,7 @@
 
 dev/*
 test/*
+doc/*
 
 *.exe
 *.txt
