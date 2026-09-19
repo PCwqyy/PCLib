@@ -2,26 +2,38 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "GCC Build GBK",
+			"label": "GCC Build",
 			"type": "shell",
 			"command": "g++",
 			"args": [
 				"-xc++",
 				"-std=c++23",
 				"-finput-charset=UTF-8",
-				"-fexec-charset=GBK",
 				"-I","${workspaceFolder}",
 				"-s","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
 		},{
-			"label": "GDB Build GBK",
+			"label": "GDB Build",
 			"type": "shell",
 			"command": "g++",
 			"args": [
 				"-xc++",
 				"-std=c++26",
 				"-finput-charset=UTF-8",
+				"-I","${workspaceFolder}",
+				"-g","${fileDirname}/${fileBasename}",
+				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+			]
+		},{
+			"label": "GDB Expr:Reflection",
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-xc++",
+				"-std=c++26",
+				"-finput-charset=UTF-8",
+				"-freflection",
 				"-I","${workspaceFolder}",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",

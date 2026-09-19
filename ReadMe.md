@@ -85,8 +85,10 @@ git clone https://gitee.com/pcwqyy/PClib.git
 |-|-|-|
 |反射序列化器|1.2.2|Experimental|
 |反射 Json 解析器|1.2.2|Experimental|
+|清理老库中过时的类|1.2.3|Container|
+|健壮化老东西|1.2.3|Container|
 |重构 TUI 库为 DOM 结构|1.3|TUI|
-
+|重构 Command 库参照 Minecraft 源码|1.3.1|Container|
 
 # 更新日志
 [历史](ChangeLogHistory.md)
@@ -113,5 +115,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 ### 重命名 `Unicode.hpp` → `Unicodes.hpp`
 - 重构了 [`Unicodes.hpp`](./src/Utility/Unicodes.hpp)：加入了 UTF8、16、32的互相转换与 `std::format` 兼容，并解决了跨平台输出问题
 - 准备写 [`Meta.hpp`](./src/Experimental/Meta.hpp)， 将使用C++26反射库
+## 26v5a
+- 移除了 `VarSet.hpp`, `Sortting.hpp` 以及 `Containers.hpp` 中的不健壮且可被标准库替代的容器
+- 移除了 `Window.hpp`，因为我再也不想和WinAPI打交道了
 
 <!--记得改徽章的版本！-->

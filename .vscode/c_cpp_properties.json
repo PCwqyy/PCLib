@@ -17,6 +17,7 @@
             "compilerPath": "D:/PCwqyy/Tool/MinGW/bin/g++.exe",
             "mergeConfigurations": false,
             "recursiveIncludes": {},
+			"compilerArgs": [ "-freflection" ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true
             }
