@@ -8,8 +8,8 @@
 #include<cmath>
 #include<vector>
 #include"Fraction.hpp"
-#include"../Container/String.hpp"
-#include"../Exception.hpp"
+#include"Container/String.hpp"
+#include"Exception.hpp"
 
 #define pcOP_OUTTYPE_FUNCTION 0
 #define pcOP_OUTTYPE_ALPHABET 1

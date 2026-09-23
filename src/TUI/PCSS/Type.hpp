@@ -1,10 +1,10 @@
 #pragma once
 #define PCL_TUI_PCSS_TYPE
 
-#include"../../Utility/StrUtils.hpp"
-#include"../../Utility/EnumLookup.hpp"
-#include"../../Container/Color.hpp"
-#include"../Util.hpp"
+#include"Utility/StrUtils.hpp"
+#include"Utility/EnumLookup.hpp"
+#include"Container/Color.hpp"
+#include"Util.hpp"
 
 #include<string>
 #include<vector>

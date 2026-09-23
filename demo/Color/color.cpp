@@ -1,8 +1,8 @@
 #include<string>
 #include<iostream>
 #include<print>
-#include"../../src/Container/Color.hpp"
-#include"../../src/Utility/Ansi.hpp"
+#include"Container/Color.hpp"
+#include"Utility/Ansi.hpp"
 int main()
 {
 	std::println("Color demo program");

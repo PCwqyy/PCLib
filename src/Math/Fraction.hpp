@@ -3,7 +3,7 @@
 
 #include<cstring>
 #include<cctype>
-#include"../Exception.hpp"
+#include"Exception.hpp"
 
 namespace pcpri
 {

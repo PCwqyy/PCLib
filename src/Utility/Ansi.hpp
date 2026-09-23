@@ -57,7 +57,7 @@ inline void SetConsoleTitle(std::string title)
 	{std::print("\e]0;{}\a",title);return;}
 /// @brief Set the foreground color.
 #ifdef PCL_COLOR
-#include"../Container/Color.hpp"
+#include"Container/Color.hpp"
 inline void SetForegroundColor(Color col)
 {
 	if(col.Transparent())	return;
@@ -220,34 +220,30 @@ std::string AnsiParse(std::string input,bool close=false)
 
 /// @brief Parse ansi after formatting
 template<typename ...Tps>
-inline void AnsiPrintA(std::string fmt,Tps ...args)
-{
+inline void AnsiPrintA(std::string fmt,Tps ...args){
 	std::print("{}",AnsiParse(std::vformat(fmt,std::make_format_args(args...))));
-	return;
+	ResetAnsiStyle();
 }
 /// @brief Parse ansi before formatting
 template<typename ...Tps>
-inline void AnsiPrintB(std::string fmt,Tps ...args)
-{
+inline void AnsiPrintB(std::string fmt,Tps ...args){
 	std::print("{}",std::vformat(AnsiParse(fmt),std::make_format_args(args...)));
-	return;
+	ResetAnsiStyle();
 }
 
 /// @brief Using `AnsiPrintA()`
 template<typename ...Tps>
-inline void AnsiPosPrintA(short x,short y,std::string ftm,Tps...Args)
-{
+inline void AnsiPosPrintA(short x,short y,std::string ftm,Tps...Args){
 	CursorGoto(x,y);
 	AnsiPrintA(ftm,Args...);
-	return;
+	ResetAnsiStyle();
 }
 /// @brief Using `AnsiPrintB()`
 template<typename ...Tps>
-inline void AnsiPosPrintB(short x,short y,std::string ftm,Tps...Args)
-{
+inline void AnsiPosPrintB(short x,short y,std::string ftm,Tps...Args){
 	CursorGoto(x,y);
 	AnsiPrintB(ftm,Args...);
-	return;
+	ResetAnsiStyle();
 }
 
 

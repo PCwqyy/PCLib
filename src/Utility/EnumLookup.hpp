@@ -4,7 +4,7 @@
 #include<map>
 #include<algorithm>
 #include<tuple>
-#include"../Exception.hpp"
+#include"Exception.hpp"
 
 /**
  * @brief Map a constant to an enum type, 

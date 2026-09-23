@@ -10,7 +10,7 @@ using std::string;
 using std::set;
 using std::map;
 
-#include"../Exception.hpp"
+#include"Exception.hpp"
 
 /// @brief Coordinate struct
 struct Coord

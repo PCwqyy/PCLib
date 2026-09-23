@@ -9,7 +9,7 @@
 #include<stdexcept>
 using std::min;
 
-#include"../Exception.hpp"
+#include"Exception.hpp"
 
 #define pcLG_ERR_OF "Large overflowed, length=%d, query %d"
 #define pcLG_ERR_DIV0 "Large divided by zero"

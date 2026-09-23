@@ -4,7 +4,7 @@
 #include<set>
 using std::set;
 
-#include"../Exception.hpp"
+#include"Exception.hpp"
 
 /**
  * @brief A data container that synchronizes with each other

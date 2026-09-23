@@ -13,26 +13,24 @@
 using std::string;
 using std::string_view;
 
-#include"../Exception.hpp"
+#include"Exception.hpp"
 #include"StrUtils.hpp"
 #include"EnumLookup.hpp"
 
 namespace fs=std::filesystem;
 
 namespace pc{
-namespace File{
-
+namespace file{
 const pc::Exceptioner xptFile("File");
 
 enum class Mode{
-	Insert,Overwrite,Attach,Binary,
+	Insert,Overwrite,Attach,
 	ReadOnly,OverwriteOnly,AttachOnly
 };
 EnumLookup<Mode,std::ios::openmode> ModeLookup{
 	Mode::Insert,		std::ios::in|std::ios::out,
 	Mode::Overwrite,	std::ios::in|std::ios::out|std::ios::trunc,
 	Mode::Attach,		std::ios::in|std::ios::out|std::ios::app,
-	Mode::Binary,		std::ios::in|std::ios::out|std::ios::binary,
 	Mode::ReadOnly,		std::ios::in,
 	Mode::OverwriteOnly,std::ios::out|std::ios::trunc,
 	Mode::AttachOnly,	std::ios::out|std::ios::app
@@ -62,13 +60,17 @@ protected:
 	}
 public:
 	/// @brief Open a file
-	virtual void Open(Mode mode,fs::path filePath)
+	virtual void Open(Mode mode,fs::path filePath){
+		Open(ModeLookup(mode),filePath);
+	}
+	void Open(std::ios_base::openmode mode,fs::path filePath)
 	{
-		std::ios::openmode openmode=ModeLookup(mode);
-		if(openmode&std::ios::in&&!fs::exists(filePath))
+		openmode=mode;
+		if(openmode&std::ios::in&&!openmode&std::ios::out&&!fs::exists(filePath))
 			xptFile.Throw(pcXPT_FILE_NOT_FOUND,
 				"No such a file '{}'",filePath.string());
 		stream.open(filePath,openmode);
+		path=filePath;
 		if(!stream.is_open())
 			xptFile.Throw(pcXPT_FILE,
 				"Fail to open file '{}' (errno: {})",
@@ -214,11 +216,14 @@ public:
 	std::string ReadAll()
 	{
 		tryRead();
+		SeekReadHome(0);
 		std::string ans;
 		char ch;
-		while(true){
+		while(true)
+		{
 			ch=stream.get();
-			if(Eof())	break;
+			if(ch==-1||Eof())
+				break;
 			ans+=ch;
 		}
 		return ans;
@@ -251,6 +256,7 @@ protected:
 		return;
 	}
 public:
+	/// @brief Enum type for level of the logs.
 	enum class Levels{Trace,Debug,Info,Warning,Error,Fatal};
 protected:
 	inline static const EnumLookup<Levels,std::string> LevelLookup{
@@ -263,29 +269,33 @@ protected:
 	};
 	Levels level=Levels::Info;
 public:
-	/** @note index of the args are:
+	/**
+	 * @brief Format of the log header, can be used with `std::format`
+	 * @note index of the args are:
 	 * ```
 	 * 0 Year    | 1 Month  | 2 Day
 	 * 3 Hour    | 4 Minute | 5 Second
 	 * 6 WeekDay
 	 * ```
 	 */
-	string HeadFormat="New log started in {0:04}/{1:02}/{2:02} {3:02}:{4:02}:{5:02}";
-	/** @note index of the args are:
+	string HeadFormat="New log started in {0:04}/{1:02}/{2:02} {3:02}:{4:02}:{5:02}\n";
+	/**
+	 * @brief Format of the log line, can be used with `std::format`
+	 * @note index of the args are:
 	 * ```
 	 * 0 Year    | 1 Month  | 2 Day
 	 * 3 Hour    | 4 Minute | 5 Second
 	 * 6 WeekDay | 7 Type
 	 * ```
 	 */
-	string LineFormat="{0:04}/{1:02}/{2:02} {3:02}:{4:02}:{5:02}[{7}]";
-	using Text::Text;
+	string LineFormat="{0:04}/{1:02}/{2:02} {3:02}:{4:02}:{5:02} [{7}]";
+	Log(){}
+	Log(fs::path filePath){
+		Open(Mode::AttachOnly,filePath);
+	}
 	/// @brief Open a log
 	void Open(Mode mode,fs::path filePath)
 	{
-		if(mode!=Mode::OverwriteOnly&&mode!=Mode::AttachOnly)
-			xptFile.Throw(pcXPT_INVALID_ARGUMENT,
-				"Log file can only be opened in attach only or overwrite only mode");
 		File::Open(mode,filePath);
 		timeLoc();
 		string head=std::vformat(HeadFormat,std::make_format_args(Ye,Mo,Da,Ho,Mi,Se));
@@ -302,27 +312,30 @@ public:
 		if(logLevel<level)	return;
 		timeLoc();
 		Text::Print(LineFormat,Ye,Mo,Da,Ho,Mi,Se,We,LevelLookup(logLevel));
-		Text::Print(format,...args);
+		Text::Print(format,args...);
 		Text::PutChar('\n');
 	}
 	template<typename...types>
 	inline void Trace(string format,types... args)
-		{PrintLn(Levels::Trace,format,...args);}
+		{PrintLn(Levels::Trace,format,args...);}
 	template<typename...types>
 	inline void Debug(string format,types... args)
-		{PrintLn(Levels::Debug,format,...args);}
+		{PrintLn(Levels::Debug,format,args...);}
 	template<typename...types>
 	inline void Info(string format,types... args)
-		{PrintLn(Levels::Info,format,...args);}
+		{PrintLn(Levels::Info,format,args...);}
 	template<typename...types>
 	inline void Warning(string format,types... args)
-		{PrintLn(Levels::Warning,format,...args);}
+		{PrintLn(Levels::Warning,format,args...);}
 	template<typename...types>
 	inline void Error(string format,types... args)
-		{PrintLn(Levels::Error,format,...args);}
+		{PrintLn(Levels::Error,format,args...);}
 	template<typename...types>
 	inline void Fatal(string format,types... args)
-		{PrintLn(Levels::Fatal,format,...args);}
+		{PrintLn(Levels::Fatal,format,args...);}
+	template<typename...types>
+	inline void Print(string format,types... args)
+		{Print(format,args...);}
 	void SetLevel(Levels logLevel){level=logLevel;}
 	Levels GetLevel(){return level;}
 	string GetLevelString(){return LevelLookup(level);}
@@ -334,13 +347,7 @@ public:
 	using File::File;
 	typedef std::vector<std::byte> Bytes;
 	void Open(const Mode mode,fs::path filePath){
-		if(mode!=Mode::Binary)
-			xptFile.Throw(pcXPT_INVALID_ARGUMENT,
-				"the mode of bin file must be Mode::Binary");
-		File::Open(mode,filePath);
-	}
-	void Open(fs::path filePath){
-		Open(Mode::Binary,filePath);
+		File::Open(ModeLookup(mode)|std::ios::binary,filePath);
 	}
 	/**
 	 * @brief Directly dump the memory of the data in to file.
@@ -348,7 +355,7 @@ public:
 	 * or undefined actions will occured
 	 */
 	template<typename Tp>
-	void Dump(const Tp& data){
+	void Dump(Tp& data){
 		tryWrite();
 		stream.write(reinterpret_cast<char*>(&data),sizeof(data));
 	}
@@ -378,6 +385,7 @@ public:
 				"Fail to load bin from file {}",path);
 		return data;
 	}
+	/// @brief Read bytes 
 	Bytes Read(unsigned int count)
 	{
 		tryRead();
@@ -386,7 +394,7 @@ public:
 		stream.read(reinterpret_cast<char*>(bytes.data()),count);
 		if(stream.gcount()!=count)
 			xptFile.Throw(pcXPT_FILE,
-				"Fail to read bin from file {}",path);
+				"Fail to read bin from file {}",path.string());
 		return bytes;
 	}
 	template<typename Tp>
@@ -394,6 +402,7 @@ public:
 		return deserializer(stream);
 	}
 };
-
-};//namespace File
+using LogLvs=Log::Levels;
+};//namespace file
+namespace fl=file;
 };//namespace pc

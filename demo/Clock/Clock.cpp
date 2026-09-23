@@ -2,8 +2,8 @@
 #include<thread>
 #include<chrono>
 #include<conio.h>
-#include"../../src/Container/Color.hpp"
-#include"../../src/Utility/Ansi.hpp"
+#include"Container/Color.hpp"
+#include"Utility/Ansi.hpp"
 const std::string digits[][7]={
 	{" ### ","#   #","#   #","#   #","#   #","#   #"," ### "},
 	{"  #  "," ##  ","  #  ","  #  ","  #  ","  #  "," ### "},

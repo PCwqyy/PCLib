@@ -6,7 +6,7 @@
 #include<set>
 using std::string;
 
-#include"../Util.hpp"
+#include"Util.hpp"
 
 /// @brief Container of `Attribute`
 class AttributeMap

@@ -37,8 +37,10 @@ git clone https://gitee.com/pcwqyy/PClib.git
 示例:
 
 ```cpp
-#include"/path/to/PCLib/Utility/Ansi.hpp"
+#include"Utility/Ansi.hpp"
 ```
+
+请在编译选项中加入 `-I /path/to/pclib/src`
 
 ## 演示
 
@@ -79,6 +81,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 自动同步数据容器 `SyncedData`
 - 标签化错误处理 `pc::Exception`
 - 多种文件类型支持 `pc::File`
+- **移除了所有相对位置 `#include`，改为绝对位置寻址**
 
 ### 正在开发……
 |功能|计划实现版本|子库|
@@ -87,8 +90,9 @@ git clone https://gitee.com/pcwqyy/PClib.git
 |反射 Json 解析器|1.2.2|Experimental|
 |清理老库中过时的类|1.2.3|Container|
 |健壮化老东西|1.2.3|Container|
+|重构 Command 库参照 Minecraft 源码|1.2.4|Container|
+|模块化所有库|1.2.5||
 |重构 TUI 库为 DOM 结构|1.3|TUI|
-|重构 Command 库参照 Minecraft 源码|1.3.1|Container|
 
 # 更新日志
 [历史](ChangeLogHistory.md)
@@ -116,7 +120,11 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 重构了 [`Unicodes.hpp`](./src/Utility/Unicodes.hpp)：加入了 UTF8、16、32的互相转换与 `std::format` 兼容，并解决了跨平台输出问题
 - 准备写 [`Meta.hpp`](./src/Experimental/Meta.hpp)， 将使用C++26反射库
 ## 26v5a
-- 移除了 `VarSet.hpp`, `Sortting.hpp` 以及 `Containers.hpp` 中的不健壮且可被标准库替代的容器
-- 移除了 `Window.hpp`，因为我再也不想和WinAPI打交道了
+- **移除了 `VarSet.hpp`, `Sortting.hpp` `IO.hpp` 以及 [`Containers.hpp`](./src/Container/Containers.hpp) 中的不健壮且可被标准库替代的容器**
+- **移除了 `Window.hpp`，因为我再也不想和WinAPI打交道了**
+- 改动了 `Meta.hpp`
+- 新增 [`demo/Demos`](./demo/Demos/) 存放轻量级演示
+- [`File.hpp`](./src/Utility/File.hpp) 初步测试完成
+- **移除了所有相对位置 `#include`，改为绝对位置寻址**
 
 <!--记得改徽章的版本！-->

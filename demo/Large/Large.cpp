@@ -1,7 +1,7 @@
 #include<iostream>
 #include<print>
 #include<string>
-#include"../../src/Math/Large.hpp"
+#include"Math/Large.hpp"
 using std::string;
 int main()
 {

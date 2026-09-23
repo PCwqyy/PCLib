@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/**",
                 "D:/PCwqyy/Tool/MinGW/include"
             ],
             "defines": [
@@ -25,7 +25,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/**",
                 "/usr/include/c++/14/**"
             ],
             "defines": [],

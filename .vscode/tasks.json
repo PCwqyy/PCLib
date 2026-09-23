@@ -8,8 +8,7 @@
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-8",
-				"-I","${workspaceFolder}",
+				"-I","${workspaceFolder}/src",
 				"-s","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
@@ -19,11 +18,11 @@
 			"command": "g++",
 			"args": [
 				"-xc++",
-				"-std=c++26",
-				"-finput-charset=UTF-8",
-				"-I","${workspaceFolder}",
+				"-std=c++23",
+				"-I","${workspaceFolder}/src",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+				"-lstdc++exp"
 			]
 		},{
 			"label": "GDB Expr:Reflection",
@@ -32,9 +31,8 @@
 			"args": [
 				"-xc++",
 				"-std=c++26",
-				"-finput-charset=UTF-8",
 				"-freflection",
-				"-I","${workspaceFolder}",
+				"-I","${workspaceFolder}/src",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
@@ -45,9 +43,7 @@
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-8",
-				"-fexec-charset=UTF-8",
-				"-I","${workspaceFolder}",
+				"-I","${workspaceFolder}/src",
 				"-s","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
@@ -58,9 +54,7 @@
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-8",
-				"-fexec-charset=UTF-8",
-				"-I","${workspaceFolder}",
+				"-I","${workspaceFolder}/src",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
 			]
@@ -71,10 +65,8 @@
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-8",
-				"-fexec-charset=GBK",
 				"-fmodules-ts",
-				"-I","${workspaceFolder}",
+				"-I","${workspaceFolder}/src",
 				"-s","${fileDirname}/${fileBasename}",
 				"-c","-o","${fileDirname}/${fileBasenameNoExtension}.pcm",
 			]

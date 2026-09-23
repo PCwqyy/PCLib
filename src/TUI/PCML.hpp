@@ -32,7 +32,7 @@
 using std::format;
 using std::string;
 
-#include"../Exception.hpp"
+#include"Exception.hpp"
 #include"Util.hpp"
 #include"Element.hpp"
 #include"Document.hpp"

@@ -3,7 +3,7 @@
 
 #include<exception>
 #include<vector>
-#include<print>
+#include<iostream>
 #include<functional>
 
 namespace pc
@@ -282,8 +282,9 @@ public:
 	~Exception()
 	{
 		if(handled)	return;
-		std::print(stderr,"Uncaught exception instance pc::Exception\nwhat(): {}",what());
-		fflush(stderr);
+		std::cerr<<"Uncaught exception instance pc::Exception\n"
+				 <<"what(): "<<what()<<std::endl;
+		std::getchar();
 		std::terminate();
 	}
 };
@@ -297,7 +298,7 @@ public:
 	/// @brief Directly throw the exception
 	template<typename ...Tps>
 	inline void Throw(ExceptionTypes tps,std::string fmt,Tps ...args) const
-		{throw Exception(type+tps,fmt,...args);}
+		{throw Exception(type+tps,fmt,args...);}
 };
 
 

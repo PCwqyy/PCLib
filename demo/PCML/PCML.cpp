@@ -1,9 +1,9 @@
 #include<iostream>
-#include"../../src/Container/Color.hpp"
-#include"../../src/TUI/Element.hpp"
-#include"../../src/TUI/PCML.hpp"
-#include"../../src/Utility/File.hpp"
-#include"../../src/Container/Command.hpp"
+#include"Container/Color.hpp"
+#include"TUI/Element.hpp"
+#include"TUI/PCML.hpp"
+#include"Utility/File.hpp"
+#include"Container/Command.hpp"
 Document* doc;
 Commands<> com=
 {

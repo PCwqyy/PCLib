@@ -2,8 +2,8 @@
 #define PC_TUI_BUFFER
 
 #include<vector>
-#include"../Container/Color.hpp"
-#include"../Utility/Ansi.hpp"
+#include"Container/Color.hpp"
+#include"Utility/Ansi.hpp"
 #include"OS.hpp"
 #include"Util.hpp"
 using std::vector;

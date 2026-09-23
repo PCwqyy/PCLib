@@ -10,7 +10,7 @@
 using std::vector;
 using std::set;
 
-#include"../Utility/StrUtils.hpp"
+#include"Utility/StrUtils.hpp"
 #include"Buffer.hpp"
 #include"Util.hpp"
 #include"StyleSheet.hpp"

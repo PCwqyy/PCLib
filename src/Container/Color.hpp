@@ -10,8 +10,8 @@
 using std::string;
 using std::tuple;
 
-#include"../Exception.hpp"
-#include"../Utility/StrUtils.hpp"
+#include"Exception.hpp"
+#include"Utility/StrUtils.hpp"
 
 
 /// @brief The Color class.

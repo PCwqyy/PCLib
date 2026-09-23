@@ -4,7 +4,7 @@
 #include<string>
 using std::string;
 
-#include"../../Exception.hpp"
+#include"Exception.hpp"
 #include"Type.hpp"
 
 namespace PCSS

@@ -1,7 +1,7 @@
-#include"../../src/Container/Command.hpp"
-#include"../../src/Windows/Socket.hpp"
-#include"../../src/Windows/Console.hpp"
-#include"../../src/Utility/File.hpp"
+#include"Container/Command.hpp"
+#include"Windows/Socket.hpp"
+#include"Windows/Console.hpp"
+#include"Utility/File.hpp"
 #include<string>
 #include<vector>
 #include<regex>
