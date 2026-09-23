@@ -68,12 +68,15 @@
 		"print": "cpp",
 		"set": "cpp",
 		"chrono": "cpp",
-		"iomanip": "cpp"
+		"iomanip": "cpp",
+		"codecvt": "cpp",
+		"typeindex": "cpp"
 	},
 	"cSpell.words": [
 		"Cornsilk",
 		"Gainsboro",
 		"Gitee",
 		"Multinclude"
-	]
+	],
+	"C_Cpp.default.compilerPath": "/usr/bin/g++-14"
 }

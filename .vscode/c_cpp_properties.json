@@ -4,9 +4,29 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/src/**",
+                "D:/PCwqyy/Tool/MinGW/include"
             ],
             "defines": [],
             "cStandard": "c23",
+            "cppStandard": "c++26",
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerPath": "D:/PCwqyy/Tool/MinGW/bin/g++.exe",
+            "mergeConfigurations": false,
+            "recursiveIncludes": {},
+			"compilerArgs": [ "-freflection" ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true
+            }
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/src/**",
+                "/usr/include/c++/14/**"
+            ],
+            "defines": [],
+            "cStandard": "c17",
             "cppStandard": "c++23",
             "intelliSenseMode": "windows-gcc-x86",
             "compilerPath": "D:/Program Files/MinGW/bin/g++.exe"

@@ -1,28 +1,28 @@
+#pragma once
+#define PCL_TUI_DOCUMENT
+
 #include<string>
 #include<cctype>
 #include<vector>
 #include<print>
-#include"Ansi.hpp"
 
 using std::string;
 using std::vector;
 using std::map;
 
-class Document
+#include"OS.hpp"
+#include"Element.hpp"
+
+class Document:public Element
 {
-	short x=0,y=0,my=0,width;
+	short x=0,y=0,width=GetTerminalWidth();
 	map<string,StyleSheet> styles;
 public:
-	Document(short w){width=w;}
-	void Print(Element& ele)
+	Document():Element(){}
+	Document(Element a):Element(a){}
+	void Print()
 	{
-		pcpri::COORD a=ele.Print(x,y,width-x,&styles);
-		if(a.x==-1)
-			y=my,a=ele.Print(0,y,width,&styles);
-		x=a.x,my=std::max(my,a.y);
-		if(a.x==width)	x=0,y=my;
-		CursorGoto(x,y);
+		Render();
+		view.Print({x,y});
 	}
-	void AddClass(string className,StyleSheet s)
-		{styles[className]=s;}
 };

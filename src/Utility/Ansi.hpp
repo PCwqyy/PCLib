@@ -7,6 +7,69 @@
 #include<deque>
 #include<regex>
 
+
+/// @brief Reset all ansi style
+inline void ResetAnsiStyle()
+	{std::print("\e[0m");return;}
+/// @brief Move cursor to horizontal `x` and vertical `y`
+inline void CursorGoto(short x,short y)
+	{std::print("\e[{};{}H",y+1,x+1);return;}
+/// @brief Offset the cursor horizontally by `x` and vertically by `y`
+inline void CursorOffset(short x,short y)
+{
+	char op;
+	if(x!=0)
+	{
+		if(x>0)			op='C';
+		else if(x<0)	op='D',x=-x;
+		std::print("\e[{}{}",x,op);
+	}
+	if(y!=0)
+	{
+		if(y>0)			op='B';
+		else if(y<0)	op='A',y=-y;
+		std::print("\e[{}{}",y,op);
+	}
+}
+/// @brief Clear the line where the cursor is
+inline void ClearCurrentLine()
+	{std::print("\e[2K");return;}
+/** @brief Fill the visible screen with white spaces.
+ *  The overflowed content won't be effected */
+inline void ClearWholeScreen()
+	{std::print("\e[2J");return;}
+/** @brief Save the current position of the cursor.
+ *  Later you can use `RestoreCursorPos()` to restore this position. */
+inline void SaveCurrentCursorPos()
+	{std::print("\e[2s");return;}
+/** @brief Set position of the cursor to where you use
+ *  `SaveCurrentCursorPos()`. */
+inline void RestoreCursorPos()
+	{std::print("\e[2u");return;}
+/// @brief Let the cursor invisible.
+inline void HideCursor()
+	{std::print("\e[?25l");return;}
+/// @brief Let the cursor visible.
+inline void ShowCursor()
+	{std::print("\e[?25h");return;}
+/// @brief Modify the title of the console (or terminal).
+inline void SetConsoleTitle(std::string title)
+	{std::print("\e]0;{}\a",title);return;}
+/// @brief Set the foreground color.
+#ifdef PCL_COLOR
+#include"Container/Color.hpp"
+inline void SetForegroundColor(Color col)
+{
+	if(col.Transparent())	return;
+	std::print("\e[38;2;{};{};{}m",col.R,col.G,col.B);
+}
+/// @brief Set the background color.
+inline void SetBackgroundColor(Color col)
+{
+	if(col.Transparent())	return;
+	std::print("\e[48;2;{};{};{}m",col.R,col.G,col.B);
+}
+#endif
 namespace pcpri
 {
 	int string2int(std::string a)
@@ -109,8 +172,8 @@ namespace pcpri
 			if(input[++i]!='[')	break;	i++;
 			for(;i<len&&input[i]!=']';i++)
 				text+=input[i];
-			col=StringToColor(text);
-			if(col.DontModify())
+			col=Color(text);
+			if(col.Transparent())
 				break;
 			res+=std::format("\e[{};2;{};{};{}{}",
 				temp1,col.R,col.G,col.B,close?"m\a":"m");
@@ -122,6 +185,12 @@ namespace pcpri
 	}
 }
 
+/**
+ * @brief Parse a ANSI format string to ESC string.
+ * @param input the string to parse
+ * @param close Add a `\a` char in the end of ESC.
+ * Don't use this unless you KNOW what you are doing.
+ */
 std::string AnsiParse(std::string input,bool close=false)
 {
 	std::string res,link,text;
@@ -151,62 +220,90 @@ std::string AnsiParse(std::string input,bool close=false)
 
 /// @brief Parse ansi after formatting
 template<typename ...Tps>
-inline void AnsiPrintA(std::string fmt,Tps ...args)
-{
+inline void AnsiPrintA(std::string fmt,Tps ...args){
 	std::print("{}",AnsiParse(std::vformat(fmt,std::make_format_args(args...))));
-	return;
+	ResetAnsiStyle();
 }
 /// @brief Parse ansi before formatting
 template<typename ...Tps>
-inline void AnsiPrintB(std::string fmt,Tps ...args)
-{
+inline void AnsiPrintB(std::string fmt,Tps ...args){
 	std::print("{}",std::vformat(AnsiParse(fmt),std::make_format_args(args...)));
-	return;
+	ResetAnsiStyle();
 }
+
+/// @brief Using `AnsiPrintA()`
+template<typename ...Tps>
+inline void AnsiPosPrintA(short x,short y,std::string ftm,Tps...Args){
+	CursorGoto(x,y);
+	AnsiPrintA(ftm,Args...);
+	ResetAnsiStyle();
+}
+/// @brief Using `AnsiPrintB()`
+template<typename ...Tps>
+inline void AnsiPosPrintB(short x,short y,std::string ftm,Tps...Args){
+	CursorGoto(x,y);
+	AnsiPrintB(ftm,Args...);
+	ResetAnsiStyle();
+}
+
 
 #ifdef ALWAYS_PARSE_BEFORE
 #define AnsiPrint AnsiPrintB
+#define AnsiPosPrint AnsiPosPrintB
 #else
+/**
+ * @brief Print an ansi string
+ * ```
+ * %/	END_REGION
+ * %b	BOLD
+ * %d	DARKEN
+ * %g	GRAY
+ * %!	INVERT
+ * %i	ITALIC
+ * %l	LINK
+ * %s	STRIKETHROUGH
+ * %t	TWINKLE
+ * %u	UNDERLINE
+ * ```
+ * For colors: 
+ * ```
+ * %<mode><back/foreground>[<color>]
+ * <mode>:
+ * 	q	8-color
+ * 	c	256-color
+ * 	C	true-color //if Color.hpp is included
+ * 		In this mode, <color> could be:
+ * 		- RRGGBB (e.g. #20c0ff)
+ * 		- RGB (e.g. #0f6)
+ * 		- rgb(r,g,b)
+ * 		- hsl(h,s,l)
+ * 		- Named colors (e.g. red, dodgerblue)
+ * <back/foreground>:
+ * 	b	background
+ * 	f	foreground
+ * ```
+ * For links:
+ * ```
+ * %l[<text>](<url>)
+ * ```
+ * Examples:
+ * ```text
+ * %Cf[red]This is red text%/ and this is normal text.
+ * %bThis is bold text%/ and this is normal text.
+ * %l[Click here](https://example.com)%/ to visit example.com.
+ * ```
+ * @note if `ALWAYS_PARSE_BEFORE` is defined,
+ * this macro will redirect to `AnsiPrintB` (Parse before formatting)
+ */
 #define AnsiPrint AnsiPrintA
+/**
+ * @note if `ALWAYS_PARSE_BEFORE` is defined,
+ * this macro will redirect to `AnsiPosPrintB` (Parse before formatting)
+ */
+#define AnsiPosPrint AnsiPosPrintA
 #endif
 
-#ifndef PCL_CONSOLE
-void ResetAnsiStyle()
-	{std::print("\e[0m");return;}
-void CursorGoto(short x,short y)
-	{std::print("\e[{};{}H",y+1,x+1);return;}
-#endif
-void CursorDelta(short x,short y)
-{
-	char op;
-	if(x!=0)
-	{
-		if(x>0)			op='C';
-		else if(x<0)	op='D',x=-x;
-		std::print("\e[{}{}",x,op);
-	}
-	if(y!=0)
-	{
-		if(y>0)			op='B';
-		else if(y<0)	op='A',y=-y;
-		std::print("\e[{}{}",y,op);
-	}
-}
-void ClearCurrentLine()
-	{std::print("\e[2K");return;}
-void ClearWholeScreen()
-	{std::print("\e[2J");return;}
-void SaveCurrentCursorPos()
-	{std::print("\e[2s");return;}
-void RestoreCursorPos()
-	{std::print("\e[2u");return;}
-void HideCursor()
-	{std::print("\e[?25l");return;}
-void ShowCursor()
-	{std::print("\e[?25h");return;}
-void SetConsoleTitle(std::string title)
-	{std::print("\e]0;{}\a",title);return;}
-
+/// @brief Calculate the visable part of a ANSI formatted string.
 int AnsiVisLen(std::string s)
 {
 	std::string t=AnsiParse(s,true);

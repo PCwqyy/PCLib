@@ -3,26 +3,25 @@
 <div style="text-align: center;">
 
 [中文](ReadMe.md) | [English](ReadMe-EN.md)
-</div>
 
+<!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-1.2-green)
-[![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github
-)](https://github.com/PCwqyy/PCLib)
-[![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23
-)](https://gitee.com/pcwqyy/PClib)
+![version](https://img.shields.io/badge/版本-1.2.1-green)
+[![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
+[![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
+</div>
 
 这是一个个人 C++ 库，其中某些功能仅在 Windows 上可用
 
 ## 功能
 - 文本用户界面（TUI）
-- 容器类
+- 颜色计算
 - IO & 文件操作
 - Ansi 转义
-- 一些算法
-- 数学支持
-- 颜色计算
+- Unicode 处理
+- _数学支持_
+- 容器类
 - （Windows） Web 套接字（socket）
 - （Windows） 控制台扩展
 - 还有更多...
@@ -34,6 +33,18 @@
 git clone https://github.com/PCwqyy/PCLib.git
 git clone https://gitee.com/pcwqyy/PClib.git
 ```
+
+示例:
+
+```cpp
+#include"Utility/Ansi.hpp"
+```
+
+请在编译选项中加入 `-I /path/to/pclib/src`
+
+## 演示
+
+详见[此处](./demo/)
 
 ## 联系
 作者英语水平有限，如果发现拼错等还请多多包涵
@@ -50,47 +61,75 @@ git clone https://gitee.com/pcwqyy/PClib.git
 2. 提交 pull request 以修复问题
 3. 改进文档
 
-# PClib 1.2
-- TUI 库！
+## 版本号
+所以，版本号怎么编的？
+- 如果是正式版：
+  - 采用 `1.X.Y` 格式
+  - `X` 大版本号
+  - `Y` 小版本号，如为 0 则省去
+  - 举例：`1.2` `1.1.7`
+- 如果是与发布版  
+  在 `1.X.Y` 后加入 `rcZ`
+- 如果是快照版：
+  - 采用 `YYvZZX` 格式 ~~跟 Mojang 学的~~
+  - `YY` 年份
+  - `ZZ` 年份内大快照编号
+  - `X` 大快照内小快照编号
+    - 按字母顺序编排
+	- 如果本次快照是损坏的、不可运行的，则用 `q`, `qq`, `q3`, `q4` ...标记，这类快照一般没有自述文件
+  - 举例：`24v3a` `25v15e` `26v1q` `24v5qq` `24v5q5`
+
+# PClib 1.2.1
+- 自动同步数据容器 `SyncedData`
+- 标签化错误处理 `pc::Exception`
+- 多种文件类型支持 `pc::File`
+- **移除了所有相对位置 `#include`，改为绝对位置寻址**
+
+### 正在开发……
+|功能|计划实现版本|子库|
+|-|-|-|
+|反射序列化器|1.2.2|Experimental|
+|反射 Json 解析器|1.2.2|Experimental|
+|清理老库中过时的类|1.2.3|Container|
+|健壮化老东西|1.2.3|Container|
+|重构 Command 库参照 Minecraft 源码|1.2.4|Container|
+|模块化所有库|1.2.5||
+|重构 TUI 库为 DOM 结构|1.3|TUI|
 
 # 更新日志
-[历史](https://github.com/PCwqyy/PCLib/tree/Dev/ChangeLogHistory.md)
+[历史](ChangeLogHistory.md)
 
-## 25v8a
-### 新文件：'TUI.hpp'
-- 添加了类 `TextBox` ：在屏幕上绘制文本框
-### 文件：'Ansi.hpp'
-- 稍微改了一下 `TUI.hpp`
-## 25v9a
-### 文件：'TUI.hpp'
-- 添加了 **StyleSheet** 语法来控制文本框的样式
-### 文件：'Color.hpp'
-- 删除了颜色宏，改用 `NamedColor[]`
-## 25v10a
-- 将 `TUI.hpp` 文件拆分为 `src/TUI/` 下的多个文件
-- 添加了 `ConsoleContext`
-## 25v11a
-### TUI
-- 添加了 `ProgressBar'
-- 修复了 `TextBox` 的逻辑错误
-### 文件： 'File.hpp'
-- 添加了 C++23 风格的输出
-## 25v12a
-### TUI
-- 完成了 `ProgressBar`
-~~TODO： 'AnsiString'~~ 换成了 'VisibleLen()'
-## 25v12b
-- 修复了逻辑错误
-## 25v12c
-- 修复了逻辑错误
-- 为 `TextBox` 和 `ProgressBar` 添加了更多样式
-## 25v13a
-### TUI
-- 向 `Element` 添加了类（class）系统现在，元素的样式将基于 `Element.eleStyle` （具有最高优先级） 和每个类的样式进行计算
-## 25v14a
-- 将 `ConsoleContext` 重命名为 `Document`
-- 优化了项目结构
-- 修复了拼写错误
-- 修复了 'ReadMe.md' 中的语法错误
-## PClib 1.2
-- TUI库！
+## 26v1a
+- 大幅修改了 [`Exception.hpp`](./src/Exception.hpp)  
+现支持流式处理、强制处理、类型继承等功能
+## 26v2a
+- 拆分 TUI 头文件
+- 拆出 [`StrUtils.hpp`](./src/Utility/StrUtils.hpp)  
+- 完善 [`Color.hpp`](./src/Container/Color.hpp) 的错误处理机制
+- 修改了 [`Exception.hpp`](./src/Exception.hpp)  
+现支持类型继承功能支持拥有多个类型同时捕获
+### 新 Demo: [Color](./demo/Color/)
+- 演示如何使用 `Color` 类
+## 26v3a
+- 移除了 `Multinclude.hpp`
+- 重构了 [`File.hpp`](./src/Utility/File.hpp)
+- 完善了常量查询类 [`EnumLookup`](./src/Utility/EnumLookup.hpp)
+
+目前 [`File.hpp`](./src/Utility/File.hpp) 未测试，TUI 因 [`EnumLookup`](./src/Utility/EnumLookup.hpp) 改动二暂时损坏，~~将在下一个快照修复~~
+## 26v4a
+好吧我要拖一下 TUI 库的修复工作了……
+### 重命名 `Unicode.hpp` → `Unicodes.hpp`
+- 重构了 [`Unicodes.hpp`](./src/Utility/Unicodes.hpp)：加入了 UTF8、16、32的互相转换与 `std::format` 兼容，并解决了跨平台输出问题
+- 准备写 [`Meta.hpp`](./src/Experimental/Meta.hpp)， 将使用C++26反射库
+## 26v5a
+- **移除了 `VarSet.hpp`, `Sortting.hpp` `IO.hpp` 以及 [`Containers.hpp`](./src/Container/Containers.hpp) 中的不健壮且可被标准库替代的容器**
+- **移除了 `Window.hpp`，因为我再也不想和WinAPI打交道了**
+- 改动了 `Meta.hpp`
+- 新增 [`demo/Demos`](./demo/Demos/) 存放轻量级演示
+- [`File.hpp`](./src/Utility/File.hpp) 初步测试完成
+- **移除了所有相对位置 `#include`，改为绝对位置寻址**
+# 1.2.1
+祝贺！终于发 1.2.1 了  
+~~高三的第一个大版本~~
+
+<!--记得改徽章的版本！-->

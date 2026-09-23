@@ -10,7 +10,7 @@
 			"environment": [],
 			"externalConsole": true,
 			"MIMode": "gdb",
-			"miDebuggerPath": "D:/Program Files/MinGW/bin/gdb.exe",
+			"miDebuggerPath": "gdb",
 			"setupCommands": [
 				{
 					"description": "Enable pretty-printing for gdb",
@@ -46,7 +46,30 @@
 			"externalConsole": true,
 			"environment": [],
 			"MIMode": "gdb",
-			"miDebuggerPath": "D:/Program Files/MinGW/bin/gdb.exe",
+			"miDebuggerPath": "gdb",
+			"setupCommands": [
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				},
+				{
+					"description": "Set Disassembly Flavor to Intel",
+					"text": "-gdb-set disassembly-flavor intel",
+					"ignoreFailures": true
+				}
+			]
+		},{"name": "WSL Launch",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${fileDirname}",
+			"environment": [],
+			"externalConsole": true,
+			"MIMode": "gdb",
+			"miDebuggerPath": "gdb",
 			"setupCommands": [
 				{
 					"description": "Enable pretty-printing for gdb",
@@ -60,10 +83,20 @@
 				}
 			]
 		},
-
-		{"name": "Lin Launch",
+		{"name": "WSL Build",
 			"type": "cppdbg",
 			"request": "launch",
+			"preLaunchTask": "WSL GCC Build",
+			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${fileDirname}",
+			"environment": []
+		},
+		{"name": "WSL Debug",
+			"type": "cppdbg",
+			"request": "launch",
+			"preLaunchTask": "WSL GDB Build",
 			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
 			"args": [],
 			"stopAtEntry": false,
@@ -83,30 +116,6 @@
 					"ignoreFailures": true
 				}
 			]
-		},
-		{"name": "Lin Debug",
-			"type": "cppdbg",
-			"request": "launch",
-			"preLaunchTask": "GDB Build",
-			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
-			"args": [],
-			"stopAtEntry": false,
-			"cwd": "${fileDirname}",
-			"environment": [],
-			"MIMode": "gdb",
-			"miDebuggerPath": "gdb",
-			"setupCommands": [
-				{
-					"description": "Enable pretty-printing for gdb",
-					"text": "-enable-pretty-printing",
-					"ignoreFailures": true
-				},
-				{
-					"description": "Set Disassembly Flavor to Intel",
-					"text": "-gdb-set disassembly-flavor intel",
-					"ignoreFailures": true
-				}
-			]
-		},
+		}
 	]
 }

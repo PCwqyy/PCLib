@@ -8,12 +8,9 @@
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-8",
-				"-fexec-charset=GBK",
-				"-I","${workspaceFolder}",
+				"-I","${workspaceFolder}/src",
 				"-s","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
-				// "-lWs2_32"
 			]
 		},{
 			"label": "GDB Build",
@@ -22,12 +19,64 @@
 			"args": [
 				"-xc++",
 				"-std=c++23",
-				"-finput-charset=UTF-8",
-				"-fexec-charset=GBK",
-				"-I","${workspaceFolder}",
+				"-I","${workspaceFolder}/src",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
-				// "-lWs2_32"
+				"-lstdc++exp"
+			]
+		},{
+			"label": "GDB Expr:Reflection",
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-xc++",
+				"-std=c++26",
+				"-freflection",
+				"-I","${workspaceFolder}/src",
+				"-g","${fileDirname}/${fileBasename}",
+				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+			]
+		},{
+			"label": "WSL GCC Build",
+			"type": "shell",
+			"command": "g++-14",
+			"args": [
+				"-xc++",
+				"-std=c++23",
+				"-I","${workspaceFolder}/src",
+				"-s","${fileDirname}/${fileBasename}",
+				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+			]
+		},{
+			"label": "WSL GDB Build",
+			"type": "shell",
+			"command": "g++-14",
+			"args": [
+				"-xc++",
+				"-std=c++23",
+				"-I","${workspaceFolder}/src",
+				"-g","${fileDirname}/${fileBasename}",
+				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+			]
+		},{
+			"label": "GCC Module",
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-xc++",
+				"-std=c++23",
+				"-fmodules-ts",
+				"-I","${workspaceFolder}/src",
+				"-s","${fileDirname}/${fileBasename}",
+				"-c","-o","${fileDirname}/${fileBasenameNoExtension}.pcm",
+			]
+		},{
+			"label": "Doxygen",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-File",
+				"${workspaceRoot}/.vscode/doxybuild.ps1"
 			]
 		}
 	],
