@@ -1,6 +1,6 @@
 {
 	"configurations": [
-		{"name": "Launch",
+		{"name": "Win Launch",
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${fileDirname}/${fileBasenameNoExtension}.exe",
@@ -24,7 +24,7 @@
 				}
 			]
 		},
-		{"name": "Build",
+		{"name": "Win Build",
 			"type": "cppvsdbg",
 			"request": "launch",
 			"preLaunchTask": "GCC Build",
@@ -35,7 +35,7 @@
 			"environment": [],
 			"console": "externalTerminal"
 		},
-		{"name": "Debug",
+		{"name": "Win Debug",
 			"type": "cppdbg",
 			"request": "launch",
 			"preLaunchTask": "GDB Build",
