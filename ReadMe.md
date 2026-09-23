@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-26v4a-blueviolet)
+![version](https://img.shields.io/badge/版本-26v5a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -68,6 +68,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
   - `X` 大版本号
   - `Y` 小版本号，如为 0 则省去
   - 举例：`1.2` `1.1.7`
+- 如果是与发布版  
+  在 `1.X.Y` 后加入 `rcZ`
 - 如果是快照版：
   - 采用 `YYvZZX` 格式 ~~跟 Mojang 学的~~
   - `YY` 年份

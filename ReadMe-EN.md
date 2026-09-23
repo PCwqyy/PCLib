@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-26v4a-blueviolet)
+![version](https://img.shields.io/badge/Version-26v5a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -37,8 +37,10 @@ git clone https://gitee.com/pcwqyy/PClib.git
 Example:
 
 ```cpp
-#include"/path/to/PCLib/Utility/Ansi.hpp"
+#include"/Utility/Ansi.hpp"
 ```
+
+Please add `-I /path/to/pclib/src` into compiling arguments.
 
 ## Demonstrantions
 See [here](./demo/).
@@ -69,6 +71,9 @@ So, how the hell did version numbering work?
   - `Y` = minor version number; if `Y` is 0, it is omitted
   - Example: `1.2` `1.1.7`
 
+- For **pre-release versions**  
+  Add `rcZ` after `1.X.Y`
+
 - For **snapshot versions**:
   - Use the format `YYvZZX` ~~inspired by Mojang's scheme~~
   - `YY` = year (two digits)
@@ -78,18 +83,22 @@ So, how the hell did version numbering work?
     - If the snapshot is broken or non‑runnable, mark it with `q`, `qq`, `q3`, `q4`, ... (such snapshots usually do not include a README)
   - Examples: `24v3a`, `25v15e`, `26v1q`, `24v5qq`, `24v5q5`
 
-# PClib 1.2.1 Snapshot phase
+# PClib 1.2.1 Snapshot Phase
 - Auto-synchronized data container `SyncedData`
 - Tagged error handling `pc::Exception`
 - Multiple file type support `pc::File`
+- **Removed all relative `#include`s, switched to absolute path addressing**
 
 ### In development...
 | Feature | Planned Version | Sublibrary |
 |-|-|-|
-| Reflection-based serializer | 1.2.2 | Experimental |
-| Reflection-based JSON parser | 1.2.2 | Experimental |
-| Refactor TUI library into a DOM structure | 1.3 | TUI |
-
+| Reflection serializer | 1.2.2 | Experimental |
+| Reflection JSON parser | 1.2.2 | Experimental |
+| Clean up obsolete classes in the legacy library | 1.2.3 | Container |
+| Harden legacy components | 1.2.3 | Container |
+| Refactor the Command library with reference to Minecraft source code | 1.2.4 | Container |
+| Modularize all libraries | 1.2.5 | |
+| Refactor the TUI library into a DOM structure | 1.3 | TUI |
 # Change Log
 [History](ChangeLogHistory-EN.md)
 
@@ -117,5 +126,13 @@ Well, I'm going to put off fixing the TUI library...
 ### Renamed `Unicode.hpp` → `Unicodes.hpp`
 - Refactored [`Unicodes.hpp`](./src/Utility/Unicodes.hpp): added conversions between UTF-8, UTF-16, and UTF-32, compatibility with `std::format`, and resolved cross-platform output issues
 - Planning to write [`Meta.hpp`](./src/Experimental/Meta.hpp), which will use the C++26 reflection library
+
+## 26v5a
+- **Removed `VarSet.hpp`, `Sortting.hpp`, `IO.hpp`, and the fragile containers in [`Containers.hpp`](./src/Container/Containers.hpp) that can be replaced by the standard library**
+- **Removed `Window.hpp`, because I never want to deal with WinAPI again**
+- Modified `Meta.hpp`
+- Added [`demo/Demos`](./demo/Demos/) for lightweight demos
+- [`File.hpp`](./src/Utility/File.hpp) has completed initial testing
+- **Removed all relative `#include`s, switched to absolute path addressing**
 
 <!--记得改徽章的版本！-->
