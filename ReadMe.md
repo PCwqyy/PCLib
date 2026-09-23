@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-26v5a-blueviolet)
+![version](https://img.shields.io/badge/版本-1.2.1-green)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -79,7 +79,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 	- 如果本次快照是损坏的、不可运行的，则用 `q`, `qq`, `q3`, `q4` ...标记，这类快照一般没有自述文件
   - 举例：`24v3a` `25v15e` `26v1q` `24v5qq` `24v5q5`
 
-# PClib 1.2.1 快照阶段
+# PClib 1.2.1
 - 自动同步数据容器 `SyncedData`
 - 标签化错误处理 `pc::Exception`
 - 多种文件类型支持 `pc::File`
@@ -128,5 +128,8 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 新增 [`demo/Demos`](./demo/Demos/) 存放轻量级演示
 - [`File.hpp`](./src/Utility/File.hpp) 初步测试完成
 - **移除了所有相对位置 `#include`，改为绝对位置寻址**
+# 1.2.1
+祝贺！终于发 1.2.1 了  
+~~高三的第一个大版本~~
 
 <!--记得改徽章的版本！-->

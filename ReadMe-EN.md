@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-26v5a-blueviolet)
+![version](https://img.shields.io/badge/Version-1.2.1-green)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -83,7 +83,7 @@ So, how the hell did version numbering work?
     - If the snapshot is broken or non‑runnable, mark it with `q`, `qq`, `q3`, `q4`, ... (such snapshots usually do not include a README)
   - Examples: `24v3a`, `25v15e`, `26v1q`, `24v5qq`, `24v5q5`
 
-# PClib 1.2.1 Snapshot Phase
+# PClib 1.2.1
 - Auto-synchronized data container `SyncedData`
 - Tagged error handling `pc::Exception`
 - Multiple file type support `pc::File`
@@ -134,5 +134,8 @@ Well, I'm going to put off fixing the TUI library...
 - Added [`demo/Demos`](./demo/Demos/) for lightweight demos
 - [`File.hpp`](./src/Utility/File.hpp) has completed initial testing
 - **Removed all relative `#include`s, switched to absolute path addressing**
+# 1.2.1
+Congratulations! 1.2.1 is finally released  
+~~The first major release of my senior year of high school~~
 
 <!--记得改徽章的版本！-->
