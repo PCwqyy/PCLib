@@ -5,7 +5,7 @@
 #include<string>
 
 namespace pc{
-namespace meta{
+namespace reflection{
 
 /// @brief Get the typename `std::string_view` of a variable statically 
 template<typename Tp> 
@@ -31,5 +31,6 @@ std::string FullNameOfEnum(Enum value){
 	return name+"::"+NameOfEnum(value);
 }
 
-} // namespace meta
+} // namespace reflection
+namespace rfl=reflection; 
 } // namespace pc

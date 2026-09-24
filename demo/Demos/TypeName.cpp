@@ -12,6 +12,6 @@ namespace t{
 enum class TestEnum{Hello,Goodbye};
 int main()
 {
-	std::cout<<pc::meta::FullNameOfEnum(TestEnum::Hello)<<std::endl;
-	std::cout<<pc::meta::Typename<std::vector<std::queue<int>>&>;
+	std::cout<<pc::reflection::FullNameOfEnum(TestEnum::Hello)<<std::endl;
+	std::cout<<pc::reflection::Typename<std::vector<std::queue<int>>&>;
 }

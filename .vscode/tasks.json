@@ -35,6 +35,7 @@
 				"-I","${workspaceFolder}/src",
 				"-g","${fileDirname}/${fileBasename}",
 				"-o","${fileDirname}/${fileBasenameNoExtension}.exe",
+				"-lstdc++exp"
 			]
 		},{
 			"label": "WSL GCC Build",
@@ -107,6 +108,16 @@
 				"regexp": "^(.+\\.exe):\\s*(warning|error):\\s*(.*)$",
 				"file": 1,
 				"severity": 2,
+				"message": 3
+			}
+		},
+		{
+			"owner": "ld",
+			"fileLocation": "autoDetect",
+			"pattern": {
+				"regexp": "^(?:.*?ld\\.exe:\\s*)?(.+?):(\\d+):\\(.*?\\):\\s*(undefined reference to `.+')$",
+				"file": 1,
+				"line": 2,
 				"message": 3
 			}
 		}
