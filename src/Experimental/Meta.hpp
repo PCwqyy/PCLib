@@ -9,8 +9,8 @@ namespace reflection{
 
 /// @brief Get the typename `std::string_view` of a variable statically 
 template<typename Tp> 
-inline std::string_view TypenameOf(Tp value){
-	return std::meta::display_string_of(std::meta::type_of(^^value));
+inline std::string_view TypenameOf(const Tp& value){
+	return std::meta::display_string_of(^^Tp);
 }
 /// @brief Get the name `std::string_view` of a type statically
 template<typename Tp>

@@ -406,6 +406,28 @@ int charWidthInConsole(char16_t ch)
 	return 1; // default
 }
 
+/// @brief Espace invisible chars such as `\n` to raw `"\\n"` 
+std::string EspaceString(const std::string_view& str)
+{
+	std::string ans;
+	ans.reserve(str.size()+4);
+	for(unsigned char c:str)
+		switch(c){
+			case '"':	ans += "\\\"";	break;
+			case '\\':	ans += "\\\\";	break;
+			case '\n':	ans += "\\n";	break;
+			case '\r':	ans += "\\r";	break;
+			case '\t':	ans += "\\t";	break;
+			case '\b':	ans += "\\b";	break;
+			case '\f':	ans += "\\f";	break;
+			default:
+				if(c<0x20)
+					ans+=std::format("\\u{:04x}",static_cast<int>(c));
+				else	ans+=static_cast<char>(c);
+		};
+	return ans;
+}
+
 } // namespace pc::uni
 namespace uni=unicode;
 } // namespace pc
@@ -442,3 +464,29 @@ struct std::formatter<char32_t>:std::formatter<std::string_view>{
         return std::formatter<std::string_view>::format(pc::uni::UTF32to8(tmp),ctx);
     }
 };
+
+#ifdef PCL_JSON
+#include"Experimental/Json.hpp"
+namespace pc::json{
+/**
+ * @brief utf-16 string Json escaper which is capable with 
+ * `Experimental/Json.hpp`
+ */
+template<>
+struct Serializer<std::u16string_view>{
+	std::string encode(const std::u16string_view& u16str){
+		return "\""+pc::uni::EspaceString(pc::uni::UTF16to8(u16str))+"\"";
+	}
+};
+/**
+ * @brief utf-32 string Json escaper which is capable with 
+ * `Experimental/Json.hpp`
+ */
+template<>
+struct Serializer<std::u32string_view>{
+	std::string encode(const std::u32string_view& u32str){
+		return "\""+pc::uni::EspaceString(pc::uni::UTF32to8(u32str))+"\"";
+	}
+};
+} // namespace pc::json
+#endif

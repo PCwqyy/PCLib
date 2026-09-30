@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-1.2.1-green)
+![version](https://img.shields.io/badge/版本-26v6a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -131,5 +131,7 @@ git clone https://gitee.com/pcwqyy/PClib.git
 # 1.2.1
 祝贺！终于发 1.2.1 了  
 ~~高三的第一个大版本~~
+## 26v6a
+- 引入 [`Json.hpp`](./src/Experimental/Json.hpp)，含反射序列化器，目前已实现序列化部分
 
 <!--记得改徽章的版本！-->

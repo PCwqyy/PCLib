@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-1.2.1-green)
+![version](https://img.shields.io/badge/Version-26v6a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -137,5 +137,7 @@ Well, I'm going to put off fixing the TUI library...
 # 1.2.1
 Congratulations! 1.2.1 is finally released  
 ~~The first major release of my senior year of high school~~
+## 26v6a
+- Introduced [`Json.hpp`](./src/Experimental/Json.hpp), which includes a reflection serializer; the serialization part has been implemented so far
 
 <!--记得改徽章的版本！-->
