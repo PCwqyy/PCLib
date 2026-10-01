@@ -11,13 +11,15 @@
 namespace pc{
 /// @brief Json serialization utilities using reflection of C++26
 namespace json{
-
+/// @brief The style of JSON output, controlling whitespace and indentation
 enum class Style{NoWrap,Tab,Space};
+/// @brief Context for JSON serialization, managing the output string and formatting
 class Context{
 private:
 	std::string str;
 	Style style;
 	int indent=0;
+	// @brief Wraps the line according to the current style and indentation
 	void wrapLine(){
 		if(style==Style::NoWrap)
 			return;
@@ -27,6 +29,7 @@ private:
 		else if(style==Style::Space)
 			str+=std::string(indent*2,' ');
 	}
+	/// @brief Removes trailing whitespace from the output string
 	void shrinkEnd(){
 		while(!str.empty()
 			&&isspace(static_cast<unsigned char>(str.back())))
@@ -34,25 +37,33 @@ private:
 	}
 public:
 	explicit Context(Style s):style(s){}
+	/// @brief Appends a string to the output
 	Context& Put(const std::string& in){
 		str+=in;
 		return *this;
 	}
+	/// @brief Appends a colon to the output, with optional space based on style
 	Context& PutColon(){
 		str.push_back(':');
 		if(style!=Style::NoWrap)
 			str.push_back(' ');
 		return *this;
 	}
+	/// @brief Appends a comma to the output, with optional line wrapping based on style
 	Context& PutComma(){
 		str.push_back(',');
 		wrapLine();
 		return *this;
 	}
+	/// @brief Appends a character to the output
 	Context& PutChar(char c){
 		str.push_back(c);
 		return *this;
 	}
+	/**
+	 * @brief Appends a bracket (`{}[]`) to the output,
+	 * and manages indentation and line wrapping accordingly
+	 */
 	Context& PutBracket(char c){
 		if(c=='{'||c=='[')
 			str.push_back(c),
@@ -72,7 +83,9 @@ public:
 		}
 		return *this;
 	}
+	/// @brief Returns the current output string
 	std::string GetStr()const{return str;}
+	/// @brief Returns the current style of the context
 	Style GetStyle()const{return style;}
 };
 
@@ -183,8 +196,8 @@ concept HasMemberToJson=requires(const Tp& v){
  * @note A `Serializer` must contains methods `encode` & `decode`,
  * and the signature are as follows:
  * ```cpp
- * std::string encode(const Tp& val);
- * Tp decode(const std::string& str);
+ * void encode(const Tp& val,Context& ctx);
+ * Tp decode(const std::string& str);	// [TODO]
  * ```
  */
 template<typename Tp>
@@ -217,11 +230,12 @@ struct Serializer{
 			DoUnsupported(val,ctx);
 	}
 };
-/// @brief Serialize a value to JSON string
+/// @brief Main serialize API
 template<typename Tp>
 inline void Serialize(const Tp& val,Context& ctx){
 	json::Serializer<std::remove_cvref_t<Tp>>{}.encode(val,ctx);
 }
+/// @brief Serialize a value to JSON string
 template<typename Tp>
 inline std::string Make(const Tp& val,Style style){
 	Context ctx(style);
