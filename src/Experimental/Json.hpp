@@ -5,18 +5,83 @@
 #include<meta>
 #include<ranges>
 #include<format>
+#include<cctype>
 #include"Meta.hpp"
 
 namespace pc{
 /// @brief Json serialization utilities using reflection of C++26
 namespace json{
 
+enum class Style{NoWrap,Tab,Space};
+class Context{
+private:
+	std::string str;
+	Style style;
+	int indent=0;
+	void wrapLine(){
+		if(style==Style::NoWrap)
+			return;
+		str+='\n';
+		if(style==Style::Tab)
+			str+=std::string(indent,'\t');
+		else if(style==Style::Space)
+			str+=std::string(indent*2,' ');
+	}
+	void shrinkEnd(){
+		while(!str.empty()
+			&&isspace(static_cast<unsigned char>(str.back())))
+			str.pop_back();
+	}
+public:
+	explicit Context(Style s):style(s){}
+	Context& Put(const std::string& in){
+		str+=in;
+		return *this;
+	}
+	Context& PutColon(){
+		str.push_back(':');
+		if(style!=Style::NoWrap)
+			str.push_back(' ');
+		return *this;
+	}
+	Context& PutComma(){
+		str.push_back(',');
+		wrapLine();
+		return *this;
+	}
+	Context& PutChar(char c){
+		str.push_back(c);
+		return *this;
+	}
+	Context& PutBracket(char c){
+		if(c=='{'||c=='[')
+			str.push_back(c),
+			indent++,
+			wrapLine();
+		else if(c=='}'||c==']'){
+			shrinkEnd();
+			if(!str.empty()&&str.ends_with(',')){
+				str.pop_back();
+				indent--;
+				wrapLine();
+				str.push_back(c);
+			}else{
+				str.push_back(c);
+				indent--;
+			}
+		}
+		return *this;
+	}
+	std::string GetStr()const{return str;}
+	Style GetStyle()const{return style;}
+};
+
 /// @brief Serialize a value to JSON string
 template<typename Tp>
-std::string Make(const Tp& val);
+void Serialize(const Tp& val,Context& ctx);
 
 /// @brief Built-in serializer for std::string_view
-std::string MakeString(const std::string_view& str)
+void DoString(const std::string_view& str,Context& ctx)
 {
 	std::string ans="\"";
 	ans.reserve(str.size()+4);
@@ -35,32 +100,31 @@ std::string MakeString(const std::string_view& str)
 				else	ans+=static_cast<char>(c);
 		};
 	ans+="\"";
-	return ans;
+	ctx.Put(ans);
 }
 /// @brief Built-in serializer for enum types, returns the identifier of the enum value
 template<typename Tp> requires std::is_enum_v<Tp>
-std::string MakeEnum(const Tp& val){
-	return std::format(R"("{}")",rfl::NameOfEnum(val));
+void DoEnum(const Tp& val,Context& ctx){
+	ctx.Put(std::format(R"("{}")",rfl::NameOfEnum(val)));
 }
 /// @brief Built-in serializer for arithmetic types (int, float, bool, etc.)
 template<typename Tp> requires std::is_arithmetic_v<Tp>
-std::string MakeArithmetic(const Tp& val)
+void DoArithmetic(const Tp& val,Context& ctx)
 {
 	using T=std::remove_cvref_t<Tp>;
 	if constexpr(std::is_same_v<T,bool>)	// bool
-		return val?"true":"false";
+		ctx.Put(val?"true":"false");
 	else if constexpr(std::is_same_v<T,char>
 					||std::is_same_v<T,char16_t>
 					||std::is_same_v<T,char32_t>)
-		return std::format("{}",static_cast<unsigned int>(val));
-	else	return std::format("{}",val);
+		ctx.Put(std::format("{}",static_cast<unsigned int>(val)));
+	else	ctx.Put(std::format("{}",val));
 }
 /// @brief Built-in serializer for pointer types, returns "null" for nullptr
 template<typename Tp>
-std::string MakePointer(const Tp* p){
-	if(p==nullptr)
-		return "null";
-	return Make(*p);
+void DoPointer(const Tp* p,Context& ctx){
+	if(p==nullptr)	ctx.Put("null");
+	else	Serialize(*p,ctx);
 }
 /// @brief Alias for `std::ranges::range`
 template<typename Tp>
@@ -70,15 +134,13 @@ concept RangeType=std::ranges::range<Tp>;
  * (e.g., `std::vector`, `std::list`, etc.)
  */
 template<RangeType Tp>
-std::string MakeRange(const Tp& arr)
+void DoRange(const Tp& arr,Context& ctx)
 {
-	std::string ans="[";
-	for(auto i:arr)
-		ans+=Make(i)+",";
-	if(ans.size()>1)
-		ans.back()=']';
-	else	ans.push_back(']');
-	return ans;
+	ctx.PutBracket('[');
+	for(const auto& i:arr)
+		Serialize(i,ctx),
+		ctx.PutComma();
+	ctx.PutBracket(']');
 }
 /**
  * @brief The types that are not iterable ranges but are aggregates
@@ -86,39 +148,35 @@ std::string MakeRange(const Tp& arr)
  */
 template<typename Tp>
 concept AggregateType=
-    !std::ranges::range<std::remove_cvref_t<Tp>>&&
-    std::is_aggregate_v<std::remove_cvref_t<Tp>>;
+	!std::ranges::range<std::remove_cvref_t<Tp>>&&
+	std::is_aggregate_v<std::remove_cvref_t<Tp>>;
 /// @brief Built-in serializer for aggregate types, serializes each member
 template<AggregateType Tp>
-std::string MakeAggregate(const Tp& obj)
+void DoAggregate(const Tp& obj,Context& ctx)
 {
-	std::string ans="{";
+	ctx.PutBracket('{');
 	template for(constexpr auto member:
 		std::define_static_array(
 			std::meta::nonstatic_data_members_of(
-				^^Tp,
-				std::meta::access_context::current()
-			)
-		)
-	)
-		ans+=std::format(R"("{}":{},)",
-			std::meta::identifier_of(member),
-			Make(obj.[:member:]));
-	if(ans.size()>1)
-		ans.back()='}';
-	else	ans.push_back('}');
-	return ans;
+				^^std::remove_cvref_t<Tp>,std::meta::access_context::current()
+	))){		
+		ctx.Put(std::format("\"{}\"",std::meta::identifier_of(member))).PutColon();
+		Serialize(obj.[:member:],ctx);
+		ctx.PutComma();
+	}
+	ctx.PutBracket('}');
 }
 /// @brief Fallback serializer for unsupported types, returns the type name
 template<typename Tp>
-std::string MakeUnsupported(const Tp& val){
-	return std::format(R"("[{}]")",rfl::TypenameOf(val));
+void DoUnsupported(const Tp& val,Context& ctx){
+	ctx.Put(std::format(R"("[{}]")",rfl::TypenameOf(val)));
 }
 /// @brief Concept to check if a type has a member function `ToJson()`
 template<typename Tp>
 concept HasMemberToJson=requires(const Tp& v){
 	{v.ToJson()}->std::convertible_to<std::string>;
 };
+
 /**
  * @brief The main serializer struct, which dispatches to the appropriate serialization function
  * based on the type of the value.
@@ -132,43 +190,51 @@ concept HasMemberToJson=requires(const Tp& v){
 template<typename Tp>
 struct Serializer{
 	/// @brief Serialize a value to JSON string 
-	std::string encode(const Tp& val)
+	void encode(const Tp& val,Context& ctx)const
 	{
 		using T=std::remove_cvref_t<Tp>;
 		if constexpr(std::is_arithmetic_v<T>)
-			return MakeArithmetic(val);
+			DoArithmetic(val,ctx);
 		else if constexpr(std::is_same_v<T,std::string>
-						||std::is_same_v<T,std::string_view>
-						||std::is_same_v<Tp,char*>)
-			return MakeString(val);
+						||std::is_same_v<T,std::string_view>)
+			DoString(val,ctx);
+		else if constexpr(std::is_array_v<T>
+			&&std::is_same_v<std::remove_extent_t<T>,char>)
+			DoString(std::string_view(val), ctx);
 		else if constexpr(std::is_enum_v<T>)
-			return MakeEnum(val);
+			DoEnum(val,ctx);
 		else if constexpr(std::is_pointer_v<T>)
-			return MakePointer(val);
+			DoPointer(val,ctx);
+		else if constexpr(RangeType<T>)
+			DoRange(val,ctx);
 		else if constexpr(std::is_class_v<T>)
 			if constexpr(HasMemberToJson<T>)
-				return val.ToJson();
-			else if constexpr(RangeType<T>)
-				return MakeRange(val);
+				ctx.Put(val.ToJson());
 			else if constexpr(AggregateType<T>)
-				return MakeAggregate(val);
-			else	return MakeUnsupported(val);
+				DoAggregate(val,ctx);
+			else	DoUnsupported(val,ctx);
 		else
-			return MakeUnsupported(val);
+			DoUnsupported(val,ctx);
 	}
 };
 /// @brief Serialize a value to JSON string
 template<typename Tp>
-inline std::string Make(const Tp& val){
-	return json::Serializer<Tp>{}.encode(val);
+inline void Serialize(const Tp& val,Context& ctx){
+	json::Serializer<std::remove_cvref_t<Tp>>{}.encode(val,ctx);
+}
+template<typename Tp>
+inline std::string Make(const Tp& val,Style style){
+	Context ctx(style);
+	Serialize(val,ctx);
+	return ctx.GetStr();
 }
 
 } // namespace json
 
 /// @brief Serialize a value to JSON string
 template<typename Tp>
-inline std::string ToJson(const Tp& val){
-	return json::Serializer<Tp>{}.encode(val);
+inline std::string ToJson(const Tp& val,json::Style style=json::Style::NoWrap){
+	return json::Make(val,style);
 }
 
 } // namespace pc
@@ -183,10 +249,10 @@ namespace pc::json{
  */
 template<typename Tp>
 struct Serializer<std::optional<Tp>>{
-	std::string encode(const std::optional<Tp>& opt){
+	void encode(const std::optional<Tp>& opt,Context& ctx)const{
 		if(opt.has_value())
-			return pc::json::Make(opt.value());
-		else	return "null";
+			Serialize(opt.value(),ctx);
+		else	ctx.Put("null");
 	}
 };
 } // namespace pc::json
@@ -201,13 +267,13 @@ namespace pc::json{
  */
 template<typename TpV>
 struct Serializer<std::map<std::string,TpV>>{
-	std::string encode(const std::map<std::string,TpV>& map){
-		std::string ans="{";
-		for(std::pair<std::string,TpV> p:map)
-			ans+=std::format(R"("{}":{},)",p.first,pc::json::Make(p.second));
-		if(ans.size()>1)	ans.back()='}';
-		else	ans.push_back('}');
-		return ans;
+	void encode(const std::map<std::string,TpV>& map,Context& ctx)const{
+		ctx.PutBracket('{');
+		for(const auto& p:map)
+			ctx.Put(std::format("\"{}\"",p.first)).PutColon(),
+			Serialize(p.second,ctx),
+			ctx.PutComma();
+		ctx.PutBracket('}');
 	}
 };
 /**
@@ -216,13 +282,13 @@ struct Serializer<std::map<std::string,TpV>>{
  */
 template<typename TpV>
 struct Serializer<std::map<int,TpV>>{
-	std::string encode(const std::map<int,TpV>& map){
-		std::string ans="{";
-		for(std::pair<int,TpV> p:map)
-			ans+=std::format(R"("{}":{},)",p.first,pc::json::Make(p.second));
-		if(ans.size()>1)	ans.back()='}';
-		else	ans.push_back('}');
-		return ans;
+	void encode(const std::map<int,TpV>& map,Context& ctx)const{
+		ctx.PutBracket('{');
+		for(const auto& p:map)
+			ctx.Put(std::format("\"{}\"",p.first)).PutColon(),
+			Serialize(p.second,ctx),
+			ctx.PutComma();
+		ctx.PutBracket('}');
 	}
 };
 } // namespace pc::json
@@ -237,12 +303,12 @@ namespace pc::json{
  */
 template<typename... Tps>
 struct Serializer<std::variant<Tps...>>{
-	std::string encode(const std::variant<Tps...>& var){
-		return std::visit([](const auto& visit){
+	void encode(const std::variant<Tps...>& var,Context& ctx)const{
+		std::visit([&](const auto& visit){
 			using T=std::remove_cvref_t<decltype(visit)>;
 			if constexpr(std::is_same_v<T,std::monostate>)
-				return std::string("null");
-			else	return pc::json::Make(visit);
+				ctx.Put("null");
+			else	Serialize(visit,ctx);
 		},var);
 	}
 };
@@ -258,10 +324,12 @@ namespace pc::json{
  */
 template<typename Tp1,typename Tp2>
 struct Serializer<std::pair<Tp1,Tp2>>{
-	std::string encode(const std::pair<Tp1,Tp2>& p){
-		return std::format(R"({{"first":{},"second":{}}})",
-			pc::json::Make(p.first),
-			pc::json::Make(p.second));
+	void encode(const std::pair<Tp1,Tp2>& p,Context& ctx)const{
+		ctx.PutBracket('{').Put("\"first\"").PutColon();
+		Serialize(p.first,ctx);
+		ctx.PutComma().Put("\"second\"").PutColon();
+		Serialize(p.second,ctx);
+		ctx.PutBracket('}');
 	}
 };
 } // namespace pc::json
@@ -276,18 +344,17 @@ namespace pc::json{
  */
 template<typename... Tps>
 struct Serializer<std::tuple<Tps...>>{
-    std::string encode(const std::tuple<Tps...>& tup){
-        std::string ans="[";
-        std::apply([&](const auto&... items){
-            auto append=[&](const auto& item){
-				ans+=Make(item)+",";
-            };
-            (append(items),...);
-        },tup);
-		if(ans.size()>1)	ans.back()=']';
-		else	ans.push_back(']');
-        return ans;
-    }
+	void encode(const std::tuple<Tps...>& tup,Context& ctx)const{
+		ctx.PutBracket('[');
+		std::apply([&](const auto&... items){
+			auto append=[&](const auto& item){
+				Serialize(item,ctx);
+				ctx.PutComma();
+			};
+			(append(items),...);
+		},tup);
+		ctx.PutBracket(']');
+	}
 };
 } // namespace pc::json
 #endif
@@ -301,9 +368,9 @@ namespace pc::json{
  */
 template<typename Tp>
 struct Serializer<std::unique_ptr<Tp>>{
-	std::string encode(const std::unique_ptr<Tp>& p){
-		if(p==nullptr)	return "null";
-		return pc::json::Make(*p);
+	void encode(const std::unique_ptr<Tp>& p,Context& ctx)const{
+		if(p==nullptr)	ctx.Put("null");
+		else	Serialize(*p,ctx);
 	}
 };
 /**
@@ -312,9 +379,9 @@ struct Serializer<std::unique_ptr<Tp>>{
  */
 template<typename Tp>
 struct Serializer<std::shared_ptr<Tp>>{
-	std::string encode(const std::shared_ptr<Tp>& p){
-		if(p==nullptr)	return "null";
-		return pc::json::Make(*p);
+	void encode(const std::shared_ptr<Tp>& p,Context& ctx)const{
+		if(p==nullptr)	ctx.Put("null");
+		else	Serialize(*p,ctx);
 	}
 };
 } // namespace pc::json
