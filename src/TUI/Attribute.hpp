@@ -19,7 +19,7 @@ public:
 	/// @return Whether succeed or not
 	bool Set(string key,string val="")
 	{
-		if(su::isEmpty(key)||!util::CheckNameValid(key))
+		if(pc::su::isEmpty(key)||!util::CheckNameValid(key))
 			return false;
 		m[key]=val;
 		return true;
@@ -139,7 +139,7 @@ public:
 		string n;
 		while(a.length()>0)
 		{
-			n=su::ExtractWord(a);
+			n=pc::su::ExtractWord(a);
 			if(util::CheckNameValid(n))
 				c.insert(n);
 		}

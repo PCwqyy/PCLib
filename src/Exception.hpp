@@ -297,7 +297,7 @@ public:
 	Exceptioner(ExceptionType tp):type(tp){}
 	/// @brief Directly throw the exception
 	template<typename ...Tps>
-	inline void Throw(ExceptionTypes tps,std::string fmt,Tps ...args) const
+	[[noreturn]] inline void Throw(ExceptionTypes tps,std::string fmt,Tps ...args) const
 		{throw Exception(type+tps,fmt,args...);}
 };
 

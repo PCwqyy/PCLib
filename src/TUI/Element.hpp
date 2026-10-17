@@ -50,15 +50,15 @@ protected:
 	 */
 	bool matchSingleSelector(string s)
 	{
-		s=su::Trim(s);
-		if(su::isEmpty(s)) return false;
+		s=pc::su::Trim(s);
+		if(pc::su::isEmpty(s)) return false;
 		if(s[0]=='*') return true;
 		// parse tokens: `#id`, `.class`, `tag`, `[attr=value]`
-		while(!su::isEmpty(s))
+		while(!pc::su::isEmpty(s))
 		{
-			s=su::Trim(s);
+			s=pc::su::Trim(s);
 			char ch=s[0];
-			string now=su::ExtractSelector(s);
+			string now=pc::su::ExtractSelector(s);
 			if(ch=='#') // #id
 				if(ID.Val()!=now)	return false;
 				else continue;
@@ -67,7 +67,7 @@ protected:
 				else continue;
 			else if(ch=='[') // [attr=value]
 			{
-				string attr=su::ExtractName(now);
+				string attr=pc::su::ExtractName(now);
 				string val=now.substr(1);
 				if(Attribute.Get(attr)!=val)	return false;
 				else continue;
@@ -154,27 +154,27 @@ public:
 	/// @brief Work like what you think.
 	vector<Element*> QuerySelectorAll(string s)
 	{
-		s=su::Trim(s);
+		s=pc::su::Trim(s);
 		vector<Element*> ans;
 		bool matched=false;
-		bool childOnly=(!su::isEmpty(s)&&s[0]=='>');
-		string thisSelect=su::ExtractToken(// 取出第一个选择器
+		bool childOnly=(!pc::su::isEmpty(s)&&s[0]=='>');
+		string thisSelect=pc::su::ExtractToken(// 取出第一个选择器
 			s,[](char a){return a=='>'||isspace(a);});
 		if(matchSingleSelector(thisSelect))
 		{
 			matched=true;
-			if(su::isEmpty(s))
+			if(pc::su::isEmpty(s))
 				ans.push_back(this);
 		}
 		if(!childOnly) // 选择器以`>`开头时，仅匹配子元素
 			for(auto& childPtr:Children)
 			{ // 匹配原选择器
 				string pass=thisSelect;
-				if(!su::isEmpty(s)) pass+=' ',pass+=s;
+				if(!pc::su::isEmpty(s)) pass+=' ',pass+=s;
 				vector<Element*> tmp=childPtr->QuerySelectorAll(pass);
 				ans.insert(ans.end(),tmp.begin(),tmp.end());
 			}
-		if(!matched||su::isEmpty(s)) return ans;
+		if(!matched||pc::su::isEmpty(s)) return ans;
 		for(auto& childPtr:Children)
 		{ // 匹配新选择器
 			vector<Element*> tmp=childPtr->QuerySelectorAll(s);
@@ -193,7 +193,7 @@ public:
 	virtual Coord Render()
 	{
 		/* just print element name for debug use */
-		Color bkg=RandomColor(50,30);
+		Color bkg=Color::Random(50,30);
 		view.SetBkgColor(bkg);
 		string text=std::format("{}",ToString());
 		Coord cur={0,0};

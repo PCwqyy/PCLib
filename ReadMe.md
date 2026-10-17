@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-26v7a-blueviolet)
+![version](https://img.shields.io/badge/版本-26v8a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -135,5 +135,10 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 引入 [`Json.hpp`](./src/Experimental/Json.hpp)，含反射序列化器，目前已实现序列化部分
 ## 26v7a
 - 修改了 [`Json.hpp`](./src/Experimental/Json.hpp) 中大部分接口名，并加入Json风格化选项
+## 26v8a
+- 将 `Json.hpp` 重命名为 [`Weak.hpp`](./src/Experimental/Weak.hpp)
+- 添加 [`Json.hpp`](./src/Container/Json.hpp)，内有 Json DOM 类 `pc::json::Value`
+- 预计将 [`Weak.hpp`](./src/Experimental/Weak.hpp) 中的实现改为将任意类型转为 `pc::json::Value` ，并封装为 `Weak` 类对象
+- **为 [`Color`](./src/Container/Color.hpp)、[`strutil::`](./src/Utility/StrUtils.hpp) 添加了 `pc::` 命名空间**
 
 <!--记得改徽章的版本！-->

@@ -25,8 +25,8 @@ Commands<> com=
 		}},
 		{"attr",0,[](const char* msg){// attr <key> [value] <selector>
 			string m=msg;
-			string key=su::ExtractWord(m);
-			string val=su::ExtractWord(m);
+			string key=pc::su::ExtractWord(m);
+			string val=pc::su::ExtractWord(m);
 			if(val=="[empty]") val="";
 			auto ans=doc->QuerySelectorAll(m);
 			for(auto it:ans)
@@ -34,7 +34,7 @@ Commands<> com=
 		}},
 		{"add",0,[](const char* msg){// add <tag> <selector>
 			string m=msg;
-			string tag=su::ExtractWord(m);
+			string tag=pc::su::ExtractWord(m);
 			auto ans=doc->QuerySelector(m);
 			Element e(tag);
 			if(ans)	ans->AppendChild(e);

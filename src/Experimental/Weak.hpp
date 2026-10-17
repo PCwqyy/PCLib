@@ -7,113 +7,19 @@
 #include<format>
 #include<cctype>
 #include"Meta.hpp"
+#include"Utility/StrUtils.hpp"
+#include"Container/Json.hpp"
 
 namespace pc{
 /// @brief Json serialization utilities using reflection of C++26
 namespace json{
-/// @brief The style of JSON output, controlling whitespace and indentation
-enum class Style{NoWrap,Tab,Space};
-/// @brief Context for JSON serialization, managing the output string and formatting
-class Context{
-private:
-	std::string str;
-	Style style;
-	int indent=0;
-	// @brief Wraps the line according to the current style and indentation
-	void wrapLine(){
-		if(style==Style::NoWrap)
-			return;
-		str+='\n';
-		if(style==Style::Tab)
-			str+=std::string(indent,'\t');
-		else if(style==Style::Space)
-			str+=std::string(indent*2,' ');
-	}
-	/// @brief Removes trailing whitespace from the output string
-	void shrinkEnd(){
-		while(!str.empty()
-			&&isspace(static_cast<unsigned char>(str.back())))
-			str.pop_back();
-	}
-public:
-	explicit Context(Style s):style(s){}
-	/// @brief Appends a string to the output
-	Context& Put(const std::string& in){
-		str+=in;
-		return *this;
-	}
-	/// @brief Appends a colon to the output, with optional space based on style
-	Context& PutColon(){
-		str.push_back(':');
-		if(style!=Style::NoWrap)
-			str.push_back(' ');
-		return *this;
-	}
-	/// @brief Appends a comma to the output, with optional line wrapping based on style
-	Context& PutComma(){
-		str.push_back(',');
-		wrapLine();
-		return *this;
-	}
-	/// @brief Appends a character to the output
-	Context& PutChar(char c){
-		str.push_back(c);
-		return *this;
-	}
-	/**
-	 * @brief Appends a bracket (`{}[]`) to the output,
-	 * and manages indentation and line wrapping accordingly
-	 */
-	Context& PutBracket(char c){
-		if(c=='{'||c=='[')
-			str.push_back(c),
-			indent++,
-			wrapLine();
-		else if(c=='}'||c==']'){
-			shrinkEnd();
-			if(!str.empty()&&str.ends_with(',')){
-				str.pop_back();
-				indent--;
-				wrapLine();
-				str.push_back(c);
-			}else{
-				str.push_back(c);
-				indent--;
-			}
-		}
-		return *this;
-	}
-	/// @brief Returns the current output string
-	std::string GetStr()const{return str;}
-	/// @brief Returns the current style of the context
-	Style GetStyle()const{return style;}
-};
-
 /// @brief Serialize a value to JSON string
 template<typename Tp>
 void Serialize(const Tp& val,Context& ctx);
 
 /// @brief Built-in serializer for std::string_view
-void DoString(const std::string_view& str,Context& ctx)
-{
-	std::string ans="\"";
-	ans.reserve(str.size()+4);
-	for(unsigned char c:str)
-		switch(c){
-			case '"':	ans += "\\\"";	break;
-			case '\\':	ans += "\\\\";	break;
-			case '\n':	ans += "\\n";	break;
-			case '\r':	ans += "\\r";	break;
-			case '\t':	ans += "\\t";	break;
-			case '\b':	ans += "\\b";	break;
-			case '\f':	ans += "\\f";	break;
-			default:
-				if(c<0x20)
-					ans+=std::format("\\u{:04x}",static_cast<int>(c));
-				else	ans+=static_cast<char>(c);
-		};
-	ans+="\"";
-	ctx.Put(ans);
+void DoString(const std::string_view& str,Context& ctx){
+	ctx.Put(su::Escape(str));
 }
 /// @brief Built-in serializer for enum types, returns the identifier of the enum value
 template<typename Tp> requires std::is_enum_v<Tp>

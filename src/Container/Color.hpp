@@ -13,7 +13,7 @@ using std::tuple;
 #include"Exception.hpp"
 #include"Utility/StrUtils.hpp"
 
-
+namespace pc{
 /// @brief The Color class.
 class Color
 {
@@ -433,3 +433,4 @@ public:
         return (std::max(l1,l2)+0.05)/(std::min(l1,l2)+0.05);
     }
 };
+} // namespace pc
