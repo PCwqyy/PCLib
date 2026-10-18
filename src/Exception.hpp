@@ -6,12 +6,12 @@
 #include<iostream>
 #include<functional>
 
-namespace pc
-{
+namespace pc{
+namespace exception{
 
-#define pcXPT_DEFAULT_CONTENT "An uncaught exception from PClib thrown"
-#define pcXPT_DEFAULT_TYPE "exception"
-#define pcXPT_DEFAULT_OWNER "univeral"
+inline constexpr std::string_view DEFAULT_CONTENT="An uncaught exception from PClib thrown";
+inline constexpr std::string_view DEFAULT_TYPE="exception";
+inline constexpr std::string_view DEFAULT_OWNER="univeral";
 
 class ExceptionType
 {
@@ -49,7 +49,7 @@ public:
 	}
 	ExceptionType(const char* tp):ExceptionType(std::string_view(tp)){}
 	ExceptionType(std::string tp):ExceptionType(std::string_view(tp)){}
-	ExceptionType(){Type.push_back(pcXPT_DEFAULT_TYPE);}
+	ExceptionType(){Type.emplace_back(DEFAULT_TYPE);}
 	ExceptionType(const ExceptionType& other){Type=other.Type;}
 	ExceptionType& operator=(const ExceptionType& other){Type=other.Type;return *this;}
 	std::string ToString() const
@@ -105,34 +105,34 @@ public:
 	}
 };
 
-#define pcXPT_ASSERTION pc::ExceptionType("AssertionFailed")
-#define pcXPT_ACCESS_DENIED pc::ExceptionType("AccessDenied")
-#define pcXPT_TIMEOUT pc::ExceptionType("Timeout")
-#define pcXPT_BUSY pc::ExceptionType("BusyError")
-#define pcXPT_BAD_ALLOC pc::ExceptionType("BadAlloc")
-#define pcXPT_BAD_CAST pc::ExceptionType("BadCast")
-#define pcXPT_BAD_TYPEID pc::ExceptionType("BadTypeid")
-#define pcXPT_BAD_EXCEPTION pc::ExceptionType("BadException")
-#define pcXPT_DIVIDE_BY_ZERO pc::ExceptionType("DivideByZero")
-#define pcXPT_DOMAIN pc::ExceptionType("DomainError")
-#define pcXPT_FILE pc::ExceptionType("FileError")
-#define pcXPT_FILE_NOT_FOUND pc::ExceptionType("FileNotFound")
-#define pcXPT_INIT pc::ExceptionType("NotInitiated")
-#define pcXPT_INVALID_ARGUMENT pc::ExceptionType("InvalidArgument")
-#define pcXPT_IO pc::ExceptionType("IoError")
-#define pcXPT_LENGTH pc::ExceptionType("LengthError")
-#define pcXPT_LOGIC pc::ExceptionType("LogicError")
-#define pcXPT_NOT_FOUND pc::ExceptionType("NotFoundError")
-#define pcXPT_NULL_POINTER pc::ExceptionType("NullPointer")
-#define pcXPT_OUT_OF_RANGE pc::ExceptionType("OutOfRange")
-#define pcXPT_OVERFLOW pc::ExceptionType("OverflowError")
-#define pcXPT_PARSING pc::ExceptionType("ParsingError")
-#define pcXPT_PERMISSION pc::ExceptionType("PermissionError")
-#define pcXPT_SYSTEM pc::ExceptionType("SystemError")
-#define pcXPT_RANGE pc::ExceptionType("RangeError")
-#define pcXPT_RUNTIME pc::ExceptionType("RuntimeError")
-#define pcXPT_UNDERFLOW pc::ExceptionType("UnderflowError")
-#define pcXPT_UNKNOWN pc::ExceptionType("UnknownError")
+inline constexpr std::string_view ASSERTION="AssertionFailed";
+inline constexpr std::string_view ACCESS_DENIED="AccessDenied";
+inline constexpr std::string_view TIMEOUT="Timeout";
+inline constexpr std::string_view BUSY="BusyError";
+inline constexpr std::string_view BAD_ALLOC="BadAlloc";
+inline constexpr std::string_view BAD_CAST="BadCast";
+inline constexpr std::string_view BAD_TYPEID="BadTypeid";
+inline constexpr std::string_view BAD_EXCEPTION="BadException";
+inline constexpr std::string_view DIVIDE_BY_ZERO="DivideByZero";
+inline constexpr std::string_view DOMAIN="DomainError";
+inline constexpr std::string_view FILE="FileError";
+inline constexpr std::string_view FILE_NOT_FOUND="FileNotFound";
+inline constexpr std::string_view INIT="NotInitiated";
+inline constexpr std::string_view INVALID_ARGUMENT="InvalidArgument";
+inline constexpr std::string_view IO="IoError";
+inline constexpr std::string_view LENGTH="LengthError";
+inline constexpr std::string_view LOGIC="LogicError";
+inline constexpr std::string_view NOT_FOUND="NotFoundError";
+inline constexpr std::string_view NULL_POINTER="NullPointer";
+inline constexpr std::string_view OUT_OF_RANGE="OutOfRange";
+inline constexpr std::string_view OVERFLOW="OverflowError";
+inline constexpr std::string_view PARSING="ParsingError";
+inline constexpr std::string_view PERMISSION="PermissionError";
+inline constexpr std::string_view SYSTEM="SystemError";
+inline constexpr std::string_view RANGE="RangeError";
+inline constexpr std::string_view RUNTIME="RuntimeError";
+inline constexpr std::string_view UNDERFLOW="UnderflowError";
+inline constexpr std::string_view UNKNOWN="UnknownError";
 
 class ExceptionTypes{
 private:
@@ -151,7 +151,7 @@ private:
 			types.emplace_back(one);
 	}
 public:
-	ExceptionTypes(){types.emplace_back(pcXPT_DEFAULT_TYPE);}
+	ExceptionTypes(){types.emplace_back(DEFAULT_TYPE);}
 	ExceptionTypes(ExceptionType tp){types.push_back(tp);}
 	ExceptionTypes(std::string_view str){makeWithString(str);}
 	ExceptionTypes(const char* str){makeWithString(str);}
@@ -230,13 +230,13 @@ protected:
 	ExceptionTypes type;
 public:
 	/**
-	 * @brief Default constructor with type=`pcXPT_DEFAULT_TYPE`, 
-	 * content=`pcXPT_DEFAULT_CONTENT`
+	 * @brief Default constructor with type=`pc::xpt::DEFAULT_TYPE`, 
+	 * content=`pc::xpt::DEFAULT_CONTENT`
 	 */
 	explicit Exception():
-		std::runtime_error(pcXPT_DEFAULT_CONTENT),
-		message(pcXPT_DEFAULT_CONTENT),
-		type(ExceptionType(pcXPT_DEFAULT_TYPE)){}
+		std::runtime_error(DEFAULT_CONTENT.data()),
+		message(DEFAULT_CONTENT),
+		type(ExceptionType(DEFAULT_TYPE)){}
 	/**
 	 * @brief Constructor for exceptions that PClib throws.
 	 * @param tp Type of the exception
@@ -247,12 +247,12 @@ public:
 	 * ```cpp
 	 * pc::Exception("system","Message in what()");
 	 * pc::Exception("system.io.overload","This a {} exception","test");
-	 * pc::Exception("system pclib"+pcXPT_UNKNOWN,"Multi types exception");
+	 * pc::Exception("system pclib"+pc::xpt::UNKNOWN,"Multi types exception");
 	 * ```
 	 */
 	template<typename ...Tps>
 	explicit Exception(ExceptionTypes tps,std::string fmt,Tps ...args)
-		:std::runtime_error(pcXPT_DEFAULT_CONTENT)
+		:std::runtime_error(DEFAULT_CONTENT)
 	{
 		message=std::vformat(fmt,std::make_format_args(args...));
 		message=std::format("[{}] {}",tps.ToString(),message);
@@ -301,5 +301,8 @@ public:
 		{throw Exception(type+tps,fmt,args...);}
 };
 
-
-};//namespace
+}; // namespace exception
+namespace xpt=exception;
+using Exception=exception::Exception;
+using Exceptioner=exception::Exceptioner;
+}; // namespace pc

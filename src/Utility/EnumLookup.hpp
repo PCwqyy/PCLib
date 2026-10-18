@@ -22,7 +22,7 @@ private:
 	{
 		auto it=std::ranges::find(map,val,&std::pair<Enum,Tp>::second);
 		if(it!=map.end())	return it->first;
-		throw pc::Exception("EnumLookup"+pcXPT_INVALID_ARGUMENT,
+		throw pc::Exception("EnumLookup"+pc::xpt::INVALID_ARGUMENT,
 			"Can't find corresponding enum for a constant");
 	}
 	Tp get(Enum val) const
@@ -30,7 +30,7 @@ private:
 		try{
 			return map.at(val);
 		}catch(std::out_of_range& xpt){
-			throw pc::Exception("EnumLookup"+pcXPT_INVALID_ARGUMENT,
+			throw pc::Exception("EnumLookup"+pc::xpt::INVALID_ARGUMENT,
 				"Can't find corresponding constant for an enum, what(): {}",xpt.what());
 		}
 	}

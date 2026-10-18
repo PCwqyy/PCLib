@@ -176,7 +176,7 @@ private:
 			auto f=map.find(n);
 			if(f!=map.end())
 				return f->second;
-			throw pc::Exception(pcXPT_NOT_FOUND,
+			throw pc::Exception(xpt::NOT_FOUND,
 				"No such a named color '{}'",n);
 		}
 	};
@@ -195,7 +195,7 @@ private:
 		else if(digit3)
 		{
 			if(col>0xFFF||col<0)
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(xpt::INVALID_ARGUMENT,
 					"Invalid color value #{:x}",col);
 			R=(col&0xF00)>>8;
 			G=(col&0x0F0)>>4;
@@ -207,7 +207,7 @@ private:
 		else
 		{
 			if(col>0xFFFFFF||col<0)
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(xpt::INVALID_ARGUMENT,
 					"Invalid color value #{:x}",col);
 			R=(col&0xFF0000)>>16;
 			G=(col&0x00FF00)>>8;
@@ -221,7 +221,7 @@ private:
 		double s=S/100.0;
 		double l=L/100.0;
 		if(h>1||h<0||s>1||s<0||l>1||l<0)
-			throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+			throw pc::Exception(xpt::INVALID_ARGUMENT,
 				"invalid HSL value ({},{}%,{}%)",H,S,L);
 		if(s==0)	r=g=b=l;
 		else
@@ -239,7 +239,7 @@ private:
 	void makeWithRGB(int r,int g,int b)
 	{
 		if(r>255||r<0||g>255||g<0||b>255||b<0)
-			throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+			throw pc::Exception(xpt::INVALID_ARGUMENT,
 				"invalid RGB value {} {} {}",r,g,b);
 		R=r,G=g,B=b;
 	}
@@ -274,13 +274,13 @@ public:
 		{
 			int len=str.length();
 			if(len!=4&&len!=7)
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(xpt::INVALID_ARGUMENT,
 					"invalid hex color length({}) for '{}'",len-1,str);
 			int col;
 			try{
 				col=std::stoi(str.substr(1),0,16);
 			}catch(std::invalid_argument){
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(xpt::INVALID_ARGUMENT,
 					"'{}' does not seems to be a color",str);
 			}
 			makeWithInt(col,len==4);
@@ -291,7 +291,7 @@ public:
 		if(lead=="rgb"||lead=="hsl")
 		{
 			if(!str.starts_with('(')||!str.ends_with(')'))
-				throw pc::Exception(pcXPT_PARSING,
+				throw pc::Exception(xpt::PARSING,
 					"invalid color format '{}{}'",lead,str);
 			std::vector<int> res;
 			try{
@@ -301,7 +301,7 @@ public:
 					[](string in){return std::stoi(in);}
 				);
 			}catch(std::invalid_argument){
-				throw pc::Exception(pcXPT_PARSING,
+				throw pc::Exception(xpt::PARSING,
 					"invalid color format '{}{}'",lead,str);
 			}
 			if(lead=="rgb")

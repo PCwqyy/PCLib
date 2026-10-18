@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/标准-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/版本-26v8a-blueviolet)
+![version](https://img.shields.io/badge/版本-26v9a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -140,5 +140,9 @@ git clone https://gitee.com/pcwqyy/PClib.git
 - 添加 [`Json.hpp`](./src/Container/Json.hpp)，内有 Json DOM 类 `pc::json::Value`
 - 预计将 [`Weak.hpp`](./src/Experimental/Weak.hpp) 中的实现改为将任意类型转为 `pc::json::Value` ，并封装为 `Weak` 类对象
 - **为 [`Color`](./src/Container/Color.hpp)、[`strutil::`](./src/Utility/StrUtils.hpp) 添加了 `pc::` 命名空间**
+## 26v9a
+- **删除了 [`Exception.hpp`](./src/Exception.hpp) 中所有的宏，改为`constexpr` 常量**  
+  重命名规则：`pcXPT_XXXX` -> `pc::xpt::XXXX`
+- 将 `pc::Exception` 中细节与常量移入 `pc::exception`(alias: `pc::xpt`) 命名空间，但保留原先 `pc::Exception` 与 `pc::Exeptioner` 接口
 
 <!--记得改徽章的版本！-->

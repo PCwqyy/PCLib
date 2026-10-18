@@ -29,7 +29,7 @@ namespace Type{
 		string identifier;
 		Identifier(string str){
 			if(!util::CheckNameValid(str))
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(pc::xpt::INVALID_ARGUMENT,
 					"invalid PCSS identifier '{}'",str);
 			identifier=pc::su::Trim(str);
 		}
@@ -41,7 +41,7 @@ namespace Type{
 			try{
 				number=pc::su::ExtractDouble(str);
 			}catch(std::invalid_argument){
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(pc::xpt::INVALID_ARGUMENT,
 					"trying to parse '{}' into a PCSS number value",str);
 			}
 		}

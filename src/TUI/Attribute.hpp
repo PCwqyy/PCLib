@@ -69,7 +69,7 @@ public:
 	string Val()
 	{
 		if(tar==nullptr)
-			throw pc::Exception(pcXPT_INIT,"AttributeTracer not bound!");
+			throw pc::Exception(pc::xpt::INIT,"AttributeTracer not bound!");
 		pull();
 		return val;
 	}

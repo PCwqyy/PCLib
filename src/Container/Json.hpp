@@ -153,7 +153,7 @@ public:
 		try{
 			return std::get<Tp>(data);
 		}catch(std::bad_variant_access& xpt){
-			xptJSON.Throw(pcXPT_BAD_CAST,
+			xptJSON.Throw(xpt::BAD_CAST,
 				"Invalid convertion from json value to target type\n"
 				"std::bad_variant_access::what()= {}",xpt.what());
 		}
@@ -163,7 +163,7 @@ public:
 		try{
 			return std::get<Tp>(data);
 		}catch(std::bad_variant_access& xpt){
-			xptJSON.Throw(pcXPT_BAD_CAST,
+			xptJSON.Throw(xpt::BAD_CAST,
 				"Invalid convertion from json value to const target type\n"
 				"std::bad_variant_access::what()= {}",xpt.what());
 		}
@@ -185,7 +185,7 @@ public:
 		if(IsObject())
 			return operator[](std::format("{}",index));
 		else
-			xptJSON.Throw(pcXPT_BAD_CAST,
+			xptJSON.Throw(xpt::BAD_CAST,
 				"The json value isn't holding an array or an object, "
 				"but operator[{}] is called",index
 			);
@@ -195,13 +195,13 @@ public:
 			Object& obj=AsObject();
 			auto it=obj.find(std::string(key));
 			if(it==obj.end())
-				xptJSON.Throw(pcXPT_NOT_FOUND,
+				xptJSON.Throw(xpt::NOT_FOUND,
 					"Key '{}' dose not exist in the json object",key);
 			else
 				return it->second;
 		}
 		else
-			xptJSON.Throw(pcXPT_BAD_CAST,
+			xptJSON.Throw(xpt::BAD_CAST,
 				"The json value isn't holding an object, "
 				"but operator[\"{}\"] is called",key
 			);

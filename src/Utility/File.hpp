@@ -45,7 +45,7 @@ protected:
 	/// @brief guard unexpected read
 	void tryRead(){
 		if(!HasMode(std::ios::in))
-			xptFile.Throw(pcXPT_ACCESS_DENIED,
+			xptFile.Throw(xpt::ACCESS_DENIED,
 				"Reading file '{}' which was opened in unreadable mode",
 				path.string()
 			);
@@ -53,7 +53,7 @@ protected:
 	/// @brief guard unexpected write
 	void tryWrite(){
 		if(!HasMode(std::ios::out))
-			xptFile.Throw(pcXPT_ACCESS_DENIED,
+			xptFile.Throw(xpt::ACCESS_DENIED,
 				"Writing to file '{}' which was opened in readonly mode",
 				path.string()
 			);
@@ -67,12 +67,12 @@ public:
 	{
 		openmode=mode;
 		if(openmode&std::ios::in&&!openmode&std::ios::out&&!fs::exists(filePath))
-			xptFile.Throw(pcXPT_FILE_NOT_FOUND,
+			xptFile.Throw(xpt::FILE_NOT_FOUND,
 				"No such a file '{}'",filePath.string());
 		stream.open(filePath,openmode);
 		path=filePath;
 		if(!stream.is_open())
-			xptFile.Throw(pcXPT_FILE,
+			xptFile.Throw(xpt::FILE,
 				"Fail to open file '{}' (errno: {})",
 				filePath.string(),std::to_string(errno)
 			);
@@ -102,7 +102,7 @@ public:
 			str=std::vformat(fmt,std::make_format_args(args...));
 			filePath=str;
 		}catch(...){
-			xptFile.Throw(pcXPT_INVALID_ARGUMENT,
+			xptFile.Throw(xpt::INVALID_ARGUMENT,
 				"Invalid file path '{}'",str);
 		}
 		Open(mode,filePath);
@@ -381,7 +381,7 @@ public:
 		Tp data;
 		stream.read(reinterpret_cast<char*>(&data),sizeof(data));
 		if(stream.gcount()!=sizeof(data))
-			xptFile.Throw(pcXPT_FILE,
+			xptFile.Throw(xpt::FILE,
 				"Fail to load bin from file {}",path);
 		return data;
 	}
@@ -393,7 +393,7 @@ public:
 		bytes.resize(count);
 		stream.read(reinterpret_cast<char*>(bytes.data()),count);
 		if(stream.gcount()!=count)
-			xptFile.Throw(pcXPT_FILE,
+			xptFile.Throw(xpt::FILE,
 				"Fail to read bin from file {}",path.string());
 		return bytes;
 	}

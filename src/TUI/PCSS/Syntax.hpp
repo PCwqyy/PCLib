@@ -18,12 +18,12 @@ private:
 		string identifier;
 		Atom(Type::Types tp):type(tp){
 			if(tp==Type::Types::Identifier)
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(pc::xpt::INVALID_ARGUMENT,
 					"PCSS Atom parser received 'Identifier' type without content");
 		}
 		Atom(Type::Types tp,string id){
 			if(tp==Type::Types::Identifier)
-				throw pc::Exception(pcXPT_INVALID_ARGUMENT,
+				throw pc::Exception(pc::xpt::INVALID_ARGUMENT,
 					"PCSS Atom parser received a identifier({}) but the type is not identifer",id);
 		}
 	};
