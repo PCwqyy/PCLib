@@ -252,7 +252,7 @@ public:
 	 */
 	template<typename ...Tps>
 	explicit Exception(ExceptionTypes tps,std::string fmt,Tps ...args)
-		:std::runtime_error(DEFAULT_CONTENT)
+		:std::runtime_error(DEFAULT_CONTENT.data())
 	{
 		message=std::vformat(fmt,std::make_format_args(args...));
 		message=std::format("[{}] {}",tps.ToString(),message);

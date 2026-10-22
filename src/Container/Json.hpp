@@ -94,34 +94,54 @@ public:
 	Style GetStyle()const{return style;}
 };
 
-
-class Value;
-using Object=std::map<std::string,Value>;
-using Array=std::vector<Value>;
-using RawType=std::variant<
-	std::nullptr_t,
-	bool,
-	double,
-	std::string,
-	std::unique_ptr<Array>,
-	std::unique_ptr<Object>
->;
-
-class Value{
+template<typename TpSelf>
+class BasicValue{
+protected:
+	using Object=std::map<std::string,TpSelf>;
+	using Array=std::vector<TpSelf>;
+	using RawType=std::variant<
+		std::nullptr_t,
+		bool,
+		double,
+		std::string,
+		std::unique_ptr<Array>,
+		std::unique_ptr<Object>
+	>;
 	RawType data;
 public:
-	Value():data(nullptr){}
-	Value(std::nullptr_t):data(nullptr){}
-	Value(bool boolean):data(boolean){}
-	Value(int integer):data(double(integer)){}
-	Value(long long longlong):data(double(longlong)){}
-	Value(double number):data(number){}
-	Value(std::string str):data(std::move(str)){}
-	Value(const char* str):data(std::string(str)){}
-	Value(std::unique_ptr<Array> array):data(std::move(array)){}
-	Value(std::unique_ptr<Object> object):data(std::move(object)){}
+	BasicValue():data(nullptr){}
+	BasicValue(std::nullptr_t):data(nullptr){}
+	BasicValue(bool boolean):data(boolean){}
+	BasicValue(int integer):data(double(integer)){}
+	BasicValue(long long ll):data(double(ll)){}
+	BasicValue(float number):data(double(number)){}
+	BasicValue(double number):data(number){}
+	BasicValue(char character):data(double(character)){}
+	BasicValue(std::string str):data(std::move(str)){}
+	BasicValue(std::string_view str):data(std::string(str)){}
+	BasicValue(const char* str):data(std::string(str)){}
+	BasicValue(std::unique_ptr<Array> array):data(std::move(array)){}
+	BasicValue(std::unique_ptr<Object> object):data(std::move(object)){}
 
-	Value(const Value& other){
+	static TpSelf Null(){return nullptr;}
+	static TpSelf Bool(bool b){return b;}
+	static TpSelf Number(double d){return d;}
+	static TpSelf String(std::string s){return std::move(s);}
+	static TpSelf String(std::string_view s){return std::string(s);}
+	static TpSelf EmptyArray(){return std::make_unique<Array>();}
+	static TpSelf EmptyObject(){return std::make_unique<Object>();}
+	static TpSelf FromArray(Array array){
+		auto arr=std::make_unique<Array>();
+		*arr=std::move(array);
+		return arr;
+	}
+	static TpSelf FromObject(Object object){
+		auto obj=std::make_unique<Object>();
+		*obj=std::move(object);
+		return obj;
+	}
+
+	BasicValue(const BasicValue& other){
 		std::visit([&](const auto& x){
 			using T=std::remove_cvref_t<decltype(x)>;
 			if constexpr (std::is_same_v<T,std::unique_ptr<Array>>)
@@ -131,11 +151,11 @@ public:
 			else	data=x;
 		},other.data);
 	}
-	Value(Value&&)=default;
-	Value& operator=(Value&&)=default;
-	Value& operator=(const Value& other){
+	BasicValue(BasicValue&&)=default;
+	BasicValue& operator=(BasicValue&&)=default;
+	BasicValue& operator=(const BasicValue& other){
 		if(this!=&other){
-			Value tmp(other);
+			BasicValue tmp(other);
 			data=std::move(tmp.data);
 		}
 		return *this;
@@ -148,6 +168,7 @@ public:
 	bool IsArray()	const{return std::holds_alternative<std::unique_ptr<Array>>(data);}
 	bool IsObject()	const{return std::holds_alternative<std::unique_ptr<Object>>(data);}
 
+protected:
 	template<typename Tp>
 	Tp& As(){
 		try{
@@ -168,6 +189,8 @@ public:
 				"std::bad_variant_access::what()= {}",xpt.what());
 		}
 	}
+
+public:
 	bool& AsBool(){return As<bool>();}
 	double& AsNumber(){return As<double>();}
 	std::string& AsString(){return As<std::string>();}
@@ -179,7 +202,22 @@ public:
 	const Array& AsArray()const{return *As<std::unique_ptr<Array>>();}
 	const Object& AsObject()const{return *As<std::unique_ptr<Object>>();}
 
-	Value& operator[](int index){
+	inline bool CheckEmpty()const{
+		if(IsArray())
+			return AsArray().empty();
+		else if(IsObject())
+			return AsObject().empty();
+		else return false;
+	}
+	inline BasicValue& PushBack(const TpSelf& val){
+		if(!IsArray())
+			xptJSON.Throw(xpt::BAD_CAST,
+				"Can't push back into a non-array json value");
+		AsArray().push_back(val);
+		return *this;
+	}
+
+	TpSelf& operator[](int index){
 		if(IsArray())
 			return AsArray()[index];
 		if(IsObject())
@@ -190,16 +228,9 @@ public:
 				"but operator[{}] is called",index
 			);
 	}
-	Value& operator[](std::string_view key){
-		if(IsObject()){
-			Object& obj=AsObject();
-			auto it=obj.find(std::string(key));
-			if(it==obj.end())
-				xptJSON.Throw(xpt::NOT_FOUND,
-					"Key '{}' dose not exist in the json object",key);
-			else
-				return it->second;
-		}
+	TpSelf& operator[](std::string_view key){
+		if(IsObject())
+			return AsObject()[std::string(key)];
 		else
 			xptJSON.Throw(xpt::BAD_CAST,
 				"The json value isn't holding an object, "
@@ -241,6 +272,12 @@ public:
 	}
 };
 
+class Value: public BasicValue<Value>{
+public:
+	using BasicValue::BasicValue;
+};
 
 } // namespace json
+using JsonValue=json::Value;
+
 } // namespace pc

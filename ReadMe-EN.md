@@ -6,7 +6,7 @@
 
 <!-- 快照 blueviolet，正式版 green -->
 ![lang](https://img.shields.io/badge/Standard-C++23-yellow?logo=cplusplus)
-![version](https://img.shields.io/badge/Version-26v9a-blueviolet)
+![version](https://img.shields.io/badge/Version-26v10a-blueviolet)
 [![github](https://img.shields.io/badge/Github-PClib-blue?&logo=github)](https://github.com/PCwqyy/PCLib)
 [![gitee](https://img.shields.io/badge/Gitee-PClib-red?logo=gitee&color=%23C71D23)](https://gitee.com/pcwqyy/PClib)
 
@@ -144,11 +144,14 @@ Congratulations! 1.2.1 is finally released
 ## 26v8a
 - Renamed `Json.hpp` to [`Weak.hpp`](./src/Experimental/Weak.hpp)
 - Added [`Json.hpp`](./src/Container/Json.hpp), containing the JSON DOM class `pc::json::Value`
-- The implementation in [`Weak.hpp`](./src/Experimental/Weak.hpp) is planned to be changed to convert arbitrary types into `pc::json::Value` and wrap them as `Weak` class objects
+- ~~The implementation in [`Weak.hpp`](./src/Experimental/Weak.hpp) is planned to be changed to convert arbitrary types into `pc::json::Value` and wrap them as `Weak` class objects~~ Finished
 - **Added the `pc::` namespace to [`Color`](./src/Container/Color.hpp) and [`strutil::`](./src/Utility/StrUtils.hpp)**
 ## 26v9a
 - **Removed all macros from [`Exception.hpp`](./src/Exception.hpp) and replaced them with `constexpr` constants**  
   Renaming rule: `pcXPT_XXXX` -> `pc::xpt::XXXX`
 - Moved the details and constants from `pc::Exception` into the `pc::exception` (alias: `pc::xpt`) namespace, while retaining the original `pc::Excetion` and `pc::Exeptioner` interfaces
+## 26v10a
+- Added the `pc::json::BasicValue` class as the base class of `pc::json::Value` and `pc::json::Weak`
+- Changed the implementation in [`Weak.hpp`](./src/Experimental/Weak.hpp) to convert arbitrary types into `pc::json::Weak`
 
 <!--记得改徽章的版本！-->
